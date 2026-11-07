@@ -94,27 +94,28 @@ function buildLayersPanel() {
   const blend = h('select', { class: 'lp-blend', 'aria-label': tr(P('blend')), 'data-i18n-attr': A('blend') }, BLENDS.map((b) => h('option', { value: b[0] }, b[1])));
   const op = h('input', { type: 'range', min: 0, max: 100, class: 'lp-op', 'aria-label': tr(P('opacity_layer')), 'data-i18n-attr': A('opacity_layer') });
   const opN = h('input', { type: 'number', min: 0, max: 100, class: 'opt-num', 'aria-label': tr(P('opacity_pct')), 'data-i18n-attr': A('opacity_pct') });
-  const list = h('ul', { class: 'layers', role: 'listbox', 'aria-label': tr(P('layers')), 'data-i18n-attr': A('layers') });
+  const list = h('ul', { class: 'layers', role: 'listbox', 'aria-multiselectable': 'true', 'aria-label': tr(P('layers')), 'data-i18n-attr': A('layers') });
   // title is a key: the button follows a language change through apply()
   const btn = (key, d, fn) => { const title = tr(P(key)); const b = h('button', { type: 'button', class: 'lp-btn', title, 'aria-label': title, 'data-i18n-attr': 'title:' + P(key) + ';' + A(key), html: `<svg viewBox="0 0 24 24"><path d="${d}"/></svg>` }); b.addEventListener('click', fn); return b; };
   const fx = btn('layer_style', 'M5 19c3 0 3-14 6-14M4 10h8M14 9l6 8M20 9l-6 8', (e) => { const r = e.currentTarget.getBoundingClientRect(); closeMenus(); const m = renderMenu(filterMenu('style'), r.left, r.top, 0); m.style.top = Math.max(0, r.top - m.getBoundingClientRect().height) + 'px'; openMenu = { btn: e.currentTarget, m }; });
   const foot = h('div', { class: 'lp-foot' },
-    btn('lock', 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z', () => { const L = activeLayer(); setLayerProps(L.id, { locked: !L.locked }, tr(P(L.locked ? 'step_unlock' : 'step_lock'))); }),
+    btn('lock', 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z', () => toggleLockSelected(P('step_lock'), P('step_unlock'))),   // lock, blend and opacity: every selected layer (layers/multi.js)
     fx,
     btn('add_mask', 'M3 5h18v14H3zM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z', (e) => { if (hasMask()) { UI.editMask = !UI.editMask; emit('doc'); return; } const r = e.currentTarget.getBoundingClientRect(); showContextMenu(maskAddItems(), r.left, r.top); }),
-    btn('merge_down', 'M12 4v12M7 11l5 5 5-5M5 20h14', () => mergeDown()),
-    btn('duplicate', 'M8 8h12v12H8zM4 16V4h12', () => duplicateLayer()),
+    btn('merge_down', 'M12 4v12M7 11l5 5 5-5M5 20h14', () => mergeSelectedOrDown()),   // Merge Layers with several selected (layers/multi.js)
+    btn('duplicate', 'M8 8h12v12H8zM4 16V4h12', () => duplicateSelectedLayers()),
     btn('new_layer', 'M4 4h16v16H4zM12 8v8M8 12h8', () => addLayer()),
-    btn('delete_layer', 'M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3', () => deleteLayer()));
-  blend.addEventListener('change', () => setLayerProps(D.activeId, { blend: blend.value }, tr(P('step_blend'))));
-  op.addEventListener('input', () => { patchLayer(D.activeId, { opacity: op.value / 100 }); opN.value = op.value; emit('doc'); });
+    btn('delete_layer', 'M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3', () => deleteSelectedLayers()));
+  blend.addEventListener('change', () => setSelectedProps({ blend: blend.value }, tr(P('step_blend'))));
+  op.addEventListener('input', () => { opN.value = op.value; setSelectedProps({ opacity: op.value / 100 }); });
   op.addEventListener('change', () => commit(tr(P('step_opacity'))));
-  opN.addEventListener('change', () => { setLayerProps(D.activeId, { opacity: clamp(+opN.value, 0, 100) / 100 }, tr(P('step_opacity'))); });
+  opN.addEventListener('change', () => setSelectedProps({ opacity: clamp(+opN.value, 0, 100) / 100 }, tr(P('step_opacity'))));
   let dragId = null;
   const render = () => {
     const L0 = activeLayer();
     if (L0) { blend.value = L0.blend; if (document.activeElement !== op) op.value = Math.round(L0.opacity * 100); if (document.activeElement !== opN) opN.value = Math.round(L0.opacity * 100); }
     list.textContent = '';
+    const picked = new Set(selectedLayerIds());   // the layers selected with the active one (layers/multi.js)
     for (let i = D.layers.length - 1; i >= 0; i--) {
       const L = D.layers[i];
       const eye = h('button', { type: 'button', class: 'lp-eye' + (L.visible ? ' on' : ''), title: tr(P(L.visible ? 'hide' : 'show')), 'aria-label': tr(P(L.visible ? 'hide_named' : 'show_named'), { name: L.name }), html: '<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>' });
@@ -122,9 +123,9 @@ function buildLayersPanel() {
       // the target of painting (pixels or mask) has the accent frame; aria-current says it to a screen reader
       const tgt = (m) => L.id === D.activeId && UI.editMask === m, cur = (m) => (tgt(m) ? { 'aria-current': 'true' } : {});
       const th = h('span', Object.assign({ class: 'lp-thumb' + (tgt(false) ? ' target' : ''), title: tr(P(tgt(false) ? 'editing_pixels' : 'edit_pixels')) }, cur(false)), cachedThumb(L, false));
-      th.addEventListener('click', () => { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); });
+      th.addEventListener('click', (e) => { if (e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return; D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); });
       th.addEventListener('dblclick', (e) => { e.stopPropagation(); if (L.text) editTypeLayer(L); else openLayerStyle(L.id); });
-      const row = h('li', { class: 'layer' + (L.id === D.activeId ? ' active' : ''), role: 'option', 'aria-selected': String(L.id === D.activeId), draggable: 'true', 'data-id': L.id }, eye, th);
+      const row = h('li', { class: 'layer' + (L.id === D.activeId ? ' active' : picked.has(L.id) ? ' selected' : ''), role: 'option', 'aria-selected': String(picked.has(L.id)), draggable: 'true', 'data-id': L.id }, eye, th);
       if (L.mask) {
         const mt = h('span', Object.assign({ class: 'lp-thumb mask' + (tgt(true) ? ' target' : '') + (L.mask.enabled === false ? ' off' : ''), title: tr(P(tgt(true) ? 'editing_mask' : 'edit_mask')) }, cur(true)), cachedThumb(L, true));
         mt.addEventListener('click', (e) => { e.stopPropagation(); if (e.shiftKey) { setLayerProps(L.id, { mask: Object.assign({}, L.mask, { enabled: L.mask.enabled === false }) }, tr(P('step_toggle_mask'))); return; } if (e.altKey) { toggleMaskOverlay(L.id); return; } const was = tgt(true); D.activeId = L.id; UI.editMask = true; UI.maskOverlay = false; emit('doc'); emit('tool'); dirty(); if (!was) toast(tr(P('mask_toast'))); });
@@ -141,18 +142,17 @@ function buildLayersPanel() {
       if (L.blend !== 'normal' || L.opacity < 1) row.append(h('span', { class: 'lp-meta' }, (L.blend !== 'normal' ? BLENDS.find((b) => b[0] === L.blend)[1] : '') + (L.opacity < 1 ? ` ${Math.round(L.opacity * 100)}%` : '')));
       // Double-click on the row (not the name, which renames, or the thumbnail) opens the Layer Style dialog, or edits a type layer.
       row.addEventListener('dblclick', (e) => { if (L.text) editTypeLayer(L); else openLayerStyle(L.id); });
-      row.addEventListener('click', (e) => { if (e.altKey) { toggleClippingAt(L.id); return; } if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); } });
+      // Alt+click clips; Shift+click selects a range, Ctrl/Cmd+click toggles one layer, a plain click selects only this one
+      row.addEventListener('click', (e) => { if (e.altKey) { toggleClippingAt(L.id); return; } layerRowPick(L.id, e); });
       ctxTarget(row, L.text ? 'text' : 'layer', () => (L.text ? textItems(L) : layerItems(L)));
-      row.addEventListener('dragstart', (e) => { dragId = L.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(L.id)); row.classList.add('dragging'); });
-      row.addEventListener('dragend', () => { dragId = null; row.classList.remove('dragging'); $$('.layer', list).forEach((r) => r.classList.remove('drop-above', 'drop-below')); });
+      row.addEventListener('dragstart', (e) => { dragId = L.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(L.id)); row.classList.add('dragging'); if (picked.has(L.id)) $$('.layer.selected, .layer.active', list).forEach((r) => r.classList.add('dragging')); });
+      row.addEventListener('dragend', () => { dragId = null; $$('.layer', list).forEach((r) => r.classList.remove('dragging', 'drop-above', 'drop-below')); });
       row.addEventListener('dragover', (e) => { if (dragId == null) return; e.preventDefault(); const r = row.getBoundingClientRect(), above = e.clientY < r.top + r.height / 2; row.classList.toggle('drop-above', above); row.classList.toggle('drop-below', !above); });
       row.addEventListener('dragleave', () => row.classList.remove('drop-above', 'drop-below'));
       row.addEventListener('drop', (e) => { // intake-ok: a layer row dragged to a new place (no files)
         e.preventDefault(); if (dragId == null) return;
         const r = row.getBoundingClientRect(), above = e.clientY < r.top + r.height / 2;
-        const from = layerIndex(dragId); let to = layerIndex(L.id) + (above ? 1 : 0);
-        if (from < to) to--;
-        moveLayer(dragId, to);
+        dropLayers(dragId, L.id, above);   // the whole selection when the dragged row is in it
       });
       list.append(row);
       for (const fr of fxRows(L)) list.append(fr);

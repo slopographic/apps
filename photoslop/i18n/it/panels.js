@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'photoslop.ctx.create_clip': 'Crea maschera di ritaglio',
   'photoslop.ctx.hide_layer': 'Nascondi livello',
   'photoslop.ctx.show_layer': 'Mostra livello',
+  'photoslop.ctx.hide_layers': 'Nascondi livelli',
+  'photoslop.ctx.show_layers': 'Mostra livelli',
   'photoslop.ctx.expand_panel': 'Espandi pannello',
   'photoslop.ctx.collapse_panel': 'Comprimi pannello',
   'photoslop.ctx.load_selection': 'Carica selezione',

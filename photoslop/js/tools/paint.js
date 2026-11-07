@@ -1,4 +1,5 @@
-/* PhotoSlop tools: brush, pencil, eraser, clone and retouch tools */
+/* PhotoSlop tools: brush, pencil, eraser, clone and retouch tools. Smudge, blur and sharpen have no key (key: null), as in
+ * Photoshop CC: R is the Rotate View tool (tools/rotate.js). */
 'use strict';
 
 /* Painting */
@@ -92,7 +93,7 @@ function directTool(def) {
     brushCursor() { return this.opt().size; },
   }, def));
 }
-directTool({ id: 'smudge', nk: 'smudge', key: 'R', icon: ICON('M8 21v-6.5L5.5 8a1.5 1.5 0 0 1 2.8-1l1.7 4V4.5a1.5 1.5 0 0 1 3 0V10V3.5a1.5 1.5 0 0 1 3 0V11V6a1.5 1.5 0 0 1 3 0v8c0 3.9-2.5 7-6 7z'),
+directTool({ id: 'smudge', nk: 'smudge', key: null, icon: ICON('M8 21v-6.5L5.5 8a1.5 1.5 0 0 1 2.8-1l1.7 4V4.5a1.5 1.5 0 0 1 3 0V10V3.5a1.5 1.5 0 0 1 3 0V11V6a1.5 1.5 0 0 1 3 0v8c0 3.9-2.5 7-6 7z'),
   opt: () => T.smudge,
   begin(s, p) {
     const o = T.smudge, d = Math.max(2, Math.ceil(o.size));
@@ -143,8 +144,8 @@ function blurSharpenDab(s, x, y, o, sharpen) {
   }
   s.g.putImageData(img, R0.x0, R0.y0);
 }
-directTool({ id: 'blur', nk: 'blur', key: 'R', icon: ICON('M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z'), opt: () => T.blur, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.blur, false); } });
-directTool({ id: 'sharpen', nk: 'sharpen', key: 'R', icon: ICON('M12 3 20 20H4z'), opt: () => T.sharpen, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.sharpen, true); } });
+directTool({ id: 'blur', nk: 'blur', key: null, icon: ICON('M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z'), opt: () => T.blur, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.blur, false); } });
+directTool({ id: 'sharpen', nk: 'sharpen', key: null, icon: ICON('M12 3 20 20H4z'), opt: () => T.sharpen, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.sharpen, true); } });
 directTool({ id: 'sponge', nk: 'sponge', key: 'O', icon: ICON('M5 8c0-2 2-4 7-4s7 2 7 4v8c0 2-2 4-7 4s-7-2-7-4zM9 9h.01M14 11h.01M10 14h.01M15 16h.01'),
   opt: () => T.sponge, begin() {},
   dab(s, x, y) {

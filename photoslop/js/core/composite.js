@@ -17,10 +17,12 @@ function alignedMask(mask, w, hh, ox, oy, cacheable) {
   if (cacheable) maskCache.set(mask, { c, w, h: hh, x: ox, y: oy });
   return c;
 }
+/** The live edit runs on L: its one layer (live.layerId), or one of the layers a multi-layer move or transform drags (live.ids). */
+const liveOn = (L) => !!live && (live.layerId === L.id || !!(live.ids && live.ids.has(L.id)));
 /** The pixels a layer contributes: its canvas, plus any live edit, with its mask applied. */
 function layerSurface(L) {
   let src = L.canvas, sx = L.x, sy = L.y, w = src.width, hh = src.height;
-  const lv = live && live.layerId === L.id ? live : null;
+  const lv = liveOn(L) ? live : null;
   if (lv && lv.surface) { const s = lv.surface(L); if (s) { src = s.canvas; sx = s.x; sy = s.y; w = s.w || src.width; hh = s.h || src.height; } }
   if (!L.mask || L.mask.enabled === false) return { canvas: src, x: sx, y: sy, w, h: hh };
   const liveMask = lv && lv.maskSurface ? lv.maskSurface(L) : null;

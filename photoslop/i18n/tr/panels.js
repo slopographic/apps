@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'photoslop.ctx.create_clip': "Kırpma maskesi oluştur",
   'photoslop.ctx.hide_layer': "Katmanı gizle",
   'photoslop.ctx.show_layer': "Katmanı göster",
+  'photoslop.ctx.hide_layers': 'Katmanları gizle',
+  'photoslop.ctx.show_layers': 'Katmanları göster',
   'photoslop.ctx.expand_panel': "Paneli genişlet",
   'photoslop.ctx.collapse_panel': "Paneli daralt",
   'photoslop.ctx.load_selection': "Seçimi yükle",

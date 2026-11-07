@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'photoslop.ctx.create_clip': 'Crear máscara de recorte',
   'photoslop.ctx.hide_layer': 'Ocultar capa',
   'photoslop.ctx.show_layer': 'Mostrar capa',
+  'photoslop.ctx.hide_layers': 'Ocultar capas',
+  'photoslop.ctx.show_layers': 'Mostrar capas',
   'photoslop.ctx.expand_panel': 'Expandir panel',
   'photoslop.ctx.collapse_panel': 'Contraer panel',
   'photoslop.ctx.load_selection': 'Cargar selección',

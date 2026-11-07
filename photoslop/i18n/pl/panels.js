@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'photoslop.ctx.create_clip': 'Utwórz maskę przycinającą',
   'photoslop.ctx.hide_layer': 'Ukryj warstwę',
   'photoslop.ctx.show_layer': 'Pokaż warstwę',
+  'photoslop.ctx.hide_layers': 'Ukryj warstwy',
+  'photoslop.ctx.show_layers': 'Pokaż warstwy',
   'photoslop.ctx.expand_panel': 'Rozwiń panel',
   'photoslop.ctx.collapse_panel': 'Zwiń panel',
   'photoslop.ctx.load_selection': 'Wczytaj zaznaczenie',

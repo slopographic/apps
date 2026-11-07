@@ -7,26 +7,38 @@
 const TRANSFORM = { active: false, interp: 'bicubic', lock: true };
 /** The history label of a quick transform (photoslop.tool.quick_<op>). */
 const quickLabel = (op) => tr('photoslop.tool.quick_' + String(op).toLowerCase());
+/** Free Transform: the active layer, or every selected visible, unlocked layer with it (layers/multi.js), in one box. */
 function startTransform() {
   if (TRANSFORM.active) return;
   let L = activeLayer(); if (!L) return;
   if (L.locked) { toast(tr('photoslop.tool.locked')); return; }
   if (!L.visible) { toast(tr('photoslop.tool.show_layer_first')); return; }
   if (TE.el) endTypeEdit();
-  if (L.text || L.shape) L = rasterizeText(L, true);
-  let float, rest = null, b;
+  const parts = [];
+  for (let Q of transformLayers()) {
+    if (Q.text || Q.shape) Q = rasterizeText(Q, true);
+    const part = tfPart(Q); if (part) parts.push(part);
+  }
+  if (!parts.length) { toast(tr('photoslop.tool.nothing_to_transform')); return; }
+  L = D.layers.find((l) => l.id === L.id);
+  const x = Math.min(...parts.map((q) => q.x)), y = Math.min(...parts.map((q) => q.y));
+  const w = Math.max(...parts.map((q) => q.x + q.float.width)) - x, hh = Math.max(...parts.map((q) => q.y + q.float.height)) - y;
+  Object.assign(TRANSFORM, { active: true, L, parts, x, y, w, h: hh, cx: x + w / 2, cy: y + hh / 2, tx: 0, ty: 0, sx: 1, sy: 1, rot: 0, sel: D.sel, drag: null });
+  live = { layerId: parts[0].id, ids: new Set(parts.map((q) => q.id)), hideSel: true, surface: (LL) => transformSurface(LL) };
+  emit('tool'); dirty(true);
+}
+/** One layer's share of a transform: its pixels (the selected ones, when there is a selection) cropped to their bounds,
+ *  at x, y in the document, and the rest of the layer that stays; null when the layer has nothing there. */
+function tfPart(L) {
+  let float = L.canvas, rest = null;
   if (D.sel) {
     const sel = selInLayer(L);
     float = copyCanvas(L.canvas); const fg = cx(float); fg.globalCompositeOperation = 'destination-in'; fg.drawImage(sel, 0, 0);
     rest = copyCanvas(L.canvas); const rg = cx(rest); rg.globalCompositeOperation = 'destination-out'; rg.drawImage(sel, 0, 0);
-    b = alphaBounds(float);
-  } else { float = L.canvas; b = alphaBounds(float); }
-  if (!b) { toast(tr('photoslop.tool.nothing_to_transform')); return; }
+  }
+  const b = alphaBounds(float); if (!b) return null;
   const crop = mkCanvas(b.w, b.h); cx(crop).drawImage(float, -b.x, -b.y);
-  const x = L.x + b.x, y = L.y + b.y;
-  Object.assign(TRANSFORM, { active: true, L, float: crop, rest, x, y, w: b.w, h: b.h, cx: x + b.w / 2, cy: y + b.h / 2, tx: 0, ty: 0, sx: 1, sy: 1, rot: 0, sel: D.sel, drag: null });
-  live = { layerId: L.id, hideSel: true, surface: (LL) => transformSurface(LL) };
-  emit('tool'); dirty(true);
+  return { id: L.id, float: crop, rest, x: L.x + b.x, y: L.y + b.y };
 }
 function tfMatrix(tf = TRANSFORM) {
   // doc point = C' + R·S·(p − C)
@@ -40,32 +52,35 @@ function tfCorners() {
   return pts.map(([x, y]) => { const p = m.transformPoint(new DOMPoint(x, y)); return { x: p.x, y: p.y }; });
 }
 function transformSurface(L) {
-  const t = TRANSFORM, cs = tfCorners();
+  const t = TRANSFORM, cs = tfCorners(), part = t.parts.find((q) => q.id === L.id) || t.parts[0];
   const xs = cs.map((p) => p.x).concat([L.x, L.x + L.canvas.width]), ys = cs.map((p) => p.y).concat([L.y, L.y + L.canvas.height]);
   const x0 = Math.floor(Math.min(...xs)), y0 = Math.floor(Math.min(...ys)), x1 = Math.ceil(Math.max(...xs)), y1 = Math.ceil(Math.max(...ys));
   const c = scratchCanvas('b', x1 - x0, y1 - y0), g = cx(c);
-  if (t.rest) g.drawImage(t.rest, L.x - x0, L.y - y0);
+  if (part.rest) g.drawImage(part.rest, L.x - x0, L.y - y0);
   g.save(); g.setTransform(new DOMMatrix([1, 0, 0, 1, -x0, -y0]).multiply(tfMatrix()));
-  setInterp(g, t.interp); g.drawImage(t.float, t.x, t.y); g.restore();
+  setInterp(g, t.interp); g.drawImage(part.float, part.x, part.y); g.restore();
   return { canvas: c, x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
 function commitTransform(label) {
   const t = TRANSFORM; if (!t.active) return;
-  const L = D.layers.find((l) => l.id === t.L.id);
   live = null; t.active = false;
-  if (!L) return;
-  const s = transformSurface(L), c = mkCanvas(s.w, s.h); cx(c).drawImage(s.canvas, 0, 0);
   const m = tfMatrix();
-  let mask = L.mask;
-  if (mask && !t.rest) {
-    const mc = mkCanvas(s.w, s.h), mg = cx(mc);
-    if (mask.def) { mg.fillStyle = '#000'; mg.fillRect(0, 0, s.w, s.h); }
-    mg.setTransform(new DOMMatrix([1, 0, 0, 1, -s.x, -s.y]).multiply(m));
-    if (mask.def) { mg.globalCompositeOperation = 'destination-out'; mg.fillRect(mask.x, mask.y, mask.canvas.width, mask.canvas.height); mg.globalCompositeOperation = 'source-over'; }
-    mg.drawImage(mask.canvas, mask.x, mask.y);
-    mask = Object.assign({}, mask, { canvas: mc, x: s.x, y: s.y });
+  let done = 0;
+  for (const part of t.parts) {
+    const L = D.layers.find((l) => l.id === part.id); if (!L) continue;
+    const s = transformSurface(L), c = mkCanvas(s.w, s.h); cx(c).drawImage(s.canvas, 0, 0);
+    let mask = L.mask;
+    if (mask && !part.rest) {
+      const mc = mkCanvas(s.w, s.h), mg = cx(mc);
+      if (mask.def) { mg.fillStyle = '#000'; mg.fillRect(0, 0, s.w, s.h); }
+      mg.setTransform(new DOMMatrix([1, 0, 0, 1, -s.x, -s.y]).multiply(m));
+      if (mask.def) { mg.globalCompositeOperation = 'destination-out'; mg.fillRect(mask.x, mask.y, mask.canvas.width, mask.canvas.height); mg.globalCompositeOperation = 'source-over'; }
+      mg.drawImage(mask.canvas, mask.x, mask.y);
+      mask = Object.assign({}, mask, { canvas: mc, x: s.x, y: s.y });
+    }
+    patchLayer(L.id, { canvas: c, x: s.x, y: s.y, mask }); done++;
   }
-  patchLayer(L.id, { canvas: c, x: s.x, y: s.y, mask });
+  if (!done) return;
   if (t.sel) { const sm = mkCanvas(D.w, D.h), sg = cx(sm); sg.setTransform(m); sg.drawImage(t.sel.mask, 0, 0); D.sel = makeSel(sm); }
   commit(typeof label === 'string' ? label : TRANSFORM_TOOL.name);
   emit('tool');

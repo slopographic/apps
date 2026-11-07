@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'photoslop.ctx.create_clip': 'Créer un masque d’écrêtage',
   'photoslop.ctx.hide_layer': 'Masquer le calque',
   'photoslop.ctx.show_layer': 'Afficher le calque',
+  'photoslop.ctx.hide_layers': 'Masquer les calques',
+  'photoslop.ctx.show_layers': 'Afficher les calques',
   'photoslop.ctx.expand_panel': 'Déplier le panneau',
   'photoslop.ctx.collapse_panel': 'Réduire le panneau',
   'photoslop.ctx.load_selection': 'Charger la sélection',

@@ -49,7 +49,8 @@
 .lrow { display: grid; grid-template-columns: 22px 22px 6px minmax(0, 1fr) auto; align-items: center; height: 26px; padding-right: 6px; border-bottom: 1px solid rgba(0, 0, 0, .12); cursor: default; user-select: none; }
 .lrow:hover { background: var(--bg-hover); }
 .lrow.on { background: var(--sel-row-strong); }
-:root[data-theme="classic"] .lrow.on { color: #fff; }
+.lrow.picked { background: var(--sel-row); }
+:root[data-theme="classic"] .lrow.on, :root[data-theme="classic"] .lrow.picked { color: #fff; }
 .lrow button { border: 0; background: none; padding: 0; color: var(--text-dim); display: grid; place-items: center; height: 100%; }
 .lrow button:hover { color: var(--text); }
 .lrow .ic { width: 14px; height: 14px; }

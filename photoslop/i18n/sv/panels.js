@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'photoslop.ctx.create_clip': 'Skapa urklippsmask',
   'photoslop.ctx.hide_layer': 'Dölj lager',
   'photoslop.ctx.show_layer': 'Visa lager',
+  'photoslop.ctx.hide_layers': 'Dölj lager',
+  'photoslop.ctx.show_layers': 'Visa lager',
   'photoslop.ctx.expand_panel': 'Expandera panel',
   'photoslop.ctx.collapse_panel': 'Komprimera panel',
   'photoslop.ctx.load_selection': 'Läs in markering',

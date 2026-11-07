@@ -1,6 +1,6 @@
 // Slop Effects timeline: a ruler with the playhead, one row per layer (a summary lane of its keys), and expanded property
 // rows (position, anchor, scale, rotation, opacity, and each effect's numeric parameters). Keys are diamonds on frames;
-// timeline-keys.js handles selecting and dragging them. A row click selects the layer. The view re-renders on document
+// timeline-keys.js handles selecting and dragging them. A row click selects the layer (Shift a range, Ctrl/Cmd one more). The view re-renders on document
 // changes, but not while a key is being dragged (the dragged diamonds move in place instead). Classic script:
 // window.SlopEffects.timeline.
 (function (g) {
@@ -86,10 +86,29 @@
       return l;
     }
 
+    /* Layer rows pick like After Effects: a click selects one, Shift the rows from the anchor (the last row clicked
+       without Shift, or the layer picked elsewhere) to this one, Ctrl/Cmd adds or takes one away, both add a range. */
+    let anchor = null, anchorSel = ''; // anchorSel: the pick the rows left, to tell one made elsewhere
+    function pickLayer(id, e) {
+      const cur = act.picked(), tog = e.ctrlKey || e.metaKey, shown = S.doc.layers.map((l) => l.id);
+      if (cur.join() !== anchorSel) anchor = S.sel.layer;
+      const a = shown.indexOf(anchor), b = shown.indexOf(id);
+      if (e.shiftKey && a >= 0 && b >= 0) {
+        const range = shown.slice(Math.min(a, b), Math.max(a, b) + 1).filter((x) => x !== id).concat(id);
+        S.select({ layer: id, layers: tog ? cur.filter((x) => !range.includes(x)).concat(range) : range, keys: [], fx: null });
+      } else if (tog || e.shiftKey) {
+        anchor = id;
+        const i = cur.indexOf(id);
+        if (i < 0) cur.push(id); else cur.splice(i, 1);
+        S.select({ layer: i < 0 ? id : cur[cur.length - 1] || null, layers: cur, keys: [], fx: null });
+      } else { anchor = id; S.select({ layer: id, keys: [], fx: null }); }
+      anchorSel = act.picked().join();
+    }
+
     /** One row for a layer: its label cell and its summary lane (and the property rows when it is open). */
     function layerRows(layer, p, width) {
       const isOpen = view.open.has(layer.id);
-      const sel = S.sel.layer === layer.id;
+      const sel = S.sel.layer === layer.id, inPick = sel || (S.sel.layers || []).includes(layer.id);
       const bin = layer.source.mediaId ? ns.media.get(layer.source.mediaId) : null;
       const missing = (layer.type === 'image' || layer.type === 'video') && !bin;
       const parent = layer.parent ? S.doc.layers.find((l) => l.id === layer.parent) : null;
@@ -97,20 +116,20 @@
         class: 'fx-lcell', role: 'button', tabindex: 0, 'aria-current': sel ? 'true' : null,
         onclick: (e) => {
           if (e.target.closest && e.target.closest('button')) return;
-          S.select({ layer: layer.id, keys: [], fx: null });
+          pickLayer(layer.id, e);
         },
         onkeydown: (e) => { if (e.key === 'Enter') S.select({ layer: layer.id, keys: [], fx: null }); },
       },
       h('button', { type: 'button', 'aria-label': t(isOpen ? 'effects.tl.collapse' : 'effects.tl.expand'), 'aria-expanded': String(isOpen), onclick: () => { if (isOpen) view.open.delete(layer.id); else view.open.add(layer.id); render(); } }, isOpen ? '▾' : '▸'),
       h('button', { type: 'button', 'aria-label': t(layer.hidden ? 'effects.tl.show' : 'effects.tl.hide'), 'aria-pressed': String(!layer.hidden), title: t(layer.hidden ? 'effects.tl.hidden' : 'effects.props.visible'),
-        onclick: () => S.edit(t(layer.hidden ? 'effects.tl.show' : 'effects.tl.hide'), (d) => ns.layers.setHidden(d, layer.id, !layer.hidden)) }, layer.hidden ? '◌' : '●'),
+        onclick: () => act.setHidden(layer.id, !layer.hidden) }, layer.hidden ? '◌' : '●'),
       h('span', { class: 'fx-ic', title: D().word('type', layer.type, D().label(D().LAYER_TYPES, layer.type)) }, ICON[layer.type] || '?'), // i18n-ignore: the icons are letters
       h('b', { title: layer.name }, layer.name),
       parent ? h('span', { class: 'fx-ic', title: t('effects.tl.parent', { name: parent.name }) }, '↳') : null,
       missing ? h('span', { class: 'fx-warn', title: t('effects.tl.missing') }, '!') : null);
       const sum = summaryOf(layer);
       const summaryItems = sum.map((s) => ({ t: s.t, refs: s.refs, title: t('effects.tl.keys_at', { name: layer.name, keys: t('effects.tl.keys_n', { n: s.refs.length }), t: s.t.toFixed(2) }), hold: s.refs.every((r) => keyOf(layer, r.prop, r.t) === 'hold') }));
-      const out = [h('div', { class: 'fx-lrow' + (sel ? ' is-sel' : ''), 'data-layer': layer.id }, cell, lane(p, width, summaryItems))];
+      const out = [h('div', { class: 'fx-lrow' + (inPick ? ' is-sel' : ''), 'data-layer': layer.id }, cell, lane(p, width, summaryItems))];
       if (isOpen) {
         for (const row of propRows(layer)) {
           if (row.head) { out.push(h('div', { class: 'fx-prow' }, h('div', { class: 'fx-lcell', style: 'padding-left:26px' }, h('i', null, row.label)), h('div', { class: 'fx-lane', style: `width:${width}px` }))); continue; }

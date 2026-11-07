@@ -106,9 +106,10 @@ const MENUS = [
   ]],
   ['Layer', [
     { k: 'new_layer', key: 'Shift+Ctrl+N', act: () => addLayer() },
-    { k: 'duplicate_layer', act: () => duplicateLayer() },
+    // with several layers selected these act on all of them (layers/multi.js)
+    { k: 'duplicate_layer', act: () => duplicateSelectedLayers(), dyn: () => tr(multiSelected() ? 'photoslop.menu.duplicate_layers' : 'photoslop.menu.duplicate_layer') },
     { k: 'delete', sub: [
-      { k: 'delete_layer', act: () => deleteLayer() },
+      { k: 'delete_layer', act: () => deleteSelectedLayers(), dyn: () => tr(multiSelected() ? 'photoslop.menu.delete_layers' : 'photoslop.menu.delete_layer') },
       { k: 'remove_all_layers', act: () => removeAllLayers(), en: () => D.layers.length > 0 },
     ] },
     { k: 'layer_properties', act: () => dlgLayerProps() },
@@ -144,15 +145,15 @@ const MENUS = [
       { k: 'flip_vertical', act: () => transformLayerQuick('flipV') },
     ] },
     '-',
-    { k: 'arrange', sub: [
-      { k: 'bring_to_front', key: 'Shift+Ctrl+]', act: () => moveLayer(D.activeId, D.layers.length - 1) },
-      { k: 'bring_forward', key: 'Ctrl+]', act: () => moveLayer(D.activeId, layerIndex(D.activeId) + 1) },
-      { k: 'send_backward', key: 'Ctrl+[', act: () => moveLayer(D.activeId, layerIndex(D.activeId) - 1) },
-      { k: 'send_to_back', key: 'Shift+Ctrl+[', act: () => moveLayer(D.activeId, 0) },
+    { k: 'arrange', sub: [   // the whole selection, keeping its order (layers/multi.js)
+      { k: 'bring_to_front', key: 'Shift+Ctrl+]', act: () => arrangeLayers('front') },
+      { k: 'bring_forward', key: 'Ctrl+]', act: () => arrangeLayers('forward') },
+      { k: 'send_backward', key: 'Ctrl+[', act: () => arrangeLayers('backward') },
+      { k: 'send_to_back', key: 'Shift+Ctrl+[', act: () => arrangeLayers('back') },
     ] },
-    { k: 'lock_unlock_layer', key: 'Ctrl+/', act: () => { const L = activeLayer(); setLayerProps(L.id, { locked: !L.locked }, tr(L.locked ? 'photoslop.menu.undo_unlock_layer' : 'photoslop.menu.undo_lock_layer')); } },
+    { k: 'lock_unlock_layer', key: 'Ctrl+/', act: () => toggleLockSelected('photoslop.menu.undo_lock_layer', 'photoslop.menu.undo_unlock_layer') },
     '-',
-    { k: 'merge_down', key: 'Ctrl+E', act: () => mergeDown() },
+    { k: 'merge_down', key: 'Ctrl+E', act: () => mergeSelectedOrDown(), dyn: () => mergeLabel() },
     { k: 'merge_visible', key: 'Shift+Ctrl+E', act: () => mergeVisible() },
     { k: 'flatten_image', act: () => flattenImage() },
   ]],
@@ -160,6 +161,7 @@ const MENUS = [
     { k: 'all', key: 'Ctrl+A', act: () => selectAll() },
     { k: 'deselect', key: 'Ctrl+D', act: () => deselect(), en: () => !!D.sel },
     { k: 'inverse', key: 'Shift+Ctrl+I', act: () => selectInverse() },
+    { k: 'all_layers', key: 'Alt+Ctrl+A', act: () => selectAllLayers(), en: () => D.layers.length > 1 },
     '-',
     { k: 'layer_transparency', act: () => { const L = activeLayer(); const c = mkCanvas(D.w, D.h); cx(c).drawImage(bakedLayer(L).canvas, L.x, L.y); D.sel = makeSel(c); commit(tr('photoslop.menu.undo_load_selection')); } },
     { k: 'subject', act: () => selectSubject(), need: 'layer' },

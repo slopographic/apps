@@ -11,7 +11,7 @@
   <!-- PhotoSlop with a finger and a pen (shared/input), on an iPad in WebKit and an Android tablet in Chromium.
        Covers: photoslop/js/core/view.js, photoslop/js/tools/transform.js, photoslop/js/tools/transform-idle.js,
        photoslop/js/tools/select.js, photoslop/js/guides/input.js, photoslop/js/core/brush-resize.js,
-       photoslop/js/ui/filter-dialog.js -->
+       photoslop/js/ui/filter-dialog.js, photoslop/js/tools/rotate.js -->
   <script src="../harness.js"></script>
   <script src="../shared/touch-kit.js"></script>
   <script src="fresh-app.js"></script>
@@ -111,6 +111,20 @@
       await waitFor(() => W.V.zoom > z0 * 1.5, { timeout: 3000 });
       if (window.visualViewport) expect(visualViewport.scale).toBeCloseTo(1, 0.01);
       if (win.visualViewport) expect(win.visualViewport.scale).toBeCloseTo(1, 0.01);
+    });
+
+    it('one finger with the Rotate View tool turns the view; two fingers still pinch and leave the angle', async () => {
+      scene(); W.selectTool('rotate'); W.setRotation(0);
+      await TouchKit.drag({ el: W.V.el, x: W.V.W / 2 + 120, y: W.V.H / 2 }, 0, 120, 10); // 0° round to about 45°
+      try { await waitFor(() => W.V.rot > 25, { timeout: 3000 }); } catch (e) { throw new Error(`the view is at ${W.V.rot}°`); }
+      expect(W.V.rot).toBeLessThan(50);
+      W.setRotation(0);
+      const z0 = W.V.zoom;
+      await TouchKit.pinch(at(120, 90), 2, 10);
+      await waitFor(() => W.V.zoom > z0 * 1.5, { timeout: 3000 });
+      expect(Math.abs(W.V.rot)).toBeLessThan(0.5);
+      expect(W.UI.tool).toBe('rotate');
+      W.resetView(); W.selectTool('move');
     });
 
     it('a pen stroke passes its pressure to the brush (a light stroke is thinner) and touches are ignored while it is down', async () => {

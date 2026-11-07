@@ -23,3 +23,6 @@
 .docarea { grid-template-rows: 30px auto minmax(0, 1fr); }
 .docarea > .view-bar { grid-row: 2; }
 .docarea > .viewport { grid-row: 3; }
+/* The Rotate View tool (tools/rotate.js). */
+.viewport[data-tool="rotate"] { cursor: grab; }
+.viewport[data-tool="rotate"].rotating { cursor: grabbing; }

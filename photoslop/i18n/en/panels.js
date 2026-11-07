@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'photoslop.ctx.create_clip': 'Create Clipping Mask',
   'photoslop.ctx.hide_layer': 'Hide Layer',
   'photoslop.ctx.show_layer': 'Show Layer',
+  'photoslop.ctx.hide_layers': 'Hide Layers',
+  'photoslop.ctx.show_layers': 'Show Layers',
   'photoslop.ctx.expand_panel': 'Expand Panel',
   'photoslop.ctx.collapse_panel': 'Collapse Panel',
   'photoslop.ctx.load_selection': 'Load Selection',

@@ -53,7 +53,7 @@ function dlgShortcuts() {
   const rows = [];
   const walk = (items, path) => { for (const it of items) { if (it === '-' || !it) continue; if (it.sub) walk(it.sub, path + ' › ' + it.label); else if (it.key) rows.push([path + ' › ' + it.label, it.key]); } };
   MENUS.forEach(([n, items]) => walk(typeof items === 'function' ? items() : items, barName(n)));
-  const toolRows = TOOLS.map((t) => [t.name, TOOLS.filter((x) => x.key === t.key).length > 1 ? D_('key_cycles', { key: t.key }) : t.key]);
+  const toolRows = TOOLS.filter((t) => t.key).map((t) => [t.name, TOOLS.filter((x) => x.key === t.key).length > 1 ? D_('key_cycles', { key: t.key }) : t.key]);
   const extra = [['k_pan', D_('kv_pan')], ['k_zoom', D_('kv_zoom')], ['k_size', D_('kv_size')], ['k_hardness', D_('kv_hardness')], ['k_opacity', '1 … 0'], ['k_swap', 'X'], ['k_default', 'D'], ['k_nudge', D_('kv_nudge')], ['k_commit', D_('kv_commit')]].map(([k, v]) => [D_(k), v]);
   const table = (list) => h('table', { class: 'keys' }, list.map(([a, b]) => h('tr', null, h('td', null, a), h('td', null, h('kbd', null, keyLabel(b))))));
   dialog({ title: D_('shortcuts'), cls: 'dlg-wide', body: h('div', { class: 'keys-wrap' }, h('div', null, h('h4', null, D_('h_tools')), table(toolRows), h('h4', null, D_('h_canvas')), table(extra)), h('div', null, h('h4', null, D_('h_menus')), table(rows))), buttons: [{ label: tr('menu.close'), primary: true }] });
@@ -80,7 +80,7 @@ function setTheme(t) {
 
 /* ---------- keyboard ---------- */
 const TOOL_KEYS = {};
-for (const t of TOOLS) (TOOL_KEYS[t.key] = TOOL_KEYS[t.key] || []).push(t.id);
+for (const t of TOOLS) if (t.key) (TOOL_KEYS[t.key] = TOOL_KEYS[t.key] || []).push(t.id);
 function onKeyDown(e) {
   if (SlopUI.openDialogs || isTyping(e.target) || inMenu(e)) return;
   if (CMD_ON) { const c = comboOf(e); if (c === 'Ctrl+V' || c === 'Shift+Ctrl+V') armPasteCatcher(); return; } // SlopCmd handles the rest
@@ -122,4 +122,4 @@ function onKeyDown(e) {
   }
 }
 function onKeyUp(e) { if (e.code === 'Space') { V.space = false; V.el.classList.remove('space'); } } // i18n-ignore: ids, key names, CSS
-listeners.add((w) => { if (w === 'tool') { const t = TOOL[UI.tool]; if (t) store.set('lastOf.' + t.key, t.id); buildOptions(); V.el.style.cursor = ''; } });
+listeners.add((w) => { if (w === 'tool') { const t = TOOL[UI.tool]; if (t && t.key) store.set('lastOf.' + t.key, t.id); buildOptions(); V.el.style.cursor = ''; } });
