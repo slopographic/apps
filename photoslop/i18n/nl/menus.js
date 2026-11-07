@@ -54,8 +54,10 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'photoslop.menu.trim_transparent_pixels': 'Transparante pixels bijsnijden',
   'photoslop.menu.new_layer': 'Nieuwe laag',
   'photoslop.menu.duplicate_layer': 'Laag dupliceren',
+  'photoslop.menu.duplicate_layers': 'Duplicate Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.delete': 'Verwijderen',
   'photoslop.menu.delete_layer': 'Laag verwijderen',
+  'photoslop.menu.delete_layers': 'Delete Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.remove_all_layers': 'Alle lagen verwijderen',
   'photoslop.menu.layer_properties': 'Laageigenschappen…',
   'photoslop.menu.layer_via_copy': 'Laag via kopiëren',
@@ -85,11 +87,13 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'photoslop.menu.send_to_back': 'Naar achtergrond',
   'photoslop.menu.lock_unlock_layer': 'Laag vergrendelen / ontgrendelen',
   'photoslop.menu.merge_down': 'Naar beneden samenvoegen',
+  'photoslop.menu.merge_layers': 'Merge Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.merge_visible': 'Zichtbare lagen samenvoegen',
   'photoslop.menu.flatten_image': 'Afbeelding reduceren',
   'photoslop.menu.all': 'Alles',
   'photoslop.menu.deselect': 'Selectie opheffen',
   'photoslop.menu.inverse': 'Omkeren',
+  'photoslop.menu.all_layers': 'All Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.layer_transparency': 'Transparantie van de laag',
   'photoslop.menu.subject': 'Onderwerp',
   'photoslop.menu.color_range_foreground': 'Kleurbereik (voorgrond)…',

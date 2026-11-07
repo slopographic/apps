@@ -54,8 +54,10 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'photoslop.menu.trim_transparent_pixels': "Saydam pikselleri kırp",
   'photoslop.menu.new_layer': "Yeni katman",
   'photoslop.menu.duplicate_layer': "Katmanı çoğalt",
+  'photoslop.menu.duplicate_layers': 'Duplicate Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.delete': "Sil",
   'photoslop.menu.delete_layer': "Katmanı sil",
+  'photoslop.menu.delete_layers': 'Delete Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.remove_all_layers': "Tüm katmanları kaldır",
   'photoslop.menu.layer_properties': "Katman özellikleri…",
   'photoslop.menu.layer_via_copy': "Kopyadan katman",
@@ -85,11 +87,13 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'photoslop.menu.send_to_back': "En arkaya gönder",
   'photoslop.menu.lock_unlock_layer': "Katmanı kilitle / kilidini aç",
   'photoslop.menu.merge_down': "Altıyla birleştir",
+  'photoslop.menu.merge_layers': 'Merge Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.merge_visible': "Görünenleri birleştir",
   'photoslop.menu.flatten_image': "Resmi düzleştir",
   'photoslop.menu.all': "Tümü",
   'photoslop.menu.deselect': "Seçimi kaldır",
   'photoslop.menu.inverse': "Ters",
+  'photoslop.menu.all_layers': 'All Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.layer_transparency': "Katman saydamlığı",
   'photoslop.menu.subject': "Konu",
   'photoslop.menu.color_range_foreground': "Renk aralığı (ön plan)…",

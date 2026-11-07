@@ -81,6 +81,7 @@ function coverDoc(L) {
 function snapshot(label) { return { label, w: D.w, h: D.h, layers: D.layers.slice(), activeId: D.activeId, sel: D.sel, guides: D.guides || [] }; }
 function restore(s) {
   D.w = s.w; D.h = s.h; D.layers = s.layers.slice(); D.activeId = s.activeId; D.sel = s.sel; D.guides = s.guides || [];
+  if (typeof clearLayerSelection === 'function') clearLayerSelection();   // undo and redo leave one layer selected (layers/multi.js)
   live = null; emit('doc');
 }
 function histReset(label) { Hist.states = [snapshot(label)]; Hist.idx = 0; D.dirty = false; emit('history'); emit('doc'); }

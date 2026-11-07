@@ -54,8 +54,10 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.menu.trim_transparent_pixels': "قص البكسلات الشفافة",
   'photoslop.menu.new_layer': "طبقة جديدة",
   'photoslop.menu.duplicate_layer': "تكرار الطبقة",
+  'photoslop.menu.duplicate_layers': 'Duplicate Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.delete': "حذف",
   'photoslop.menu.delete_layer': "حذف الطبقة",
+  'photoslop.menu.delete_layers': 'Delete Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.remove_all_layers': "إزالة كل الطبقات",
   'photoslop.menu.layer_properties': "خصائص الطبقة…",
   'photoslop.menu.layer_via_copy': "طبقة عبر النسخ",
@@ -85,11 +87,13 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.menu.send_to_back': "إرسال إلى الخلفية",
   'photoslop.menu.lock_unlock_layer': "قفل / فتح الطبقة",
   'photoslop.menu.merge_down': "دمج للأسفل",
+  'photoslop.menu.merge_layers': 'Merge Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.merge_visible': "دمج المرئي",
   'photoslop.menu.flatten_image': "تسطيح الصورة",
   'photoslop.menu.all': "الكل",
   'photoslop.menu.deselect': "إلغاء التحديد",
   'photoslop.menu.inverse': "عكس",
+  'photoslop.menu.all_layers': 'All Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.layer_transparency': "شفافية الطبقة",
   'photoslop.menu.subject': "الموضوع",
   'photoslop.menu.color_range_foreground': "نطاق اللون (المقدمة)…",

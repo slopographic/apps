@@ -54,8 +54,10 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'photoslop.menu.trim_transparent_pixels': '透明なピクセルを切り落とす',
   'photoslop.menu.new_layer': '新規レイヤー',
   'photoslop.menu.duplicate_layer': 'レイヤーを複製',
+  'photoslop.menu.duplicate_layers': 'Duplicate Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.delete': '削除',
   'photoslop.menu.delete_layer': 'レイヤーを削除',
+  'photoslop.menu.delete_layers': 'Delete Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.remove_all_layers': 'すべてのレイヤーを削除',
   'photoslop.menu.layer_properties': 'レイヤーのプロパティ…',
   'photoslop.menu.layer_via_copy': 'コピーによるレイヤー',
@@ -85,11 +87,13 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'photoslop.menu.send_to_back': '最背面へ移動',
   'photoslop.menu.lock_unlock_layer': 'レイヤーのロック / ロック解除',
   'photoslop.menu.merge_down': '下のレイヤーと結合',
+  'photoslop.menu.merge_layers': 'Merge Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.merge_visible': '表示中のレイヤーを結合',
   'photoslop.menu.flatten_image': '画像を統合',
   'photoslop.menu.all': 'すべて',
   'photoslop.menu.deselect': '選択解除',
   'photoslop.menu.inverse': '選択を反転',
+  'photoslop.menu.all_layers': 'All Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.layer_transparency': 'レイヤーの透明部分',
   'photoslop.menu.subject': '被写体',
   'photoslop.menu.color_range_foreground': '色域を選択（描画色）…',

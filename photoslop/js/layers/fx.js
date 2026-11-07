@@ -55,7 +55,7 @@ const fxCache = new WeakMap();
 /** The layer surface s (from layerSurface) with its effects. Live edits are never cached. */
 function fxSurface(L, s) {
   if (!fxOn(L)) return s;
-  if (live && live.layerId === L.id) return renderFx(s, L.fx, fillOf(L));
+  if (liveOn(L)) return renderFx(s, L.fx, fillOf(L));
   const e = fxCache.get(L.canvas), fill = fillOf(L);
   if (e && e.fx === L.fx && e.mask === L.mask && e.x === L.x && e.y === L.y && e.fill === fill) return e.out;
   const out = renderFx(s, L.fx, fill);

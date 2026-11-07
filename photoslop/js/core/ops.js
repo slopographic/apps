@@ -37,11 +37,12 @@ async function removeAllLayers() {
 }
 function duplicateLayer(id = D.activeId) {
   const i = layerIndex(id); if (i < 0) return;
-  const S = D.layers[i];
-  const L = Object.assign({}, S, { id: uid(), name: S.name + ' copy', canvas: copyCanvas(S.canvas), mask: S.mask && Object.assign({}, S.mask, { canvas: copyCanvas(S.mask.canvas) }), text: S.text && normText(S.text) });
+  const L = layerCopy(D.layers[i]);
   D.layers.splice(i + 1, 0, L); D.activeId = L.id;
   commit(tr('photoslop.core.step_duplicate_layer'));
 }
+/** A copy of a layer record with its own canvases and a new id (Duplicate). */
+function layerCopy(S) { return Object.assign({}, S, { id: uid(), name: S.name + ' copy', canvas: copyCanvas(S.canvas), mask: S.mask && Object.assign({}, S.mask, { canvas: copyCanvas(S.mask.canvas) }), text: S.text && normText(S.text) }); }
 function moveLayer(id, toIndex) {
   const i = layerIndex(id); if (i < 0) return;
   toIndex = clamp(toIndex, 0, D.layers.length - 1);

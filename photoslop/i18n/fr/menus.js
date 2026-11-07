@@ -54,8 +54,10 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'photoslop.menu.trim_transparent_pixels': 'Rogner les pixels transparents',
   'photoslop.menu.new_layer': 'Nouveau calque',
   'photoslop.menu.duplicate_layer': 'Dupliquer le calque',
+  'photoslop.menu.duplicate_layers': 'Duplicate Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.delete': 'Supprimer',
   'photoslop.menu.delete_layer': 'Supprimer le calque',
+  'photoslop.menu.delete_layers': 'Delete Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.remove_all_layers': 'Supprimer tous les calques',
   'photoslop.menu.layer_properties': 'Propriétés du calque…',
   'photoslop.menu.layer_via_copy': 'Calque par copie',
@@ -85,11 +87,13 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'photoslop.menu.send_to_back': 'Envoyer à l’arrière-plan',
   'photoslop.menu.lock_unlock_layer': 'Verrouiller / déverrouiller le calque',
   'photoslop.menu.merge_down': 'Fusionner avec le calque du dessous',
+  'photoslop.menu.merge_layers': 'Merge Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.merge_visible': 'Fusionner les calques visibles',
   'photoslop.menu.flatten_image': 'Aplatir l’image',
   'photoslop.menu.all': 'Tout',
   'photoslop.menu.deselect': 'Désélectionner',
   'photoslop.menu.inverse': 'Inverser',
+  'photoslop.menu.all_layers': 'All Layers',   // English until translated (multi-layer selection)
   'photoslop.menu.layer_transparency': 'Transparence du calque',
   'photoslop.menu.subject': 'Sujet',
   'photoslop.menu.color_range_foreground': 'Plage de couleurs (premier plan)…',

@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'photoslop.ctx.create_clip': 'Создать обтравочную маску',
   'photoslop.ctx.hide_layer': 'Скрыть слой',
   'photoslop.ctx.show_layer': 'Показать слой',
+  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
   'photoslop.ctx.expand_panel': 'Развернуть панель',
   'photoslop.ctx.collapse_panel': 'Свернуть панель',
   'photoslop.ctx.load_selection': 'Загрузить выделение',

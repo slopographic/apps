@@ -29,7 +29,8 @@ function selectTool(id) {
 defTool({ id: 'move', nk: 'move', key: 'V', icon: ICON('M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3'),
   down(p, e) {
     let L = activeLayer();
-    if (T.move.auto || e.ctrlKey || e.metaKey) { const hit = layerAt(p); if (hit) { L = hit; D.activeId = hit.id; emit('doc'); } }
+    // auto-select keeps a multi-layer selection when the layer hit is in it (layers/multi.js)
+    if (T.move.auto || e.ctrlKey || e.metaKey) { const hit = layerAt(p); if (hit) { L = hit; if (!keepInLayerSelection(hit.id)) D.activeId = hit.id; emit('doc'); } }
     if (!L || L.locked) { if (L) toast(tr('photoslop.tool.locked')); this.s = null; return; }
     const s = this.s = { L, start: p, dx: 0, dy: 0, box: D.sel ? D.sel.bounds : layerBoundsDoc(L) };
     if (D.sel && !e.altKey) {
@@ -40,6 +41,9 @@ defTool({ id: 'move', nk: 'move', key: 'V', icon: ICON('M12 2v20M2 12h20M12 2l-3
       s.rest = copyCanvas(L.canvas); const rg = cx(s.rest); rg.globalCompositeOperation = 'destination-out'; rg.drawImage(sel, 0, 0);
       s.sel = D.sel;
       live = { layerId: L.id, hideSel: true, surface: (LL) => { const t = scratchCanvas('b', LL.canvas.width, LL.canvas.height), g = cx(t); g.drawImage(s.rest, 0, 0); g.drawImage(s.lift, Math.round(s.dx), Math.round(s.dy)); return { canvas: t, x: LL.x, y: LL.y, w: LL.canvas.width, h: LL.canvas.height }; } };
+    } else if ((s.ids = moveTargets())) {   // several selected layers move together
+      s.box = layersBoundsDoc(s.ids);
+      live = { layerId: s.ids[0], ids: new Set(s.ids), surface: (LL) => ({ canvas: LL.canvas, x: LL.x + Math.round(s.dx), y: LL.y + Math.round(s.dy) }), maskSurface: (LL) => LL.mask && Object.assign({}, LL.mask, { x: LL.mask.x + Math.round(s.dx), y: LL.mask.y + Math.round(s.dy) }) };
     } else {
       live = { layerId: L.id, surface: (LL) => ({ canvas: LL.canvas, x: LL.x + Math.round(s.dx), y: LL.y + Math.round(s.dy) }), maskSurface: (LL) => LL.mask && Object.assign({}, LL.mask, { x: LL.mask.x + Math.round(s.dx), y: LL.mask.y + Math.round(s.dy) }) };
     }
@@ -71,8 +75,14 @@ function layerAt(p) {
   }
   return null;
 }
+/** Moves a layer record by (dx, dy) with its mask and type box (no history step). */
+function shiftLayer(id, dx, dy) {
+  const L = D.layers.find((l) => l.id === id); if (!L) return;
+  patchLayer(L.id, { x: L.x + dx, y: L.y + dy, mask: L.mask && Object.assign({}, L.mask, { x: L.mask.x + dx, y: L.mask.y + dy }), text: L.text && Object.assign({}, L.text, { x: L.text.x + dx, y: L.text.y + dy }) });
+}
 function moveBy(s, dx, dy) {
   if (!dx && !dy) return;
+  if (s.ids) { for (const id of s.ids) shiftLayer(id, dx, dy); commit(TOOL.move.short); return; }
   const L = D.layers.find((l) => l.id === s.L.id); if (!L) return;
   if (s.lift) {
     const x0 = Math.min(0, dx), y0 = Math.min(0, dy), x1 = Math.max(L.canvas.width, L.canvas.width + dx), y1 = Math.max(L.canvas.height, L.canvas.height + dy);
@@ -83,13 +93,14 @@ function moveBy(s, dx, dy) {
     const m = mkCanvas(D.w, D.h); cx(m).drawImage(s.sel.mask, dx, dy);
     D.sel = makeSel(m);
   } else {
-    patchLayer(L.id, { x: L.x + dx, y: L.y + dy, mask: L.mask && Object.assign({}, L.mask, { x: L.mask.x + dx, y: L.mask.y + dy }), text: L.text && Object.assign({}, L.text, { x: L.text.x + dx, y: L.text.y + dy }) });
+    shiftLayer(L.id, dx, dy);
   }
   commit(TOOL.move.short);
 }
 function nudge(dx, dy) {
   const L = activeLayer(); if (!L || L.locked) return;
   const s = { L };
+  if (!D.sel) s.ids = moveTargets();   // several selected layers nudge together
   if (D.sel) {
     const sel = selInLayer(L);
     s.lift = copyCanvas(L.canvas); const lg = cx(s.lift); lg.globalCompositeOperation = 'destination-in'; lg.drawImage(sel, 0, 0);

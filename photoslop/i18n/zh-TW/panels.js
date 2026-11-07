@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'photoslop.ctx.create_clip': '建立剪裁遮罩',
   'photoslop.ctx.hide_layer': '隱藏圖層',
   'photoslop.ctx.show_layer': '顯示圖層',
+  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
   'photoslop.ctx.expand_panel': '展開面板',
   'photoslop.ctx.collapse_panel': '收合面板',
   'photoslop.ctx.load_selection': '載入選取範圍',
