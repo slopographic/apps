@@ -117,7 +117,7 @@ function showMenu(btn, items, focus) {
 /* ---------- toolbox ---------- */
 function buildToolbox() {
   const box = $('#toolbox');
-  const order = ['move', 'marquee', 'ellipse', 'lasso', 'polylasso', 'wand', 'crop', 'eyedropper', 'brush', 'pencil', 'clone', 'heal', 'spot', 'redeye', 'remove', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'hand', 'zoom'];
+  const order = ['move', 'marquee', 'ellipse', 'lasso', 'polylasso', 'wand', 'crop', 'eyedropper', 'brush', 'pencil', 'clone', 'heal', 'spot', 'redeye', 'remove', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'hand', 'rotate', 'zoom'];
   const grid = h('div', { class: 'tools' });
   for (const id of order) {
     const t = TOOL[id];
@@ -147,7 +147,7 @@ function buildToolbox() {
 }
 /** The tool buttons' names (TOOL[id].name follows the language); run again by relabelUI. */
 function labelToolbox() {
-  $$('#toolbox .tool').forEach((b) => { const t = TOOL[b.dataset.tool]; b.title = `${t.name} (${t.key})`; b.setAttribute('aria-label', t.name); });
+  $$('#toolbox .tool').forEach((b) => { const t = TOOL[b.dataset.tool]; b.title = t.key ? `${t.name} (${t.key})` : t.name; b.setAttribute('aria-label', t.name); });
 }
 function swapColors() { const f = C.fg; setColor('fg', C.bg); setColor('bg', f); }
 function defaultColors() { setColor('fg', '#000000'); setColor('bg', '#ffffff'); }
@@ -228,6 +228,7 @@ function buildOptions() {
     case 'move': add(optCheck(O('auto_select'), T.move, 'auto'), ...moveBoxOptions(), h('span', { class: 'opt-hint' }, O('move_hint'))); break;
     case 'crop': add(optCheck(O('delete_cropped'), T.crop, 'del'), h('span', { class: 'opt-spacer' }), h('button', { class: 'btn', type: 'button', onclick: () => { TOOL.crop.activate(); dirty(); } }, O('reset')), h('button', { class: 'btn primary', type: 'button', onclick: () => TOOL.crop.apply() }, O('crop'))); break;   // i18n-ignore: ids, class names, key names or text for agents
     case 'eyedropper': add(optSelect(O('sample_size'), T.eyedrop, 'size', [[1, O('point')], [3, O('avg3')], [5, O('avg5')], [11, O('avg11')]].map(([v, l]) => [String(v), l])), sampleSourceOpt()); break;
+    case 'rotate': rotateOptions(add); break;
     case 'hand': case 'zoom': add(h('button', { class: 'btn', type: 'button', onclick: () => actualPixels() }, '100%'), h('button', { class: 'btn', type: 'button', onclick: () => fitView() }, O('fit_screen'))); break;
   }
   if (t.id === 'eyedropper') { const s = bar.querySelector('select'); s.value = String(T.eyedrop.size); s.onchange = () => { T.eyedrop.size = +s.value; saveToolOptions(); }; }
