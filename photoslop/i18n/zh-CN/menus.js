@@ -54,10 +54,10 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'photoslop.menu.trim_transparent_pixels': '修剪透明像素',
   'photoslop.menu.new_layer': '新建图层',
   'photoslop.menu.duplicate_layer': '复制图层',
-  'photoslop.menu.duplicate_layers': 'Duplicate Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.duplicate_layers': '复制图层',
   'photoslop.menu.delete': '删除',
   'photoslop.menu.delete_layer': '删除图层',
-  'photoslop.menu.delete_layers': 'Delete Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.delete_layers': '删除图层',
   'photoslop.menu.remove_all_layers': '移除所有图层',
   'photoslop.menu.layer_properties': '图层属性…',
   'photoslop.menu.layer_via_copy': '通过拷贝的图层',
@@ -87,13 +87,13 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'photoslop.menu.send_to_back': '移到最后',
   'photoslop.menu.lock_unlock_layer': '锁定 / 解锁图层',
   'photoslop.menu.merge_down': '向下合并',
-  'photoslop.menu.merge_layers': 'Merge Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.merge_layers': '合并图层',
   'photoslop.menu.merge_visible': '合并可见图层',
   'photoslop.menu.flatten_image': '拼合图像',
   'photoslop.menu.all': '全部',
   'photoslop.menu.deselect': '取消选择',
   'photoslop.menu.inverse': '反选',
-  'photoslop.menu.all_layers': 'All Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.all_layers': '所有图层',
   'photoslop.menu.layer_transparency': '图层透明区域',
   'photoslop.menu.subject': '主体',
   'photoslop.menu.color_range_foreground': '色彩范围（前景色）…',

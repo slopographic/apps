@@ -54,10 +54,10 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'photoslop.tool.hand_short': '抓手',
   'photoslop.tool.zoom': '縮放工具',
   'photoslop.tool.zoom_short': '縮放',
-  'photoslop.tool.rotate': 'Rotate View Tool',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_short': 'Rotate View',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_angle': 'Rotation Angle',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_hint': 'Drag to turn the view · Shift: 15° steps · Esc: 0°',   // English until translated (Rotate View tool)
+  'photoslop.tool.rotate': '旋轉檢視工具',
+  'photoslop.tool.rotate_short': '旋轉檢視',
+  'photoslop.tool.rotate_angle': '旋轉角度',
+  'photoslop.tool.rotate_hint': '拖曳以旋轉檢視 · Shift: 每次 15° · Esc: 0°',
   'photoslop.tool.free_transform': '自由變形',
   'photoslop.tool.free_transform_tip': '自由變形（Ctrl+T）',
   'photoslop.tool.transform_btn': '變形',

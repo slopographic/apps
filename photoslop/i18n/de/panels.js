@@ -42,8 +42,8 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.ctx.create_clip': 'Schnittmaske erstellen',
   'photoslop.ctx.hide_layer': 'Ebene ausblenden',
   'photoslop.ctx.show_layer': 'Ebene einblenden',
-  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
-  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.hide_layers': 'Ebenen ausblenden',
+  'photoslop.ctx.show_layers': 'Ebenen einblenden',
   'photoslop.ctx.expand_panel': 'Bereich ausklappen',
   'photoslop.ctx.collapse_panel': 'Bereich einklappen',
   'photoslop.ctx.load_selection': 'Auswahl laden',

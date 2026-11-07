@@ -54,10 +54,10 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'photoslop.tool.hand_short': "El",
   'photoslop.tool.zoom': "Yakınlaştırma aracı",
   'photoslop.tool.zoom_short': "Yakınlaştır",
-  'photoslop.tool.rotate': 'Rotate View Tool',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_short': 'Rotate View',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_angle': 'Rotation Angle',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_hint': 'Drag to turn the view · Shift: 15° steps · Esc: 0°',   // English until translated (Rotate View tool)
+  'photoslop.tool.rotate': 'Görünüm döndürme aracı',
+  'photoslop.tool.rotate_short': 'Görünümü döndür',
+  'photoslop.tool.rotate_angle': 'Döndürme açısı',
+  'photoslop.tool.rotate_hint': 'Görünümü çevirmek için sürükleyin · Shift: 15° adımlar · Esc: 0°',
   'photoslop.tool.free_transform': "Serbest dönüştürme",
   'photoslop.tool.free_transform_tip': "Serbest dönüştürme (Ctrl+T)",
   'photoslop.tool.transform_btn': "Dönüştür",

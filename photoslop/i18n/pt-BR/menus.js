@@ -54,10 +54,10 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'photoslop.menu.trim_transparent_pixels': 'Aparar pixels transparentes',
   'photoslop.menu.new_layer': 'Nova camada',
   'photoslop.menu.duplicate_layer': 'Duplicar camada',
-  'photoslop.menu.duplicate_layers': 'Duplicate Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.duplicate_layers': 'Duplicar camadas',
   'photoslop.menu.delete': 'Excluir',
   'photoslop.menu.delete_layer': 'Excluir camada',
-  'photoslop.menu.delete_layers': 'Delete Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.delete_layers': 'Excluir camadas',
   'photoslop.menu.remove_all_layers': 'Remover todas as camadas',
   'photoslop.menu.layer_properties': 'Propriedades da camada…',
   'photoslop.menu.layer_via_copy': 'Camada por cópia',
@@ -87,13 +87,13 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'photoslop.menu.send_to_back': 'Enviar para o fundo',
   'photoslop.menu.lock_unlock_layer': 'Bloquear / desbloquear camada',
   'photoslop.menu.merge_down': 'Mesclar com a de baixo',
-  'photoslop.menu.merge_layers': 'Merge Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.merge_layers': 'Mesclar camadas',
   'photoslop.menu.merge_visible': 'Mesclar visíveis',
   'photoslop.menu.flatten_image': 'Achatar imagem',
   'photoslop.menu.all': 'Tudo',
   'photoslop.menu.deselect': 'Desmarcar',
   'photoslop.menu.inverse': 'Inverter',
-  'photoslop.menu.all_layers': 'All Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.all_layers': 'Todas as camadas',
   'photoslop.menu.layer_transparency': 'Transparência da camada',
   'photoslop.menu.subject': 'Sujeito',
   'photoslop.menu.color_range_foreground': 'Intervalo de cores (primeiro plano)…',

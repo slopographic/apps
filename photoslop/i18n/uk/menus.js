@@ -55,10 +55,10 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'photoslop.menu.trim_transparent_pixels': 'Обрізати прозорі пікселі',
   'photoslop.menu.new_layer': 'Створити шар',
   'photoslop.menu.duplicate_layer': 'Дублювати шар',
-  'photoslop.menu.duplicate_layers': 'Duplicate Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.duplicate_layers': 'Дублювати шари',
   'photoslop.menu.delete': 'Видалити',
   'photoslop.menu.delete_layer': 'Видалити шар',
-  'photoslop.menu.delete_layers': 'Delete Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.delete_layers': 'Видалити шари',
   'photoslop.menu.remove_all_layers': 'Вилучити всі шари',
   'photoslop.menu.layer_properties': 'Властивості шару…',
   'photoslop.menu.layer_via_copy': 'Шар через копіювання',
@@ -88,13 +88,13 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'photoslop.menu.send_to_back': 'Перенести на задній план',
   'photoslop.menu.lock_unlock_layer': 'Заблокувати / розблокувати шар',
   'photoslop.menu.merge_down': 'Об’єднати з нижнім',
-  'photoslop.menu.merge_layers': 'Merge Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.merge_layers': 'Об’єднати шари',
   'photoslop.menu.merge_visible': 'Об’єднати видимі',
   'photoslop.menu.flatten_image': 'Звести зображення',
   'photoslop.menu.all': 'Усе',
   'photoslop.menu.deselect': 'Зняти виділення',
   'photoslop.menu.inverse': 'Інвертувати',
-  'photoslop.menu.all_layers': 'All Layers',   // English until translated (multi-layer selection)
+  'photoslop.menu.all_layers': 'Усі шари',
   'photoslop.menu.layer_transparency': 'Прозорість шару',
   'photoslop.menu.subject': 'Об’єкт',
   'photoslop.menu.color_range_foreground': 'Діапазон кольорів (передній план)…',

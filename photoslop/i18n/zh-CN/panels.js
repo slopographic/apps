@@ -42,8 +42,8 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'photoslop.ctx.create_clip': '建立剪贴蒙版',
   'photoslop.ctx.hide_layer': '隐藏图层',
   'photoslop.ctx.show_layer': '显示图层',
-  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
-  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.hide_layers': '隐藏图层',
+  'photoslop.ctx.show_layers': '显示图层',
   'photoslop.ctx.expand_panel': '展开面板',
   'photoslop.ctx.collapse_panel': '折叠面板',
   'photoslop.ctx.load_selection': '载入选区',

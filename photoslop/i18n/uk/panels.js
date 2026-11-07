@@ -43,8 +43,8 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'photoslop.ctx.create_clip': 'Створити маску обтинання',
   'photoslop.ctx.hide_layer': 'Сховати шар',
   'photoslop.ctx.show_layer': 'Показати шар',
-  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
-  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.hide_layers': 'Сховати шари',
+  'photoslop.ctx.show_layers': 'Показати шари',
   'photoslop.ctx.expand_panel': 'Розгорнути панель',
   'photoslop.ctx.collapse_panel': 'Згорнути панель',
   'photoslop.ctx.load_selection': 'Завантажити виділення',

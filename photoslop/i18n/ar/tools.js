@@ -54,10 +54,10 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.tool.hand_short': "يد",
   'photoslop.tool.zoom': "أداة التكبير",
   'photoslop.tool.zoom_short': "تكبير",
-  'photoslop.tool.rotate': 'Rotate View Tool',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_short': 'Rotate View',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_angle': 'Rotation Angle',   // English until translated (Rotate View tool)
-  'photoslop.tool.rotate_hint': 'Drag to turn the view · Shift: 15° steps · Esc: 0°',   // English until translated (Rotate View tool)
+  'photoslop.tool.rotate': 'أداة تدوير العرض',
+  'photoslop.tool.rotate_short': 'تدوير العرض',
+  'photoslop.tool.rotate_angle': 'زاوية التدوير',
+  'photoslop.tool.rotate_hint': 'اسحب لتدوير العرض · Shift: خطوات 15° · Esc: 0°',
   'photoslop.tool.free_transform': "تحويل حر",
   'photoslop.tool.free_transform_tip': "تحويل حر (Ctrl+T)",
   'photoslop.tool.transform_btn': "تحويل",

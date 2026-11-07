@@ -42,8 +42,8 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'photoslop.ctx.create_clip': 'Uitknipmasker maken',
   'photoslop.ctx.hide_layer': 'Laag verbergen',
   'photoslop.ctx.show_layer': 'Laag tonen',
-  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
-  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.hide_layers': 'Lagen verbergen',
+  'photoslop.ctx.show_layers': 'Lagen tonen',
   'photoslop.ctx.expand_panel': 'Deelvenster uitvouwen',
   'photoslop.ctx.collapse_panel': 'Deelvenster samenvouwen',
   'photoslop.ctx.load_selection': 'Selectie laden',

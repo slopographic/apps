@@ -42,8 +42,8 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'photoslop.ctx.create_clip': 'クリッピング マスクを作成',
   'photoslop.ctx.hide_layer': 'レイヤーを非表示',
   'photoslop.ctx.show_layer': 'レイヤーを表示',
-  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
-  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.hide_layers': 'レイヤーを非表示',
+  'photoslop.ctx.show_layers': 'レイヤーを表示',
   'photoslop.ctx.expand_panel': 'パネルを展開',
   'photoslop.ctx.collapse_panel': 'パネルを折りたたむ',
   'photoslop.ctx.load_selection': '選択範囲を読み込み',

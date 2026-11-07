@@ -42,8 +42,8 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.ctx.create_clip': "إنشاء قناع قص",
   'photoslop.ctx.hide_layer': "إخفاء الطبقة",
   'photoslop.ctx.show_layer': "إظهار الطبقة",
-  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
-  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.hide_layers': 'إخفاء الطبقات',
+  'photoslop.ctx.show_layers': 'إظهار الطبقات',
   'photoslop.ctx.expand_panel': "توسيع اللوحة",
   'photoslop.ctx.collapse_panel': "طيّ اللوحة",
   'photoslop.ctx.load_selection': "تحميل التحديد",
