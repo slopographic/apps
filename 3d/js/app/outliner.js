@@ -1,4 +1,4 @@
-/* Slop 3D outliner: the scene as a tree of objects and groups. Click selects (Shift or Ctrl adds), the eye button
+/* Slop 3D outliner: the scene as a tree of objects and groups. Click selects (Shift a range from the anchor, Ctrl/Cmd adds or takes away), the eye button
  * shows or hides, double-click renames. Drag a row onto the middle of a group to put it inside, onto the top or
  * bottom edge to put it before or after. Selection syncs both ways with the viewport. Sets window.Slop3D.outliner. */
 (function () {
@@ -47,8 +47,24 @@
       li.append(icon, name, eye);
       return li;
     }
-    function select(e, id) {
-      if (e.shiftKey || e.ctrlKey || e.metaKey) {
+    /** Like Photoshop's layers: a plain click selects one, Shift the rows from the anchor (the last row clicked without
+     * Shift, or the viewport's pick) to this one as shown, Ctrl/Cmd adds or takes one away, Ctrl/Cmd+Shift adds a range. */
+    let anchor = null, anchorSel = ''; // anchorSel: the selection the outliner left, to tell a viewport pick
+    function select(e, id) { select1(e, id); anchorSel = s.sel.join(); }
+    function select1(e, id) {
+      const tog = e.ctrlKey || e.metaKey;
+      if (e.shiftKey) {
+        const ids = [...list.querySelectorAll('.outl-row')].map((r) => r.dataset.id);
+        if (s.sel.join() !== anchorSel) anchor = st.primary(); // a pick in the viewport moves the anchor
+        const a = ids.indexOf(anchor), b = ids.indexOf(id);
+        if (a >= 0 && b >= 0) {
+          const range = ids.slice(Math.min(a, b), Math.max(a, b) + 1).filter((x) => x !== id).concat(id); // the clicked row is the primary
+          st.select(tog ? s.sel.filter((x) => !range.includes(x)).concat(range) : range);
+          return;
+        }
+      }
+      anchor = id;
+      if (tog || e.shiftKey) {
         const cur = s.sel.slice(), i = cur.indexOf(id);
         if (i >= 0) cur.splice(i, 1); else cur.push(id);
         st.select(cur);

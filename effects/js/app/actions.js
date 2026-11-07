@@ -60,19 +60,27 @@
       return id;
     }
 
+    /** Every layer picked in the timeline (Shift and Ctrl/Cmd pick several), the one in Properties last. */
+    const picked = () => (S.sel.layer ? (S.sel.layers || []).filter((id) => id !== S.sel.layer).concat(S.sel.layer) : []);
+
     function removeLayer() {
-      const id = S.sel.layer;
-      if (!id) return;
-      S.edit(T('effects.undo.delete_layer'), (d) => L().removeLayer(d, id));
+      const ids = picked();
+      if (!ids.length) return;
+      S.edit(T('effects.undo.delete_layer'), (d) => ids.reduce((acc, id) => L().removeLayer(acc, id), d));
       S.select({ layer: null, keys: [], fx: null });
     }
 
     function duplicateLayer() {
-      const id = S.sel.layer;
-      if (!id) return;
-      let nid = null;
-      S.edit(T('effects.cmd.dup'), (d) => { const r = L().duplicateLayer(d, id); nid = r.id; return r.doc; });
-      if (nid) S.select({ layer: nid, keys: [], fx: null });
+      const ids = picked(), nids = [];
+      if (!ids.length) return;
+      S.edit(T('effects.cmd.dup'), (d) => ids.reduce((acc, id) => { const r = L().duplicateLayer(acc, id); nids.push(r.id); return r.doc; }, d));
+      if (nids.length) S.select({ layer: nids[nids.length - 1], layers: nids, keys: [], fx: null });
+    }
+
+    /** Hides or shows a layer; a picked layer takes every picked layer with it. */
+    function setHidden(id, hidden) {
+      const ids = picked().length > 1 && picked().includes(id) ? picked() : [id];
+      S.edit(T(hidden ? 'effects.tl.hide' : 'effects.tl.show'), (d) => ids.reduce((acc, x) => L().setHidden(acc, x, hidden), d));
     }
 
     function moveLayer(delta) {
@@ -158,7 +166,7 @@
     }
 
     return {
-      toast, sel, isKeyed, valueNow, setValue, toggleKeyed, addLayer, removeLayer, duplicateLayer, moveLayer, setParent,
+      toast, sel, isKeyed, valueNow, setValue, toggleKeyed, addLayer, removeLayer, duplicateLayer, setHidden, picked, moveLayer, setParent,
       setComp, renameProject, addMediaLayer, nextMediaId, addEffect, removeEffect, moveEffect, setEffectOn, deleteSelection,
     };
   }

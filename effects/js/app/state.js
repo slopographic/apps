@@ -14,7 +14,7 @@
       hist: ns.history.create(),
       drag: null,          // the document before a live drag started (null when not dragging)
       lastLabel: '',
-      sel: { layer: null, keys: [], fx: null },
+      sel: { layer: null, layers: [], keys: [], fx: null }, // layer: the one shown in Properties; layers: every layer picked
       playhead: 0,
       range: null,         // { in, out } in seconds, or null
       loop: true,
@@ -25,6 +25,7 @@
     /** Keeps the selection pointing at things that still exist. */
     function tidy() {
       if (S.sel.layer && !S.doc.layers.some((l) => l.id === S.sel.layer)) { S.sel.layer = null; S.sel.fx = null; S.sel.keys = []; }
+      S.sel.layers = S.sel.layer ? (S.sel.layers || []).filter((id) => id !== S.sel.layer && S.doc.layers.some((l) => l.id === id)).concat(S.sel.layer) : [];
       if (S.sel.fx && !(S.sel.layer && ns.core.findLayer(S.doc, S.sel.layer).effects.some((f) => f.id === S.sel.fx))) S.sel.fx = null;
       S.sel.keys = S.sel.keys.filter((k) => S.doc.layers.some((l) => l.id === k.layer) && (S.doc.tl.tracks[k.layer] || {})[k.prop]);
       S.playhead = Math.min(S.playhead, S.doc.comp.duration);
@@ -96,7 +97,7 @@
       S.lastLabel = label;
       S.playhead = 0;
       S.range = null;
-      S.sel = { layer: null, keys: [], fx: null };
+      S.sel = { layer: null, layers: [], keys: [], fx: null };
       tidy();
       emit('doc');
     }
@@ -108,7 +109,9 @@
       S.playhead = Math.min(p, S.doc.comp.duration);
       emit('time');
     }
+    /** Changes the selection. A new layer without layers picks that one alone. */
     function select(patch) {
+      if ('layer' in patch && !('layers' in patch)) patch = { ...patch, layers: patch.layer ? [patch.layer] : [] };
       Object.assign(S.sel, patch);
       tidy();
       emit('sel');
