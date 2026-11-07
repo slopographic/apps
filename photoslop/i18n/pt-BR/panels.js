@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'photoslop.ctx.create_clip': 'Criar máscara de recorte',
   'photoslop.ctx.hide_layer': 'Ocultar camada',
   'photoslop.ctx.show_layer': 'Mostrar camada',
+  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
   'photoslop.ctx.expand_panel': 'Expandir painel',
   'photoslop.ctx.collapse_panel': 'Recolher painel',
   'photoslop.ctx.load_selection': 'Carregar seleção',

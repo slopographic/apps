@@ -5,22 +5,24 @@
 /** Painting tools, and tools with their own handles: the box stays hidden under them. */
 const BOX_HIDDEN_TOOLS = new Set(['brush', 'pencil', 'clone', 'heal', 'spot', 'redeye', 'remove', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'crop', 'hand', 'rotate', 'zoom', 'eyedropper']);
 
-/** The selected part of the layer (cached per canvas, selection and position). */
-const selBoxCache = { c: null, sel: null, x: 0, y: 0, b: null };
+/** The selected part of a layer (cached per canvas, selection and position). */
+const selBoxCache = new WeakMap();
 function layerSelBounds(L) {
-  if (selBoxCache.c !== L.canvas || selBoxCache.sel !== D.sel || selBoxCache.x !== L.x || selBoxCache.y !== L.y) {
+  let e = selBoxCache.get(L.canvas);
+  if (!e || e.sel !== D.sel || e.x !== L.x || e.y !== L.y) {
     const c = copyCanvas(L.canvas), g = cx(c);
     g.globalCompositeOperation = 'destination-in'; g.drawImage(selInLayer(L), 0, 0);
     const b = alphaBounds(c);
-    Object.assign(selBoxCache, { c: L.canvas, sel: D.sel, x: L.x, y: L.y, b: b && { x: b.x + L.x, y: b.y + L.y, w: b.w, h: b.h } });
+    e = { sel: D.sel, x: L.x, y: L.y, b: b && { x: b.x + L.x, y: b.y + L.y, w: b.w, h: b.h } }; selBoxCache.set(L.canvas, e);
   }
-  return selBoxCache.b;
+  return e.b;
 }
-/** The box in document space: the layer's pixels, or the selected part of them. Null when there is none to show. */
+/** The box in document space: the pixels (or the selected part of them) of the layers Free Transform would take, the
+ *  active layer and those selected with it (layers/multi.js). Null when there is none to show. */
 function boxTarget() {
   const L = activeLayer();
   if (!L || !L.visible || L.locked || TRANSFORM.active || BOX_HIDDEN_TOOLS.has(UI.tool)) return null;
-  return D.sel ? layerSelBounds(L) : layerBoundsDoc(L);
+  return unionBounds(transformLayers().map((q) => (D.sel ? layerSelBounds(q) : layerBoundsDoc(q))));
 }
 /** Drawn when the Layer Bounds view option is on and no drag or transform is running. */
 function boxShown() { return !live && !V.op && !TRANSFORM.active && store.get('showBounds', true); }

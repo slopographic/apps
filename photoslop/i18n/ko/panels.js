@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'photoslop.ctx.create_clip': '클리핑 마스크 만들기',
   'photoslop.ctx.hide_layer': '레이어 숨기기',
   'photoslop.ctx.show_layer': '레이어 표시',
+  'photoslop.ctx.hide_layers': 'Hide Layers',   // English until translated (multi-layer selection)
+  'photoslop.ctx.show_layers': 'Show Layers',   // English until translated (multi-layer selection)
   'photoslop.ctx.expand_panel': '패널 펼치기',
   'photoslop.ctx.collapse_panel': '패널 접기',
   'photoslop.ctx.load_selection': '선택 영역 불러오기',
