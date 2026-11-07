@@ -15,7 +15,7 @@ function startTransform() {
   if (!L.visible) { toast(tr('photoslop.tool.show_layer_first')); return; }
   if (TE.el) endTypeEdit();
   const parts = [];
-  for (let Q of selectedLayers().filter((q) => q.id === L.id || (q.visible && !q.locked))) {
+  for (let Q of transformLayers()) {
     if (Q.text || Q.shape) Q = rasterizeText(Q, true);
     const part = tfPart(Q); if (part) parts.push(part);
   }

@@ -112,13 +112,44 @@ function moveTargets() {
   const ids = selectedLayers().filter((l) => !l.locked).map((l) => l.id);
   return ids.length ? ids : null;
 }
-/** The union of the bounds in the document of several layers (snapping a multi-layer move). */
-function layersBoundsDoc(ids) {
+/** The union of rectangles { x, y, w, h } (nulls skipped); null when there is none. */
+function unionBounds(rects) {
   let b = null;
-  for (const id of ids) {
-    const L = D.layers.find((l) => l.id === id), r = L && layerBoundsDoc(L); if (!r) continue;
-    if (!b) b = Object.assign({}, r);
-    else { const x1 = Math.max(b.x + b.w, r.x + r.w), y1 = Math.max(b.y + b.h, r.y + r.h); b.x = Math.min(b.x, r.x); b.y = Math.min(b.y, r.y); b.w = x1 - b.x; b.h = y1 - b.y; }
+  for (const r of rects) {
+    if (!r) continue;
+    if (!b) { b = Object.assign({}, r); continue; }
+    const x1 = Math.max(b.x + b.w, r.x + r.w), y1 = Math.max(b.y + b.h, r.y + r.h); b.x = Math.min(b.x, r.x); b.y = Math.min(b.y, r.y); b.w = x1 - b.x; b.h = y1 - b.y;
   }
   return b;
+}
+/** The union of the bounds in the document of several layers (snapping a multi-layer move). */
+function layersBoundsDoc(ids) { return unionBounds(ids.map((id) => { const L = D.layers.find((l) => l.id === id); return L && layerBoundsDoc(L); })); }
+/** The layers Free Transform takes: the active one, and the visible, unlocked layers selected with it. */
+const transformLayers = () => { const A = activeLayer(); return selectedLayers().filter((q) => q === A || (q.visible && !q.locked)); };
+
+/* ---------- the panel's blend mode, opacity and lock, and Arrange, on the selection ---------- */
+/** Patches every selected layer (opacity while the slider moves); with a label, one history step. */
+function setSelectedProps(patch, label) {
+  for (const id of selectedLayerIds()) patchLayer(id, patch);
+  if (label) commit(label); else emit('doc');
+}
+/** Lock or unlock every selected layer, as the active one turns (the panel's lock, Layer ▸ Lock / Unlock, Ctrl+/). */
+function toggleLockSelected(lockKey, unlockKey) {
+  const on = !activeLayer().locked;
+  setSelectedProps({ locked: on }, tr(on ? lockKey : unlockKey));
+}
+/** Layer ▸ Arrange on the selection, keeping its order: front and back move them all to the top or the bottom;
+ *  forward and backward move each one step past the next unselected layer (a selected neighbour holds it). */
+function arrangeLayers(kind) {
+  const ids = new Set(selectedLayerIds()), was = D.layers.slice(), Ls = D.layers.slice(), on = (i) => ids.has(Ls[i].id);
+  if (kind === 'front' || kind === 'back') {
+    const sel = Ls.filter((l) => ids.has(l.id)), rest = Ls.filter((l) => !ids.has(l.id));
+    Ls.splice(0, Ls.length, ...(kind === 'front' ? rest.concat(sel) : sel.concat(rest)));
+  } else if (kind === 'forward') {
+    for (let i = Ls.length - 2; i >= 0; i--) if (on(i) && !on(i + 1)) [Ls[i], Ls[i + 1]] = [Ls[i + 1], Ls[i]];
+  } else {
+    for (let i = 1; i < Ls.length; i++) if (on(i) && !on(i - 1)) [Ls[i], Ls[i - 1]] = [Ls[i - 1], Ls[i]];
+  }
+  if (Ls.every((l, i) => l === was[i])) return;
+  D.layers = Ls; commit(tr('photoslop.core.step_move_layer'));
 }

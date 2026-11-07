@@ -99,17 +99,17 @@ function buildLayersPanel() {
   const btn = (key, d, fn) => { const title = tr(P(key)); const b = h('button', { type: 'button', class: 'lp-btn', title, 'aria-label': title, 'data-i18n-attr': 'title:' + P(key) + ';' + A(key), html: `<svg viewBox="0 0 24 24"><path d="${d}"/></svg>` }); b.addEventListener('click', fn); return b; };
   const fx = btn('layer_style', 'M5 19c3 0 3-14 6-14M4 10h8M14 9l6 8M20 9l-6 8', (e) => { const r = e.currentTarget.getBoundingClientRect(); closeMenus(); const m = renderMenu(filterMenu('style'), r.left, r.top, 0); m.style.top = Math.max(0, r.top - m.getBoundingClientRect().height) + 'px'; openMenu = { btn: e.currentTarget, m }; });
   const foot = h('div', { class: 'lp-foot' },
-    btn('lock', 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z', () => { const L = activeLayer(); setLayerProps(L.id, { locked: !L.locked }, tr(P(L.locked ? 'step_unlock' : 'step_lock'))); }),
+    btn('lock', 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z', () => toggleLockSelected(P('step_lock'), P('step_unlock'))),   // lock, blend and opacity: every selected layer (layers/multi.js)
     fx,
     btn('add_mask', 'M3 5h18v14H3zM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z', (e) => { if (hasMask()) { UI.editMask = !UI.editMask; emit('doc'); return; } const r = e.currentTarget.getBoundingClientRect(); showContextMenu(maskAddItems(), r.left, r.top); }),
     btn('merge_down', 'M12 4v12M7 11l5 5 5-5M5 20h14', () => mergeSelectedOrDown()),   // Merge Layers with several selected (layers/multi.js)
     btn('duplicate', 'M8 8h12v12H8zM4 16V4h12', () => duplicateSelectedLayers()),
     btn('new_layer', 'M4 4h16v16H4zM12 8v8M8 12h8', () => addLayer()),
     btn('delete_layer', 'M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3', () => deleteSelectedLayers()));
-  blend.addEventListener('change', () => setLayerProps(D.activeId, { blend: blend.value }, tr(P('step_blend'))));
-  op.addEventListener('input', () => { patchLayer(D.activeId, { opacity: op.value / 100 }); opN.value = op.value; emit('doc'); });
+  blend.addEventListener('change', () => setSelectedProps({ blend: blend.value }, tr(P('step_blend'))));
+  op.addEventListener('input', () => { opN.value = op.value; setSelectedProps({ opacity: op.value / 100 }); });
   op.addEventListener('change', () => commit(tr(P('step_opacity'))));
-  opN.addEventListener('change', () => { setLayerProps(D.activeId, { opacity: clamp(+opN.value, 0, 100) / 100 }, tr(P('step_opacity'))); });
+  opN.addEventListener('change', () => setSelectedProps({ opacity: clamp(+opN.value, 0, 100) / 100 }, tr(P('step_opacity'))));
   let dragId = null;
   const render = () => {
     const L0 = activeLayer();
