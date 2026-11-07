@@ -59,6 +59,7 @@ function toolCommands() {
     ids.forEach((id, i) => out.push({ id: 'ps.tool.' + id, title: TOOL[id].name, group: cmdGroup('Tools'), icon: TOOL[id].icon, keys: i ? [] : [k], keywords: ['tool', k], checked: () => UI.tool === id, run: () => (i ? selectTool(id) : pickToolKey(k, false)) }));   // i18n-ignore: ids, class names, key names or text for agents
     if (ids.length > 1) out.push({ id: 'ps.tool.cycle-' + slug(k), title: tr('photoslop.cmd.cycle_tools', { tools: ids.map((id) => TOOL[id].short || TOOL[id].name).join(' / ') }), group: cmdGroup('Tools'), keys: ['Shift+' + k], run: () => pickToolKey(k, true) });   // i18n-ignore: ids, class names, key names or text for agents
   }
+  for (const t of TOOLS) if (!t.key) out.push({ id: 'ps.tool.' + t.id, title: t.name, group: cmdGroup('Tools'), icon: t.icon, keys: [], keywords: ['tool'], checked: () => UI.tool === t.id, run: () => selectTool(t.id) });   // i18n-ignore: ids; tools without a key (smudge, blur, sharpen)
   const C2 = (id, key, keys, run, extra, vars) => out.push(Object.assign({ id: 'ps.' + id, title: tr('photoslop.cmd.' + key, vars), group: cmdGroup((extra && extra.group) || 'Canvas'), keys, run }, extra, extra && extra.group ? { group: cmdGroup(extra.group) } : {}));   // i18n-ignore: ids, class names, key names or text for agents
   C2('swap-colors', 'swap_colors', ['X'], swapColors);
   C2('default-colors', 'default_colors', ['D'], defaultColors);

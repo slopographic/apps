@@ -54,6 +54,10 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'photoslop.tool.hand_short': 'Mão',
   'photoslop.tool.zoom': 'Ferramenta Zoom',
   'photoslop.tool.zoom_short': 'Zoom',
+  'photoslop.tool.rotate': 'Rotate View Tool',   // English until translated (Rotate View tool)
+  'photoslop.tool.rotate_short': 'Rotate View',   // English until translated (Rotate View tool)
+  'photoslop.tool.rotate_angle': 'Rotation Angle',   // English until translated (Rotate View tool)
+  'photoslop.tool.rotate_hint': 'Drag to turn the view · Shift: 15° steps · Esc: 0°',   // English until translated (Rotate View tool)
   'photoslop.tool.free_transform': 'Transformação livre',
   'photoslop.tool.free_transform_tip': 'Transformação livre (Ctrl+T)',
   'photoslop.tool.transform_btn': 'Transformar',
