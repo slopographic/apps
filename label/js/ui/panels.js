@@ -55,13 +55,28 @@ function renderObjects(body) {
       mk('span', { class: 'acts' },
         act(o.hidden ? '◌' : '◉', o.hidden ? LT('label.menu.show') : LT('label.menu.hide'), () => { o.hidden = !o.hidden; commit(o.hidden ? LT('label.menu.hide') : LT('label.menu.show')); }),
         act(o.locked ? '🔒' : '🔓', o.locked ? LT('label.menu.unlock') : LT('label.menu.lock'), () => { o.locked = !o.locked; commit(o.locked ? LT('label.menu.lock') : LT('label.menu.unlock')); })));
-    row.addEventListener('click', (e) => select([o.id], e.shiftKey || e.ctrlKey || e.metaKey));
+    row.addEventListener('click', (e) => pickObjectRow(o.id, e));
     row.addEventListener('dblclick', () => { select([o.id]); focusContent(); });
     row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select([o.id]); } });
     row.addEventListener('contextmenu', (e) => { e.preventDefault(); if (!App.sel.includes(o.id)) select([o.id]); openContext(o, e.clientX, e.clientY); });
     list.append(row);
   }
   body.append(list, App.sel.length ? arrangeSection(App.sel.length === 1) : mk('p', { class: 'hint' }, LT('label.panels.top_of_the_list_prints')));
+}
+/* Rows pick like Photoshop's layers: a click selects one, Shift the rows from the anchor (the last row clicked without
+ * Shift, or the last object picked on the label) to this one as shown, Ctrl/Cmd adds or takes one away, both add a range. */
+let objAnchor = null, objAnchorSel = ''; // the selection the list left, to tell a pick on the label
+function pickObjectRow(id, e) { pickObjectRow1(id, e); objAnchorSel = App.sel.join(); }
+function pickObjectRow1(id, e) {
+  const tog = e.ctrlKey || e.metaKey;
+  if (e.shiftKey) {
+    const shown = App.doc.objects.slice().reverse().map((o) => o.id);
+    if (App.sel.join() !== objAnchorSel) objAnchor = App.sel[App.sel.length - 1];
+    const a = shown.indexOf(objAnchor), b = shown.indexOf(id);
+    if (a >= 0 && b >= 0) { const range = shown.slice(Math.min(a, b), Math.max(a, b) + 1); select(tog ? [...new Set(App.sel.concat(range))] : range); return; }
+  }
+  objAnchor = id;
+  select([id], tog || e.shiftKey);
 }
 
 /* ---------------- variables ---------------- */

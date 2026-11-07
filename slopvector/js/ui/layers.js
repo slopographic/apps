@@ -110,13 +110,42 @@
     if (e.target.closest('.ltw')) { if (f.kind === 'layer') { o.expanded = !o.expanded; SV.requestRender(true); } else { expandedObjs[id] = !expandedObjs[id]; SV.requestRender(true); } return; }
     if (f.kind === 'layer') {
       S.activeLayer = id;
-      if (e.target.closest('.ltarget')) { if (o.hidden || o.locked) return UI.toast(o.hidden ? SV.t('vector.layers.is_hidden') : SV.t('vector.layers.is_locked'), 'warn'); SV.select(o.children.filter(function (c) { return !c.hidden && !c.locked; }).map(function (c) { return c.id; })); return; }
+      if (e.target.closest('.ltarget')) { if (o.hidden || o.locked) return UI.toast(o.hidden ? SV.t('vector.layers.is_hidden') : SV.t('vector.layers.is_locked'), 'warn'); targetLayer(o, e); return; }
       SV.requestRender(true); return;
     }
     if (!SV.isEditable(o)) { UI.toast(o.locked ? SV.t('vector.layers.obj_locked') : SV.t('vector.layers.obj_hidden'), 'warn'); return; }
-    if (e.shiftKey || e.ctrlKey || e.metaKey) { var ns = S.sel.slice(), k = ns.indexOf(id); if (k >= 0) ns.splice(k, 1); else ns.push(id); SV.select(ns); }
+    pickObj(id, e);
+    if (S.tool === 'direct') { S.psel = {}; S.sel.forEach(function (s) { SV.leaves(getObj(s)).forEach(function (l) { SV.selectAllPoints(l); }); }); }
+  }
+  /* Photoshop/Illustrator rows: a plain click selects one, Shift selects every object row from the anchor (the last row
+     clicked without Shift, or the last object selected on the canvas) to this one in the order shown, Ctrl/Cmd adds or
+     takes one away, Ctrl/Cmd+Shift adds the range. anchorSel: the selection the panel left, to tell a canvas pick. */
+  var anchorId = null, anchorSel = '';
+  function pickObj(id, e) { pickObj1(id, e); anchorSel = S.sel.join(); }
+  function pickObj1(id, e) {
+    var tog = e.ctrlKey || e.metaKey;
+    if (e.shiftKey) {
+      var ids = [].map.call(document.querySelectorAll('#layersList .lrow.obj'), function (r) { return r.getAttribute('data-id'); });
+      if (S.sel.join() !== anchorSel) anchorId = S.sel[S.sel.length - 1]; // a canvas pick moves the anchor
+      var a = ids.indexOf(anchorId), b = ids.indexOf(id);
+      if (a >= 0 && b >= 0) {
+        var range = ids.slice(min(a, b), max(a, b) + 1).filter(function (x) { var ob = getObj(x); return ob && SV.isEditable(ob); });
+        range = range.filter(function (x) { return !range.some(function (g) { return g !== x && inGroup(getObj(g), x); }); });
+        if (range.indexOf(id) >= 0) { range.splice(range.indexOf(id), 1); range.push(id); }
+        SV.select(tog ? S.sel.concat(range) : range); return;
+      }
+    }
+    anchorId = id;
+    if (tog || e.shiftKey) { var ns = S.sel.slice(), k = ns.indexOf(id); if (k >= 0) ns.splice(k, 1); else ns.push(id); SV.select(ns); }
     else SV.select([id]);
-    if (S.tool === 'direct') { S.psel = {}; SV.leaves(o).forEach(function (l) { SV.selectAllPoints(l); }); }
+  }
+  function inGroup(g, id) { return !!g && g.type === 'group' && g.children.some(function (c) { return c.id === id || inGroup(c, id); }); }
+  /* Shift or Ctrl/Cmd on a layer's target circle adds the layer's objects to the selection (all of them in it: takes them away). */
+  function targetLayer(o, e) {
+    var ids = o.children.filter(function (c) { return !c.hidden && !c.locked; }).map(function (c) { return c.id; });
+    if (!(e.shiftKey || e.ctrlKey || e.metaKey)) { SV.select(ids); return; }
+    var all = ids.length && ids.every(function (x) { return S.sel.indexOf(x) >= 0; });
+    SV.select(all ? S.sel.filter(function (x) { return ids.indexOf(x) < 0; }) : S.sel.concat(ids));
   }
   function onLayerDbl(e) {
     var r = e.target.closest('.lrow'); if (!r || !e.target.closest('.lname') || UI.st.renaming) return;
