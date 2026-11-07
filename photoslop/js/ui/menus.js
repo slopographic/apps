@@ -153,7 +153,7 @@ const MENUS = [
     ] },
     { k: 'lock_unlock_layer', key: 'Ctrl+/', act: () => { const L = activeLayer(); setLayerProps(L.id, { locked: !L.locked }, tr(L.locked ? 'photoslop.menu.undo_unlock_layer' : 'photoslop.menu.undo_lock_layer')); } },
     '-',
-    { k: 'merge_down', key: 'Ctrl+E', act: () => mergeSelectedOrDown(), dyn: mergeLabel },
+    { k: 'merge_down', key: 'Ctrl+E', act: () => mergeSelectedOrDown(), dyn: () => mergeLabel() },
     { k: 'merge_visible', key: 'Shift+Ctrl+E', act: () => mergeVisible() },
     { k: 'flatten_image', act: () => flattenImage() },
   ]],

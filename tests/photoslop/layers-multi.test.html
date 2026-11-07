@@ -85,6 +85,7 @@
     it('the Move tool drags and nudges every selected layer in one step; undo leaves one layer selected', async () => {
       const { a, b, c } = await scene();
       pick(a); pick(b, { ctrlKey: true });
+      W.store.set('snap', false);   // no snapping to the page's edges and centre: the drag is exact
       const steps = W.Hist.idx;
       ptr('pointerdown', scr(100, 50)); ptr('pointermove', scr(105, 52)); ptr('pointermove', scr(110, 55)); ptr('pointerup', scr(110, 55));
       expect(W.Hist.idx).toBe(steps + 1);
