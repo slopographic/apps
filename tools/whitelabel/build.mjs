@@ -48,6 +48,10 @@ const encrypted = (file, text, sha256) => ({ file, term: '(unreadable)', why: `e
 export const SCAN_ALLOW = [
   { file: 'vendor/models/isnet-general-w8.onnx', term: 'slop', why: 'four bytes of the model weights happen to spell it ("PRSLOPHJM"); not text',
     sha256: 'd26c429eb10cb83457239610a7cc4ccf21775e7bc18c16bc626c5bbf3b9743b8' },
+  { file: 'vendor/codemirror/legacy-clojure.js', term: 'slurp', why: 'the Clojure function names (slurp, spit) in the vendored language mode; not a name',
+    sha256: '20e604a334ed9decd4de92943aba76c041a1a7eecf20f8e6da106c04cedd1f73' },
+  { file: 'vendor/codemirror/legacy-perl.js', term: 'slop', why: 'the Perl variable ${^WIN32_SLOPPY_STAT} in the vendored language mode; not a name',
+    sha256: '9fb887bd6876e4e50ec25e592ba1b48dd0e3d2dbffe80857bc2bcf5bfba46338' },
   encrypted('tests/pdf-crypto/fixtures/qpdf-aes128.pdf', 'title "Fixture", "Known answer page"', 'a5fc18631ef31592aff1fb5c7437be4bdb440dc454855cd775ca467fd39eccd1'),
   encrypted('tests/pdf-crypto/fixtures/qpdf-aes256.pdf', 'title "Fixture", "Known answer page"', 'b2e03f79d3831294be006edb61fbf8ef2dedfba94c8b35bfafe354e529010694'),
   encrypted('tests/pdf/fixtures/locked-aes-128.pdf', '"Secret page 1", "Secret page 2"', 'c724c4b718a3fea35aaaed4c9986b25f4b539090d3e9764676e1c23d92ec760b'),

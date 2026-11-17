@@ -1,6 +1,7 @@
 /* Slop Code: the SlopUI dialogs (never a browser alert or confirm). */
 import { el, t } from './dom.js';
-import { LANGS, languageById, withExt, langLabel } from './lang.js';
+import { allLanguages, languageById, withExt, langLabel } from './lang.js';
+import { ENCODINGS, EOLS } from './encoding.js';
 
 const UI = () => window.SlopUI;
 
@@ -8,7 +9,7 @@ const UI = () => window.SlopUI;
 export function askNewFile(folderLabel, startId = 'javascript') {
   return new Promise((res) => {
     let picked = null;
-    const sel = UI().select(LANGS.map((l) => [l.id, langLabel(l)]), startId);
+    const sel = UI().select(allLanguages().map((l) => [l.id, langLabel(l)]), startId);
     const name = el('input', { class: 'sui-input', type: 'text', value: withExt('untitled', languageById(startId)),
       'aria-label': t('code.dlg.file_name'), spellcheck: 'false', autocomplete: 'off' });
     sel.addEventListener('change', () => { name.value = withExt(name.value, languageById(sel.value)); });
@@ -44,10 +45,32 @@ export const askTrash = (name, isFolder) => UI().confirm(t('code.dlg.delete_q', 
 export function askLanguage(curId) {
   return new Promise((res) => {
     let picked = null;
-    const sel = UI().select(LANGS.map((l) => [l.id, langLabel(l)]), curId);
+    const sel = UI().select(allLanguages().map((l) => [l.id, langLabel(l)]), curId);
     const body = el('div', null, UI().field(t('code.dlg.language'), sel),
       el('p', { class: 'sui-p cd-note' }, t('code.dlg.language_note')));
     UI().dialog({ title: t('code.dlg.language_mode'), body, buttons: [{ label: t('menu.cancel') }, { label: t('code.dlg.set'), primary: true, act: () => { picked = sel.value; } }],
+      onClose: () => res(picked) });
+  });
+}
+
+/** Reopen with another encoding: for a file whose letters look wrong. Resolves the encoding id, or null on Cancel. */
+export function askEncoding(curId) {
+  return new Promise((res) => {
+    let picked = null;
+    const sel = UI().select(ENCODINGS.map((e) => [e.id, e.label]), curId);
+    const body = el('div', null, UI().field(t('code.dlg.encoding'), sel), el('p', { class: 'sui-p cd-note' }, t('code.dlg.encoding_note')));
+    UI().dialog({ title: t('code.dlg.encoding_title'), body, buttons: [{ label: t('menu.cancel') }, { label: t('code.dlg.reopen'), primary: true, act: () => { picked = sel.value; } }],
+      onClose: () => res(picked) });
+  });
+}
+
+/** Line endings for the next save. Resolves 'lf', 'crlf' or 'cr', or null on Cancel. */
+export function askEol(curId) {
+  return new Promise((res) => {
+    let picked = null;
+    const sel = UI().select(EOLS.map((e) => [e.id, e.label]), curId);
+    const body = el('div', null, UI().field(t('code.dlg.eol'), sel), el('p', { class: 'sui-p cd-note' }, t('code.dlg.eol_note')));
+    UI().dialog({ title: t('code.dlg.eol_title'), body, buttons: [{ label: t('menu.cancel') }, { label: t('code.dlg.set'), primary: true, act: () => { picked = sel.value; } }],
       onClose: () => res(picked) });
   });
 }

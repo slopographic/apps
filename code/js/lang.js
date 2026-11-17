@@ -6,6 +6,7 @@ import { css } from '@codemirror/lang-css';
 import { json } from '@codemirror/lang-json';
 import { markdown } from '@codemirror/lang-markdown';
 import { python } from '@codemirror/lang-python';
+import { MORE, moreById, moreByName } from './langs-more.js';
 
 export const LANGS = [
   { id: 'javascript', label: 'JavaScript', ext: 'js', exts: ['js', 'mjs', 'cjs', 'jsx'], mime: 'text/javascript', support: (x) => javascript({ jsx: x === 'jsx' }) },
@@ -24,12 +25,22 @@ export function extOf(name) {
   const s = String(name || ''), i = s.lastIndexOf('.');
   return i > 0 && i < s.length - 1 ? s.slice(i + 1).toLowerCase() : '';
 }
-/** The language for a file name. Unknown extensions are plain text. */
+const extra = new Map(); // id -> the language object of an extra entry (one object each)
+/** An extra language (langs-more.js): its highlighting is a vendored mode loaded on demand (lang-load.js), so `support` is empty until then. */
+function fromMore(e) {
+  if (!extra.has(e.id)) extra.set(e.id, { id: e.id, label: e.label, ext: e.ext, exts: e.exts, mime: e.mime, support: () => [], more: e });
+  return extra.get(e.id);
+}
+/** The language for a file name: a known whole name (Dockerfile, .env) or extension; anything else is plain text. */
 export function languageFor(name) {
+  const m = moreByName(name);
+  if (m) return fromMore(m);
   const x = extOf(name);
   return LANGS.find((l) => l.exts.includes(x)) || TEXT;
 }
-export const languageById = (id) => LANGS.find((l) => l.id === id) || TEXT;
+export const languageById = (id) => LANGS.find((l) => l.id === id) || (moreById(id) ? fromMore(moreById(id)) : TEXT);
+/** Every language a person can pick: the built-in ones, then the extra ones by name. */
+export const allLanguages = () => [...LANGS, ...MORE.slice().sort((a, b) => a.label.localeCompare(b.label)).map(fromMore)];
 export const mimeFor = (name) => languageFor(name).mime;
 /** The CodeMirror support for a file name (a LanguageSupport, or [] for plain text). */
 export const supportFor = (name) => languageFor(name).support(extOf(name));

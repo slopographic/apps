@@ -5,6 +5,8 @@
  *   pan    drag with the mouse, or one finger; two fingers pan while they pinch. Smaller than the view = centred.
  *   touch  double-tap toggles fit / 2×.
  *   keys   Escape closes and ← → call onPrev / onNext, when the host gives them.
+ *   kind 'database' (blob or blobUrl: a FileMaker file) shows its tables in the viewer of shared/fmp (SlopFmpView.show), whose
+ *          scripts are loaded when the first one is shown. It has no zoom or toolbar: the viewer has its own header and Export.
  *   chrome true (default): a header with the title and a close button, and a footer with actions[].
  *          false: only the toolbar and the picture, for a host with its own header and footer (Quick look).
  *   renderPages() resolves to { pages: HTMLElement[] (each with px style width and height), note? }.
@@ -12,6 +14,8 @@
 (function () {
   'use strict';
   const SP = (window.SlopPreview = window.SlopPreview || {});
+  // shared/fmp/, next to this script's own folder: where a database file's viewer is loaded from
+  const FMP = ((document.currentScript && document.currentScript.src) || '').replace(/preview\/[^/]*$/, 'fmp/');
   const MIN = 0.05, MAX = 16, STEP = 1.25;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -21,6 +25,7 @@
     SP.injectStyle();
     const pdf = o.kind === 'pdf' && typeof o.renderPages === 'function';
     const zoomable = o.kind === 'image' || pdf;
+    const dbk = o.kind === 'database';
     const root = SP.el('div', 'spv');
     root.tabIndex = -1;
     root.setAttribute('role', 'group');
@@ -32,10 +37,11 @@
     stage.setAttribute('data-touch-surface', ''); // a touch surface with its own pinch and pan (shared/input/HANDOFF.md)
     const content = SP.el('div', 'spv-content');
     stage.append(content);
+    const dbHost = dbk ? SP.el('div', 'spv-db') : null; // a database file is drawn here, not in the zoomable stage
     // s: scale (1 = 100% of the content's size w × h); x, y: the content's top-left in the stage; fit: follow the window.
     const v = { s: 1, x: 0, y: 0, w: 0, h: 0, fit: true };
     const pts = new Map(); // pointer id → position in the stage
-    let pinch = null, tap = null, lastTap = null, note = null, closed = false, ro = null, wasAttached = false;
+    let pinch = null, tap = null, lastTap = null, note = null, closed = false, ro = null, wasAttached = false, dbView = null;
     const size = () => ({ W: stage.clientWidth, H: stage.clientHeight });
     const center = () => { const { W, H } = size(); return { x: W / 2, y: H / 2 }; };
     const local = (e) => { const r = stage.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
@@ -165,6 +171,7 @@
       if (closed) return;
       closed = true;
       if (ro) ro.disconnect();
+      if (dbView) dbView.destroy();
       root.remove();
       if (o.onClose) o.onClose();
     }
@@ -172,6 +179,7 @@
     root.addEventListener('keydown', (e) => {
       if (e.target.closest && e.target.closest('input, textarea, select')) return;
       if (e.ctrlKey || e.metaKey) return;
+      if (dbk && e.key !== 'Escape' && e.target.closest && e.target.closest('.sfv')) return; // the table keeps its arrow, Home, End and Page keys
       const k = e.key, c = center();
       let used = true;
       if (zoomable && (k === '+' || k === '=')) zoomAt(c.x, c.y, v.s * STEP, true);
@@ -207,12 +215,19 @@
         setSize(w || 640, h || 480);
         if (r && r.note) notice(r.note); else hideNote();
       }).catch(() => { if (!closed) notice('', true, 'ui.pv.pdf_failed'); });
+    } else if (dbk) {
+      for (const ev of ['pointerdown', 'click', 'dblclick']) dbHost.addEventListener(ev, (e) => e.stopPropagation()); // as the picture's stage does
+      const failed = () => dbHost.replaceChildren(SP.el('div', 'spv-note spv-mid', SP.tr('ui.pv.no_preview')));
+      const go = () => { if (!closed) dbView = window.SlopFmpView.show(dbHost, { blob: o.blob, blobUrl: o.blobUrl, name: o.title }, { title: o.title }); };
+      if (window.SlopFmpView && window.SlopFmpView.show) go();
+      else if (FMP) SP.loadScript(FMP + 'view-load.js').then(go, failed);
+      else failed();
     } else {
       notice('', true, 'ui.pv.no_preview');
     }
 
     if (o.chrome !== false) root.append(SP.head(o.title || '', close));
-    root.append(bar, stage);
+    root.append(...(dbk ? [dbHost] : [bar, stage]));
     if (o.chrome !== false) root.append(SP.foot(o.actions));
 
     // Re-fit when the window or the panel changes size. Once it has been in the page and is removed, stop watching.

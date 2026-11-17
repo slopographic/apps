@@ -7,6 +7,8 @@ import { langOf, langLabel } from './lang.js';
 import { t } from './dom.js';
 import { renderOpenEditors } from './explorer.js';
 import { syncViewer } from './viewers.js';
+import { syncFmt } from './fmtpane.js';
+import { encodingLabel } from './openfile.js';
 
 export const $ = (id) => document.getElementById(id);
 export const env = { view: null };
@@ -28,7 +30,9 @@ export function renderChrome() {
   $('cd-empty').hidden = list.length > 0;
   $('cd-editor').hidden = list.length === 0 || other;
   $('cd-viewer').hidden = !other;
+  $('cd-split').hidden = $('cd-editor').hidden; // the editor and the formatted view share one box
   syncViewer(cur);
+  syncFmt();
   $('cd-save').disabled = !text;
   $('cd-saveas').disabled = !text;
   $('cd-run').disabled = !text;
@@ -41,7 +45,7 @@ export function renderChrome() {
 }
 
 /** The kind of a file view, as the status bar names it. */
-const KIND = { binary: 'code.status.binary', image: 'code.status.image', audio: 'code.status.audio', video: 'code.status.video', pdf: 'code.status.pdf' };
+const KIND = { database: 'code.status.database', binary: 'code.status.binary', image: 'code.status.image', audio: 'code.status.audio', video: 'code.status.video', pdf: 'code.status.pdf' };
 
 /** The status bar: language, cursor position, cursors, wrap and saved state. */
 export function setStatus() {
@@ -50,7 +54,8 @@ export function setStatus() {
   if (cur.kind !== 'text') { bar.textContent = [t(KIND[cur.kind] || 'code.status.binary'), t('code.status.read_only')].join('  ·  '); return; }
   if (!view) { bar.textContent = ''; return; }
   const sel = view.state.selection, head = sel.main.head, line = view.state.doc.lineAt(head);
-  const parts = [langLabel(langOf(cur)), t('code.status.pos', { ln: String(line.number), col: String(head - line.from + 1) })];
+  const parts = [langLabel(langOf(cur)), encodingLabel(cur.encoding) + (cur.bom ? ' BOM' : ''), String(cur.eol || 'lf').toUpperCase(),
+    t('code.status.pos', { ln: String(line.number), col: String(head - line.from + 1) })];
   if (sel.ranges.length > 1) parts.push(t('code.status.cursors', { n: sel.ranges.length }));
   parts.push(isWrap() ? t('code.status.wrap_on') : t('code.status.wrap_off'), cur.dirty ? t('code.status.unsaved') : t('code.status.saved'));
   bar.textContent = parts.join('  ·  ');

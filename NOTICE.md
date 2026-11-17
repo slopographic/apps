@@ -10,3 +10,5 @@ The code in this repository is MIT-licensed (see [`LICENSE`](LICENSE)). These ar
 3. Media. Screenshots, video and images under assets/ are
    Copyright (c) 2026 Slopographic. All rights reserved.
 4. Third-party code under vendor/ keeps its own license (see each folder).
+5. shared/fmp/ is a JavaScript port of fmptools (FileMaker file reader), Copyright (c) 2020 Evan Miller, MIT license
+   (shared/fmp/LICENSE-fmptools.txt).

@@ -2,9 +2,11 @@
  * folder, new file, close (asks when there are unsaved changes), autosaved drafts and restoring tabs. */
 import * as docs from './docs.js';
 import { getDraft, putDraft, dropDraft } from './drafts.js';
-import { readText, writeText, createFile, uniqueName, pathOf } from './drive.js';
+import { writeBlob, createFile, uniqueName, pathOf } from './drive.js';
+import { inspect, readAs, bytesFor, encodingLabel } from './openfile.js';
 import { askNewFile, askUnsaved } from './dialogs.js';
-import { mimeFor, langOf } from './lang.js';
+import { mimeFor, langOf, languageById } from './lang.js';
+import { moreByName, sniffLanguage } from './langs-more.js';
 import { mediaKind } from './viewers.js';
 import { renderChrome, setStatus, env, toast } from './ui.js';
 import { setActive, refresh as refreshTree, revealFolder } from './tree.js';
@@ -16,26 +18,38 @@ const timers = new Map();
 
 /** Open a record in a tab (or switch to its tab). Pictures, audio, video and PDFs open as views; a file that is not
  * text opens as a view with the "Open in an app" list. Text opens in the editor. */
-export async function openRecord(rec, { quiet = false, activate = true } = {}) {
+export async function openRecord(rec, { quiet = false, activate = true, encoding = null } = {}) {
   if (!rec) return null;
   const have = docs.find(rec.id);
   if (have) { if (activate) showDoc(have); return have; }
   if (rec.trashedAt) { if (!quiet) toast(t('code.toast.in_trash', { name: rec.name })); return null; }
   const media = mediaKind(rec.name);
-  const text = media ? null : await readText(rec);
-  if (media || text === null) {
-    const doc = docs.openView(rec, media || 'binary', URL.createObjectURL(rec.blob));
+  const seen = media ? null : await inspect(rec.blob, rec.name);
+  if (media || !seen.text) {
+    const doc = docs.openView(rec, media || 'binary', URL.createObjectURL(rec.blob), { info: seen && seen.info, large: seen && seen.large });
     H().touch(rec.id);
     if (activate) showDoc(doc); else { renderChrome(); persistTabs(); }
     return doc;
   }
+  const enc = encoding || seen.encoding, read = await readAs(rec.blob, enc, encoding ? false : seen.bom), text = read.text;
   const draft = await getDraft(rec.id);
   const restore = !!draft && typeof draft.text === 'string' && draft.text !== text;
-  const doc = docs.openDoc(rec, restore ? draft.text : text, text);
+  const doc = docs.openDoc(rec, restore ? draft.text : text, text, { encoding: enc, bom: encoding ? false : seen.bom, eol: read.eol, ascii: seen.ascii });
+  pickLanguage(doc, text);
   H().touch(rec.id);
   if (restore && !quiet) toast(t('code.toast.restored'));
   if (activate) showDoc(doc); else { renderChrome(); persistTabs(); }
   return doc;
+}
+
+/** The highlighting of a new tab: the name decides; a name with no known language is judged from the text (a #! line, <?xml, JSON...).
+ * An extra language loads its mode in the background. */
+function pickLanguage(doc, text) {
+  const lang = langOf(doc);
+  if (lang.id === 'text' && !moreByName(doc.name)) {
+    const id = sniffLanguage(text);
+    if (id && id !== 'text') docs.applyLanguage(doc, languageById(id), { keep: true });
+  } else if (lang.more) docs.applyLanguage(doc, lang);
 }
 
 /** Show a tab and mark it in the tree. */
@@ -51,8 +65,9 @@ export function showDoc(doc) {
 /** Save the document's text to its own Slop Drive record. Views (pictures, media, binary) are not saved here. */
 export async function saveDoc(doc = docs.current()) {
   if (!doc || doc.kind !== 'text') return false;
-  const text = docs.textOf(doc);
-  try { await writeText(doc.id, text, doc.name); } catch (e) { toast(t('code.toast.save_failed', { error: e.message })); return false; }
+  const text = docs.textOf(doc), { bytes, fell } = bytesFor(doc, text);
+  try { await writeBlob(doc.id, bytes, doc.name); } catch (e) { toast(t('code.toast.save_failed', { error: e.message })); return false; }
+  if (fell) { toast(t('code.toast.saved_utf8', { encoding: encodingLabel(doc.encoding) })); doc.encoding = 'utf-8'; doc.bom = false; } // the old encoding could not hold the text
   docs.markSaved(doc, text);
   clearTimeout(timers.get(doc.id));
   await dropDraft(doc.id);
@@ -69,7 +84,7 @@ export async function saveAs(doc = docs.current()) {
   const folderId = await H().pickFolder({ title: t('code.dlg.save_to', { name: name.trim() }), ok: t('code.dlg.save_here'), start: doc.folderId ?? await H().appFolderId('code') });
   if (folderId === undefined) return null;
   const fname = await uniqueName(name.trim(), folderId);
-  const id = await H().put(new Blob([docs.textOf(doc)], { type: mimeFor(fname) }), { name: fname, from: 'code', folderId });
+  const id = await H().put(new Blob([bytesFor(doc, docs.textOf(doc)).bytes], { type: mimeFor(fname) }), { name: fname, from: 'code', folderId });
   await refreshTree();
   toast(t('code.toast.saved_as', { name: fname }));
   return openRecord(await H().get(id));
@@ -123,7 +138,7 @@ export function onEdit() {
   clearTimeout(timers.get(d.id));
   timers.set(d.id, setTimeout(() => flushDraft(d.id), 400));
 }
-async function flushDraft(id) {
+export async function flushDraft(id) {
   const d = docs.find(id);
   if (!d) return;
   if (d.dirty) await putDraft(id, docs.textOf(d)); else await dropDraft(id);

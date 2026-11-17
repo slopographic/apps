@@ -1,5 +1,5 @@
 /* Slop Code: the CodeMirror theme (scoped under .cd-editor so it wins over the runtime styles) and the preview pane. */
-.cd-editor .cm-editor { height: 100%; background: var(--cd-bg); color: var(--cd-fg); font: 14px/1.55 var(--cd-mono); }
+.cd-editor .cm-editor { height: 100%; background: var(--cd-bg); color: var(--cd-fg); font: var(--cd-size, 14px)/1.55 var(--cd-mono); }
 .cd-editor .cm-scroller { font-family: inherit; overflow: auto; }
 .cd-editor .cm-content { caret-color: var(--cd-accent); padding: 8px 0 40px; }
 .cd-editor .cm-cursor, .cd-editor .cm-dropCursor { border-left-color: var(--cd-accent); }

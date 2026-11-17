@@ -19,7 +19,7 @@ export function writePref(name, data) {
 }
 
 /* The built-in helpers (Extensions panel). Each is on by default. */
-export const HELPER_IDS = ['formatter', 'languageMode', 'snippets'];
+export const HELPER_IDS = ['formatter', 'languageMode', 'snippets', 'display', 'fmtview'];
 const helpers = Object.fromEntries(HELPER_IDS.map((id) => [id, true]));
 const saved = readPref('extensions', {});
 for (const id of HELPER_IDS) if (typeof saved[id] === 'boolean') helpers[id] = saved[id];

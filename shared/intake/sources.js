@@ -11,7 +11,8 @@
      convert    SlopIntake.fromConvert(outputs, { to }): the Convert dialog's results handed back   source 'convert'
      sample     SlopIntake.sample(files, { to }): Try it with a sample                             source 'sample'
      drop       SlopIntake.dropTarget(el, { to, mode(e), data(e) }): a plain drop area without the zone UI
-                (shared/drop's SlopDrop.attach is the drop source with the zone, outlines and rows) source 'drop' */
+                (shared/drop's SlopDrop.attach is the drop source with the zone, outlines and rows) source 'drop'
+                A file drop that nothing on the page took goes to the page's main spec (see "a drop anywhere on the page") */
 (function () {
   'use strict';
   const SI = window.SlopIntake;
@@ -147,4 +148,59 @@
     el.addEventListener('drop', drop);
     return () => { el.removeEventListener('dragenter', over); el.removeEventListener('dragover', over); el.removeEventListener('drop', drop); };
   };
+
+  /* ---------- a drop anywhere on the page ---------- */
+  // A file drag that nothing on the page took (a header, a sidebar, a tab bar, or a page with no drop area at all) goes to the page's
+  // main reader, so the browser never opens the file in place of the app. SlopDrop pages keep their own rule (drop on the highlighted
+  // area): their window handler runs first and marks the drop seen. The listeners are added on the page's first file drag, which puts
+  // them after every window listener the app made while loading.
+  /** The reader such a drop goes to: the page's main spec, never a part of the page (a backup, a logo). */
+  const noPage = new Set();
+  /** A reader that keeps the page out of it (a SlopDrop zone with window: false: only its own targets take drops). */
+  SI.noPageDrop = (id) => { noPage.add(id); };
+  const pageSpecs = () => SI.specs().filter((s) => !noPage.has(s.id));
+  const dropSpec = () => pageSpecs().find((s) => s.main) || pageSpecs().find((s) => s.main !== false) || null;
+  const dialogOpen = () => !!(window.SlopUI && window.SlopUI.openDialogs);
+  const ACCENT = 'var(--sui-accent,var(--accent,var(--sl-accent,#3b5bdb)))';
+  let veil = null, veilTimer = 0;
+  /** The outline and label shown over the page while files are dragged over it. */
+  function showVeil() {
+    if (!veil) {
+      veil = document.createElement('div');
+      veil.className = 'si-pagedrop'; veil.setAttribute('aria-hidden', 'true');
+      veil.style.cssText = 'position:fixed;inset:0;z-index:9000;pointer-events:none;box-sizing:border-box;display:flex;align-items:center;justify-content:center;'
+        + `border:3px dashed ${ACCENT};background:color-mix(in srgb,${ACCENT} 8%,transparent)`;
+      const b = document.createElement('b');
+      b.style.cssText = `background:${ACCENT};color:var(--sui-accent-ink,var(--accent-ink,var(--sl-on-accent,#fff)));font:600 14px/1.3 system-ui,sans-serif;padding:8px 14px;border-radius:6px`;
+      veil.append(b);
+    }
+    veil.firstChild.textContent = tr('ui.intake.add_files', 'Add files'); // read now, so it follows a language change
+    if (!veil.isConnected) document.body.append(veil);
+    clearTimeout(veilTimer);
+    veilTimer = setTimeout(hideVeil, 400); // dragover repeats while the files are over the page; it stops when they leave
+  }
+  function hideVeil() { clearTimeout(veilTimer); if (veil && veil.isConnected) veil.remove(); }
+  function pageOver(e) {
+    if (!isFiles(e) || e.defaultPrevented || !dropSpec()) return;
+    e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+    if (!dialogOpen()) showVeil();
+  }
+  function pageDrop(e) {
+    hideVeil();
+    if (!isFiles(e) || e.defaultPrevented || e.sdHandled || e.sdSeen) return;
+    const spec = dropSpec();
+    if (!spec) return; // a page with no main reader (only parts) keeps the browser's own handling
+    e.preventDefault(); // the browser must not open the file in place of the app
+    if (dialogOpen()) return;
+    e.sdHandled = true;
+    SI.take(SI.listOf(e.dataTransfer), { source: 'drop', to: spec.id, at: { x: e.clientX, y: e.clientY } });
+  }
+  let armed = false;
+  document.addEventListener('dragenter', (e) => {
+    if (armed || !isFiles(e)) return;
+    armed = true;
+    window.addEventListener('dragover', pageOver);
+    window.addEventListener('dragleave', (ev) => { if (!ev.relatedTarget) hideVeil(); });
+    window.addEventListener('drop', pageDrop);
+  }, true);
 })();

@@ -4,11 +4,16 @@
  * files, so a file from this device is put in Slop Drive (the folder chosen in the tree) and opened from there. */
 import * as docs from './docs.js';
 import { newView, makeState, setHooks, setWrap, isWrap, showFind } from './editor.js';
-import { initTree, refresh as refreshTree, selectedFolder, revealFolder, newFolder } from './tree.js';
+import { initTree, refresh as refreshTree, selectedFolder, revealFolder, newFolder, folderAt } from './tree.js';
 import { initLayout, expandSection } from './explorer.js';
 import { renderExtensions, formatDoc, chooseLanguage } from './extensions.js';
+import { toggleFmt, copyFmt, syncFmt, initFmt, fmtView } from './fmtpane.js';
+import { initSearch, focusSearch } from './search.js';
+import { openKinds } from './findkinds.js';
+import { chooseEncoding, chooseEol } from './encops.js';
 import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, setPreview, toast, isPhone, initDrawer } from './ui.js';
 import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restoreTabs, togglePreview } from './ops.js';
+import { uniqueName } from './drive.js';
 import { runDoc, attachPreview, canRun } from './run.js';
 import { registerCommands } from './commands.js';
 import { t, onLang } from './dom.js';
@@ -18,13 +23,19 @@ function registerIntake() {
     id: 'code', accept: { any: true, allowEmpty: true, noun: 'code.app.a_file' },
     process: async (file, ctx) => {
       let rec = ctx.drive && ctx.drive.record;
-      if (!rec) rec = await SlopHub.get(await SlopHub.put(file, { name: file.name, from: 'code', folderId: selectedFolder() || null }));
+      if (!rec) {
+        // a drop on a folder in the Explorer saves into that folder (null: the root); otherwise the folder chosen in the tree
+        const folderId = ctx.data && 'folderId' in ctx.data ? ctx.data.folderId : selectedFolder() || null;
+        rec = await SlopHub.get(await SlopHub.put(file, { name: await uniqueName(file.name, folderId), from: 'code', folderId }));
+      }
       if (ctx.source === 'launch' && rec.folderId) revealFolder(rec.folderId);
       await openRecord(rec);
       return rec.id;
     },
   });
   window.SlopIntake.dropTarget(document.querySelector('.cd-main'), { to: 'code' });
+  window.SlopIntake.dropTarget(document.getElementById('cd-tree-list'), { to: 'code', data: (e) => ({ folderId: folderAt(e.target) }) });
+  // a drop anywhere else on the page (the toolbar, the Explorer's headings) is taken by the shared page-wide handler (shared/intake/sources.js)
 }
 const openPicker = () => window.SlopIntake.fromDrive({ to: 'code', title: t('code.app.drive_title') });
 async function runCurrent() {
@@ -48,6 +59,22 @@ function showExtensions() {
   if (first) first.focus();
 }
 
+/** Find (Ctrl+F) and Replace (Ctrl+H) in whatever is on screen: the editor, the formatted pane when it has focus, or the find box of a
+ * bytes view or a database table. A view that is read only has nothing to replace. */
+function findHere(replace) {
+  const d = docs.current();
+  if (d && d.kind !== 'text') {
+    const input = $('cd-viewer') && $('cd-viewer').querySelector('.cd-hex-findbox, .sfv-find-in');
+    if (replace) { toast(t('code.search.read_only')); return false; }
+    if (!input) return false;
+    input.focus(); if (input.select) input.select();
+    return true;
+  }
+  const pane = fmtView();
+  if (pane && $('cd-fmt-body').contains(document.activeElement)) { showFind(pane, false); return true; }
+  return !!env.view && (showFind(env.view, replace), true);
+}
+
 /** The actions the commands and buttons call. */
 const ACTIONS = {
   open: openPicker,
@@ -55,8 +82,10 @@ const ACTIONS = {
   save: () => saveDoc(),
   saveAs: () => saveAs(),
   close: () => closeDoc(),
-  find: () => env.view && showFind(env.view, false),
-  replace: () => env.view && showFind(env.view, true),
+  find: () => findHere(false),
+  replace: () => findHere(true),
+  findFiles: () => focusSearch(setTreeOpen),
+  kinds: openKinds,
   wrap: toggleWrap,
   files: toggleFiles,
   run: runCurrent,
@@ -65,6 +94,10 @@ const ACTIONS = {
   language: chooseLanguage,
   extensions: showExtensions,
   markdown: () => togglePreview(),
+  fmtview: () => { const on = toggleFmt(); renderExtensions($('cd-ext-list')); return on; },
+  copyFmt,
+  encoding: chooseEncoding,
+  eol: chooseEol,
 };
 
 function wireButtons() {
@@ -89,7 +122,7 @@ async function boot() {
   const view = newView($('cd-editor'), makeState('', 'untitled.txt'));
   env.view = view;
   docs.attachView(view);
-  setHooks({ change: () => onEdit(), select: () => setStatus() });
+  setHooks({ change: () => { onEdit(); syncFmt(); }, select: () => setStatus() });
   setHandlers({ select: (d) => showDoc(d), close: (d) => closeDoc(d) });
   attachPreview($('cd-frame'), $('cd-console'));
   initTree($('cd-tree-list'), {
@@ -102,6 +135,8 @@ async function boot() {
   });
   renderExtensions($('cd-ext-list'));
   wireButtons();
+  initFmt();
+  initSearch();
   registerCommands(ACTIONS);
   // a language change: the tabs, the status bar, the helpers and the tree again, in the new language
   onLang(() => { renderChrome(); renderExtensions($('cd-ext-list')); refreshTree(); });

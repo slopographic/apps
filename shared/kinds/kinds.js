@@ -1,6 +1,6 @@
 /* Slopographic file kinds: one table that says what kind of file a name and MIME type are.
  * The kind of a file is its extension first (the table below), then its MIME type, else 'other'.
- * Kinds: image, video, audio, document, code (code and text), model3d, archive, other.
+ * Kinds: image, video, audio, document, code (code and text), model3d, archive, database (a FileMaker file), other.
  * CHIPS groups them for filters: Media is image + video + audio, and Photos is image only.
  * Classic script, no dependencies. Exposes window.SlopKinds (Slop Gallery uses it; Slop Drive can use it later):
  *   kindOf(name, type)        → a kind id
@@ -22,6 +22,7 @@
   addExt('code', 'txt md markdown csv tsv json jsonl js mjs cjs ts jsx tsx html htm css scss xml yaml yml toml ini log sql py sh c h cpp hpp java rs go rb php vcf ics srt');
   addExt('model3d', 's3d glb gltf obj stl fbx usdz');
   addExt('archive', 'zip rar 7z tar gz tgz bz2 xz');
+  addExt('database', 'fmp12 fp7 fp5 fp3 fmp fmpxml'); // FileMaker Pro files (shared/fmp reads them); an .xml export stays code
 
   const MIME_EXACT = {
     'application/pdf': 'document', 'application/msword': 'document', 'application/rtf': 'document', 'application/vnd.ms-excel': 'document',
@@ -37,11 +38,13 @@
     ['image/', 'image'], ['video/', 'video'], ['audio/', 'audio'], ['text/', 'code'], ['model/', 'model3d'],
   ];
 
-  const KINDS = ['image', 'video', 'audio', 'document', 'code', 'model3d', 'archive', 'other'];
+  const KINDS = ['image', 'video', 'audio', 'document', 'code', 'model3d', 'archive', 'database', 'other'];
+  /** A kind named by a file format keeps its name in every language (file-format names are not translated). */
+  const NAMES = { database: 'FileMaker database' }; // i18n-ignore: a file-format name
   const chip = (id, kinds) => Object.defineProperty({ id, kinds }, 'label', { get: () => tr('ui.kinds.chip_' + id), enumerable: true });
   const CHIPS = [
     chip('media', ['image', 'video', 'audio']), chip('photos', ['image']), chip('videos', ['video']), chip('audio', ['audio']),
-    chip('documents', ['document']), chip('code', ['code']), chip('3d', ['model3d']), chip('archives', ['archive']), chip('other', ['other']),
+    chip('documents', ['document', 'database']), chip('code', ['code']), chip('3d', ['model3d']), chip('archives', ['archive']), chip('other', ['other']),
   ];
 
   /** The extension of a name, lower case, without the dot ('' if none). */
@@ -54,7 +57,7 @@
     for (const [p, kind] of MIME_PREFIX) if (mime.startsWith(p)) return kind;
     return 'other';
   }
-  const label = (kind) => tr('ui.kinds.' + (KINDS.includes(kind) ? kind : 'other'));
+  const label = (kind) => NAMES[kind] || tr('ui.kinds.' + (KINDS.includes(kind) ? kind : 'other'));
   const chipMatch = (kind, chipId) => { const c = CHIPS.find((x) => x.id === chipId); return !!c && c.kinds.includes(kind); };
   const chipsMatching = (kind) => CHIPS.filter((c) => c.kinds.includes(kind)).map((c) => c.id);
   function countChips(items) {

@@ -23,6 +23,7 @@ const SW_IMPORT = "importScripts('/sw-precache.js');";
 const exists = (p) => stat(path.join(ROOT, p)).then((s) => s, () => null);
 const resolveRef = (from, ref) => path.posix.normalize(path.posix.join(path.posix.dirname(from), ref));
 const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js',
+  ...['scsu','charset','sectors','chunks','chunks7','values','reader','xml','export','fmp','view-util','view-error','view-grid','view-find','view-export','view','view-load'].map((f) => `shared/fmp/${f}.js`), 'shared/fmp/view.css',   // the FileMaker reader and viewer: loaded on demand when a FileMaker file is opened
   'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo-128.webp',
   'style/tone.css',   // the plain tone's look: shared/theme/theme.js loads it from script, in a plain-tone build only
   'shared/parent/i18n/index.js', 'shared/parent/i18n/en/parent.js',   // a single-app site's words (shared/parent/parent.js loads them)

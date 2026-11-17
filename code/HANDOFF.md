@@ -87,6 +87,17 @@ Vendored by `tools/vendor-codemirror.mjs` from `cdn.jsdelivr.net/npm/` (build ti
 - `js/viewers.js`: the view tabs (image, audio, video, PDF, binary) and the Markdown preview sync. `js/markdown.js`: the Markdown renderer. `css/viewers.css`: their styles.
 - `js/run.js`, `js/preview-doc.js`: Run, the srcdoc builder, the CSP and the console hook.
 
+- `js/openfile.js`: the open pipeline (what a file is: text, bytes or too big; the encoding and line endings; the bytes to write back). `js/encoding.js`, `js/enc-tables.js`: decode and encode (UTF-8/16/32, Windows, ISO-8859, Mac, Cyrillic, East Asian). `js/encops.js`: the Reopen with encoding and Line endings dialogs.
+- `js/magic.js`, `js/hexview.js`, `js/hex-*.js`, `css/hex.css`: what a file looks like from its first bytes, and the read-only hex view of a file that is not text.
+- `js/langs-more.js`, `js/lang-load.js`, `vendor/codemirror/legacy-*.js`: about 60 more languages, loaded when a file needs one (`tools/vendor-codemirror.mjs` fetches them).
+- `js/display.js`, `css/display.css`: display options (show spaces and tabs, tab width, ruler, text size). They change how the text is drawn, never the text.
+- `js/fmtpane.js`, `js/formatview.js`, `js/fv-*.js`, `css/fmt.css`: the formatted view (Ctrl+Alt+V), a read-only copy beside the editor for JSON, JSON Lines, XML, HTML, CSS, JavaScript, SQL, CSV and TSV. It never writes to the file. Its messages are keys `code.fv.err.*`.
+- `js/findall.js`: the search engine (the expression from the box and its switches, matches with their line, replacements as changes). `js/search-run.js`: lists a scope's files, reads each the way the editor would (own encoding and line endings, or the live text of a tab), searches, replaces. `js/search.js`, `css/search.css`: the Search section of the sidebar (Ctrl+Shift+F). A file that is open takes a replacement as one undoable editor change; a file that is not open is written back to Slop Drive at once, and only when its bytes survive a read and write unchanged (mixed line endings, bytes its encoding cannot hold: skipped and listed).
+- Find (Ctrl+F) goes to what is on screen: the editor's find panel, the formatted pane's panel when it has focus, the find box of a bytes view or of a database table. Replace (Ctrl+H) works in the editor only: the other views are read only.
+- `js/findkinds.js` (Ctrl+Alt+K): lists the kinds of text in the open file (IP addresses, e-mail addresses, web addresses, ids, keys and tokens, private key blocks, card numbers... from `shared/patterns/`), with Find (fills the find panel) and Mask (every match becomes its masked form, one undoable change). The Search section has the same kinds in a list that fills its box.
+- FileMaker files (`.fmp12 .fp7 .fp5 .fp3 .fmpxml`) open as a read-only grid through `SlopPreview` (kind `database`, `shared/fmp/`).
+- Dropping a file anywhere on the page opens it (`shared/intake/sources.js`); a drop on a folder row in the Explorer saves it into that folder.
+
 ## Tests
 `node tests/run.mjs code` runs `tests/code/*.test.html` (open-save, completion, preview, unsaved, commands, tree, explorer, extensions, vendor, viewers) and `tests/node/code-local.test.mjs`. `viewers.test.html` covers the picture, audio, video, PDF and binary views, the Markdown preview toggle, and that view tabs are read only. `explorer.test.html` also checks that clicking a file leaves the desktop sidebar open. `explorer.test.html` covers drag and move, Move to…, selection, the width and sections (kept across a reload), the Open editors list and the phone layout. `extensions.test.html` covers the formatter (pure and in the app), the switches (a v1 envelope, and a blocked storage), snippets in completion, the language dialog and the new SlopCmd commands. The last one fails if `code/` makes a network call (fetch, XMLHttpRequest, http(s) URLs, WebSocket) outside comments, or if a file in `code/` is over 300 lines. `tests/run.mjs` ignores the browser's CSP refusal messages, because the sandbox test triggers one on purpose.
 
@@ -98,6 +109,8 @@ Vendored by `tools/vendor-codemirror.mjs` from `cdn.jsdelivr.net/npm/` (build ti
 - The editor works on one Drive record per tab. If another app or tab changes a file that is open here, Save overwrites it. The app does not watch for that yet.
 - Run uses the folder of the file. A `../` path in an HTML file is not resolved, and a path that is not in Drive is not found.
 - Delete moves to the Drive Trash (it does not remove the record).
+- Text over 8 MB, and files that are not text, open as bytes (read only). Encodings are those in `js/encoding.js`; a character the encoding cannot hold makes Save fall back to UTF-8 and says so.
+- The formatted view and the FileMaker grid are read only; FileMaker container fields, layouts and scripts are not read (`shared/fmp/HANDOFF.md`).
 - View tabs are not edited or saved, so a picture or PDF cannot be changed here. The Open in an app list is shown for binary files only, not for pictures, media or PDFs.
 - The Markdown renderer covers the common syntax only: no tables, no nested lists, no footnotes, and no images from the file (their alt text is shown).
 - The service worker's PRECACHE list does not include `code/` or `vendor/codemirror/`, so offline use is not set up. Regenerate the list with `node tools/pwa-precache.mjs` when this app is ready to ship.

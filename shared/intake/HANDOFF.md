@@ -87,6 +87,21 @@ decides what is listed. No app builds its own list of Drive files for picking (r
 `tests/intake/drive-picker.test.html` tests the picker and `tests/intake/drive-buttons.test.html` that the apps' Drive
 buttons open it.
 
+## A drop anywhere on the page (sources.js)
+
+A file drag that nothing on the page took (a header, a sidebar, a tab bar, or a page with no drop area at all) goes to the
+page's main spec (`main: true`, else the first spec that is not `main: false`; a part such as a backup or a logo is never
+chosen), so the browser never opens the file in place of the app. While the files are over the page, an outline and the label
+"Add files" (`ui.intake.add_files`) are drawn over it.
+
+- It is armed by the page's first file drag, so its `window` listeners come after every one the app made while loading.
+- It takes nothing that is already handled: a drop that `dropTarget` or SlopDrop's zone took (`e.sdHandled`), a drop SlopDrop's
+  window handler saw (`e.sdSeen`: that page keeps its own "drop on the highlighted area" rule), or a drop someone cancelled.
+- A page whose only specs are parts keeps the browser's own handling. While a SlopUI dialog is open the drop is kept from the
+  browser but not taken.
+- An app needs no code for this. Use `SlopIntake.dropTarget(el, { to, data(e) })` only when a drop on one place should carry
+  data (Slop Code saves a file dropped on a folder row into that folder). Test: `tests/intake/pagedrop.test.html`.
+
 ## Extension points
 
 - Events on `document`: `slop:intake-before` (cancelable), `slop:intake-file`, `slop:intake-after`; detail `{ app,
