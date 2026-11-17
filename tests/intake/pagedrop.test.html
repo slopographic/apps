@@ -60,6 +60,15 @@
       expect(w.seen.length).toBe(0);
       expect(!!veil(w)).toBe(false);
     });
+    it('leaves a page alone whose reader asked for it (SlopDrop window: false)', async () => {
+      const w = await page(READER + " SlopIntake.noPageDrop('app');"), out = w.document.getElementById('outside');
+      drag(w, 'dragenter', out);
+      expect(drag(w, 'dragover', out).defaultPrevented).toBe(false);
+      const drop = drag(w, 'drop', out);
+      expect(drop.defaultPrevented).toBe(false);       // the browser's own handling stays
+      await new Promise((r) => setTimeout(r, 80));
+      expect(w.seen.length).toBe(0);
+    });
     it('does nothing on a page whose only readers are parts (a backup), and the browser keeps its own handling', async () => {
       const w = await page("SlopIntake.part({ id: 'backup', accept: { any: true }, process: async (f) => f.name });");
       const out = w.document.getElementById('outside');

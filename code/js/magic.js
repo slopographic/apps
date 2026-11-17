@@ -25,160 +25,160 @@ const obj = (b) => textual(b) && /^\s*(#|v |vn |vt |o |g |mtllib |usemtl |f |s )
 
 const TABLE = [
   // images
-  ['png', 'PNG image', 'image/png', 'image', '89 "PNG" 0d 0a 1a 0a'],
-  ['jpeg', 'JPEG image', 'image/jpeg', 'image', 'ff d8 ff'],
-  ['gif', 'GIF image', 'image/gif', 'image', ['"GIF87a"', '"GIF89a"']],
-  ['webp', 'WebP image', 'image/webp', 'image', ['"RIFF" ?? ?? ?? ?? "WEBP"', '^riff webp']],
-  ['bmp', 'BMP image', 'image/bmp', 'image', '"BM" ?? ?? ?? ?? 00 00 00 00', (b) => [12, 40, 52, 56, 64, 108, 124].includes(b[14]) && !b[15]],
-  ['ico', 'ICO icon', 'image/x-icon', 'image', '00 00 01 00', iconDir],
-  ['cur', 'CUR cursor', 'image/x-icon', 'image', '00 00 02 00', iconDir],
-  ['tiff', 'TIFF image', 'image/tiff', 'image', ['49 49 2a 00', '4d 4d 00 2a', '49 49 2b 00', '4d 4d 00 2b']],
-  ['heic', 'HEIC image', 'image/heic', 'image', '^mp4 heic'],
-  ['heif', 'HEIF image', 'image/heif', 'image', '^mp4 heif'],
-  ['avif', 'AVIF image', 'image/avif', 'image', '^mp4 avif'],
-  ['cr3', 'Canon CR3 raw image', 'image/x-canon-cr3', 'image', '^mp4 cr3'],
-  ['psd', 'Photoshop document', 'image/vnd.adobe.photoshop', 'image', '"8BPS" 00 0?'],
+  ['png', 'PNG image', 'image/png', 'image', '89 "PNG" 0d 0a 1a 0a'],   // i18n-ignore: a format name, not translated
+  ['jpeg', 'JPEG image', 'image/jpeg', 'image', 'ff d8 ff'],   // i18n-ignore: a format name, not translated
+  ['gif', 'GIF image', 'image/gif', 'image', ['"GIF87a"', '"GIF89a"']],   // i18n-ignore: a format name, not translated
+  ['webp', 'WebP image', 'image/webp', 'image', ['"RIFF" ?? ?? ?? ?? "WEBP"', '^riff webp']],   // i18n-ignore: a format name, not translated
+  ['bmp', 'BMP image', 'image/bmp', 'image', '"BM" ?? ?? ?? ?? 00 00 00 00', (b) => [12, 40, 52, 56, 64, 108, 124].includes(b[14]) && !b[15]],   // i18n-ignore: a format name, not translated
+  ['ico', 'ICO icon', 'image/x-icon', 'image', '00 00 01 00', iconDir],   // i18n-ignore: a format name, not translated
+  ['cur', 'CUR cursor', 'image/x-icon', 'image', '00 00 02 00', iconDir],   // i18n-ignore: a format name, not translated
+  ['tiff', 'TIFF image', 'image/tiff', 'image', ['49 49 2a 00', '4d 4d 00 2a', '49 49 2b 00', '4d 4d 00 2b']],   // i18n-ignore: a format name, not translated
+  ['heic', 'HEIC image', 'image/heic', 'image', '^mp4 heic'],   // i18n-ignore: a format name, not translated
+  ['heif', 'HEIF image', 'image/heif', 'image', '^mp4 heif'],   // i18n-ignore: a format name, not translated
+  ['avif', 'AVIF image', 'image/avif', 'image', '^mp4 avif'],   // i18n-ignore: a format name, not translated
+  ['cr3', 'Canon CR3 raw image', 'image/x-canon-cr3', 'image', '^mp4 cr3'],   // i18n-ignore: a format name, not translated
+  ['psd', 'Photoshop document', 'image/vnd.adobe.photoshop', 'image', '"8BPS" 00 0?'],   // i18n-ignore: a format name, not translated
   ['jp2', 'JPEG 2000 image', 'image/jp2', 'image', ['00 00 00 0c 6a 50 20 20 0d 0a 87 0a', 'ff 4f ff 51']],
-  ['jxl', 'JPEG XL image', 'image/jxl', 'image', '00 00 00 0c "JXL " 0d 0a 87 0a'],
-  ['exr', 'OpenEXR image', 'image/x-exr', 'image', '76 2f 31 01'],
-  ['hdr', 'Radiance HDR image', 'image/vnd.radiance', 'image', ['"#?RADIANCE" 0a', '"#?RGBE" 0a']],
-  ['dds', 'DDS texture', 'image/vnd.ms-dds', 'image', '"DDS " 7c 00 00 00'],
-  ['ktx', 'KTX texture', 'image/ktx', 'image', ['ab "KTX 11" bb 0d 0a 1a 0a', 'ab "KTX 20" bb 0d 0a 1a 0a']],
+  ['jxl', 'JPEG XL image', 'image/jxl', 'image', '00 00 00 0c "JXL " 0d 0a 87 0a'],   // i18n-ignore: a format name, not translated
+  ['exr', 'OpenEXR image', 'image/x-exr', 'image', '76 2f 31 01'],   // i18n-ignore: a format name, not translated
+  ['hdr', 'Radiance HDR image', 'image/vnd.radiance', 'image', ['"#?RADIANCE" 0a', '"#?RGBE" 0a']],   // i18n-ignore: a format name, not translated
+  ['dds', 'DDS texture', 'image/vnd.ms-dds', 'image', '"DDS " 7c 00 00 00'],   // i18n-ignore: a format name, not translated
+  ['ktx', 'KTX texture', 'image/ktx', 'image', ['ab "KTX 11" bb 0d 0a 1a 0a', 'ab "KTX 20" bb 0d 0a 1a 0a']],   // i18n-ignore: a format name, not translated
   // audio
   ['mp3', 'MP3 audio', 'audio/mpeg', 'audio', ['"ID3" 0?', 'ff e?', 'ff f?'], mp3],
-  ['aac', 'AAC audio', 'audio/aac', 'audio', ['ff f1', 'ff f9']],
-  ['flac', 'FLAC audio', 'audio/flac', 'audio', '"fLaC"'],
-  ['ogg', 'Ogg audio', 'audio/ogg', 'audio', '"OggS" 00'],
-  ['opus', 'Opus audio', 'audio/opus', 'audio', null],
-  ['vorbis', 'Ogg Vorbis audio', 'audio/ogg', 'audio', null],
-  ['riff', 'RIFF container', 'application/octet-stream', 'other', '"RIFF"'],
-  ['wav', 'WAV audio', 'audio/wav', 'audio', ['"RIFF" ?? ?? ?? ?? "WAVE"', '^riff wav']],
-  ['aiff', 'AIFF audio', 'audio/aiff', 'audio', ['"FORM" ?? ?? ?? ?? "AIFF"', '"FORM" ?? ?? ?? ?? "AIFC"']],
-  ['midi', 'MIDI music', 'audio/midi', 'audio', '"MThd" 00 00 00 06'],
+  ['aac', 'AAC audio', 'audio/aac', 'audio', ['ff f1', 'ff f9']],   // i18n-ignore: a format name, not translated
+  ['flac', 'FLAC audio', 'audio/flac', 'audio', '"fLaC"'],   // i18n-ignore: a format name, not translated
+  ['ogg', 'Ogg audio', 'audio/ogg', 'audio', '"OggS" 00'],   // i18n-ignore: a format name, not translated
+  ['opus', 'Opus audio', 'audio/opus', 'audio', null],   // i18n-ignore: a format name, not translated
+  ['vorbis', 'Ogg Vorbis audio', 'audio/ogg', 'audio', null],   // i18n-ignore: a format name, not translated
+  ['riff', 'RIFF container', 'application/octet-stream', 'other', '"RIFF"'],   // i18n-ignore: a format name, not translated
+  ['wav', 'WAV audio', 'audio/wav', 'audio', ['"RIFF" ?? ?? ?? ?? "WAVE"', '^riff wav']],   // i18n-ignore: a format name, not translated
+  ['aiff', 'AIFF audio', 'audio/aiff', 'audio', ['"FORM" ?? ?? ?? ?? "AIFF"', '"FORM" ?? ?? ?? ?? "AIFC"']],   // i18n-ignore: a format name, not translated
+  ['midi', 'MIDI music', 'audio/midi', 'audio', '"MThd" 00 00 00 06'],   // i18n-ignore: a format name, not translated
   ['m4a', 'M4A audio', 'audio/mp4', 'audio', '^mp4 m4a m4b'],
-  ['amr', 'AMR audio', 'audio/amr', 'audio', ['"#!AMR" 0a', '"#!AMR-WB" 0a']],
-  ['au', 'AU audio', 'audio/basic', 'audio', '".snd"'],
-  ['ape', "Monkey's Audio", 'audio/x-ape', 'audio', '"MAC "', (b) => u16(b, 4) >= 3800 && u16(b, 4) < 5000],
-  ['mka', 'Matroska audio', 'audio/x-matroska', 'audio', '^mkv mka'],
-  ['wma', 'WMA audio', 'audio/x-ms-wma', 'audio', '^asf wma'],
+  ['amr', 'AMR audio', 'audio/amr', 'audio', ['"#!AMR" 0a', '"#!AMR-WB" 0a']],   // i18n-ignore: a format name, not translated
+  ['au', 'AU audio', 'audio/basic', 'audio', '".snd"'],   // i18n-ignore: a format name, not translated
+  ['ape', "Monkey's Audio", 'audio/x-ape', 'audio', '"MAC "', (b) => u16(b, 4) >= 3800 && u16(b, 4) < 5000],   // i18n-ignore: a format name, not translated
+  ['mka', 'Matroska audio', 'audio/x-matroska', 'audio', '^mkv mka'],   // i18n-ignore: a format name, not translated
+  ['wma', 'WMA audio', 'audio/x-ms-wma', 'audio', '^asf wma'],   // i18n-ignore: a format name, not translated
   // video
   ['mp4', 'MP4 video', 'video/mp4', 'video', '@4 "ftyp"'],
-  ['mov', 'QuickTime video', 'video/quicktime', 'video', ['^mp4 mov qt', '@4 "moov"', '@4 "mdat"', '@4 "wide"']],
+  ['mov', 'QuickTime video', 'video/quicktime', 'video', ['^mp4 mov qt', '@4 "moov"', '@4 "mdat"', '@4 "wide"']],   // i18n-ignore: a format name, not translated
   ['m4v', 'M4V video', 'video/x-m4v', 'video', '^mp4 m4v'],
-  ['3gp', '3GP video', 'video/3gpp', 'video', '^mp4 3gp 3gpp'],
+  ['3gp', '3GP video', 'video/3gpp', 'video', '^mp4 3gp 3gpp'],   // i18n-ignore: a format name, not translated
   ['3g2', '3G2 video', 'video/3gpp2', 'video', '^mp4 3g2'],
-  ['mkv', 'Matroska video', 'video/x-matroska', 'video', '1a 45 df a3'],
-  ['webm', 'WebM video', 'video/webm', 'video', '^mkv webm'],
-  ['ogv', 'Ogg video', 'video/ogg', 'video', '^ogg ogv'],
-  ['avi', 'AVI video', 'video/x-msvideo', 'video', ['"RIFF" ?? ?? ?? ?? "AVI "', '^riff avi']],
-  ['flv', 'Flash video', 'video/x-flv', 'video', '"FLV" 01'],
-  ['mpg', 'MPEG video', 'video/mpeg', 'video', ['00 00 01 ba', '00 00 01 b3']],
-  ['ts', 'MPEG transport stream', 'video/mp2t', 'video', ['47', '@4 47'], (b) => sync(b, 0, 188) || sync(b, 4, 192)],
-  ['asf', 'ASF video', 'video/x-ms-asf', 'video', '30 26 b2 75 8e 66 cf 11 a6 d9 00 aa 00 62 ce 6c'],
-  ['wmv', 'WMV video', 'video/x-ms-wmv', 'video', '^asf wmv'],
-  ['swf', 'Flash animation (SWF)', 'application/x-shockwave-flash', 'video', ['"FWS"', '"CWS"', '"ZWS"'], (b) => b[3] > 0 && b[3] < 64],
+  ['mkv', 'Matroska video', 'video/x-matroska', 'video', '1a 45 df a3'],   // i18n-ignore: a format name, not translated
+  ['webm', 'WebM video', 'video/webm', 'video', '^mkv webm'],   // i18n-ignore: a format name, not translated
+  ['ogv', 'Ogg video', 'video/ogg', 'video', '^ogg ogv'],   // i18n-ignore: a format name, not translated
+  ['avi', 'AVI video', 'video/x-msvideo', 'video', ['"RIFF" ?? ?? ?? ?? "AVI "', '^riff avi']],   // i18n-ignore: a format name, not translated
+  ['flv', 'Flash video', 'video/x-flv', 'video', '"FLV" 01'],   // i18n-ignore: a format name, not translated
+  ['mpg', 'MPEG video', 'video/mpeg', 'video', ['00 00 01 ba', '00 00 01 b3']],   // i18n-ignore: a format name, not translated
+  ['ts', 'MPEG transport stream', 'video/mp2t', 'video', ['47', '@4 47'], (b) => sync(b, 0, 188) || sync(b, 4, 192)],   // i18n-ignore: a format name, not translated
+  ['asf', 'ASF video', 'video/x-ms-asf', 'video', '30 26 b2 75 8e 66 cf 11 a6 d9 00 aa 00 62 ce 6c'],   // i18n-ignore: a format name, not translated
+  ['wmv', 'WMV video', 'video/x-ms-wmv', 'video', '^asf wmv'],   // i18n-ignore: a format name, not translated
+  ['swf', 'Flash animation (SWF)', 'application/x-shockwave-flash', 'video', ['"FWS"', '"CWS"', '"ZWS"'], (b) => b[3] > 0 && b[3] < 64],   // i18n-ignore: a format name, not translated
   // archives
-  ['zip', 'ZIP archive', 'application/zip', 'archive', ['"PK" 03 04', '"PK" 05 06', '"PK" 07 08']],
-  ['gz', 'GZIP archive', 'application/gzip', 'archive', '1f 8b 08'],
+  ['zip', 'ZIP archive', 'application/zip', 'archive', ['"PK" 03 04', '"PK" 05 06', '"PK" 07 08']],   // i18n-ignore: a format name, not translated
+  ['gz', 'GZIP archive', 'application/gzip', 'archive', '1f 8b 08'],   // i18n-ignore: a format name, not translated
   ['bz2', 'BZIP2 archive', 'application/x-bzip2', 'archive', '"BZh" 3? 31 41 59 26 53 59'],
-  ['xz', 'XZ archive', 'application/x-xz', 'archive', 'fd 37 7a 58 5a 00'],
-  ['zst', 'Zstandard archive', 'application/zstd', 'archive', '28 b5 2f fd'],
-  ['7z', '7-Zip archive', 'application/x-7z-compressed', 'archive', '37 7a bc af 27 1c'],
-  ['rar', 'RAR archive', 'application/vnd.rar', 'archive', ['"Rar!" 1a 07 00', '"Rar!" 1a 07 01 00']],
-  ['tar', 'TAR archive', 'application/x-tar', 'archive', '@257 "ustar"'],
-  ['cab', 'Cabinet archive', 'application/vnd.ms-cab-compressed', 'archive', '"MSCF" 00 00 00 00'],
-  ['arj', 'ARJ archive', 'application/x-arj', 'archive', '60 ea'],
+  ['xz', 'XZ archive', 'application/x-xz', 'archive', 'fd 37 7a 58 5a 00'],   // i18n-ignore: a format name, not translated
+  ['zst', 'Zstandard archive', 'application/zstd', 'archive', '28 b5 2f fd'],   // i18n-ignore: a format name, not translated
+  ['7z', '7-Zip archive', 'application/x-7z-compressed', 'archive', '37 7a bc af 27 1c'],   // i18n-ignore: a format name, not translated
+  ['rar', 'RAR archive', 'application/vnd.rar', 'archive', ['"Rar!" 1a 07 00', '"Rar!" 1a 07 01 00']],   // i18n-ignore: a format name, not translated
+  ['tar', 'TAR archive', 'application/x-tar', 'archive', '@257 "ustar"'],   // i18n-ignore: a format name, not translated
+  ['cab', 'Cabinet archive', 'application/vnd.ms-cab-compressed', 'archive', '"MSCF" 00 00 00 00'],   // i18n-ignore: a format name, not translated
+  ['arj', 'ARJ archive', 'application/x-arj', 'archive', '60 ea'],   // i18n-ignore: a format name, not translated
   ['lz4', 'LZ4 archive', 'application/x-lz4', 'archive', '04 22 4d 18'],
-  ['lz', 'lzip archive', 'application/x-lzip', 'archive', '"LZIP" 0?'],
-  ['z', 'Unix compress archive', 'application/x-compress', 'archive', '1f 9d'],
-  ['cpio', 'cpio archive', 'application/x-cpio', 'archive', ['"070707"', '"070701"', '"070702"']],
-  ['ar', 'ar archive', 'application/x-archive', 'archive', '"!<arch>" 0a'],
-  ['deb', 'Debian package', 'application/vnd.debian.binary-package', 'archive', '"!<arch>" 0a "debian-binary"'],
-  ['rpm', 'RPM package', 'application/x-rpm', 'archive', 'ed ab ee db'],
-  ['iso', 'ISO 9660 disc image', 'application/x-iso9660-image', 'archive', '@0x8001 "CD001"'],
-  ['dmg', 'Apple disk image', 'application/x-apple-diskimage', 'archive', null],
-  ['sqfs', 'SquashFS image', 'application/x-squashfs', 'archive', ['"hsqs"', '"sqsh"']],
-  ['zlib', 'zlib stream', 'application/zlib', 'archive', ['78 01', '78 9c', '78 da']],
+  ['lz', 'lzip archive', 'application/x-lzip', 'archive', '"LZIP" 0?'],   // i18n-ignore: a format name, not translated
+  ['z', 'Unix compress archive', 'application/x-compress', 'archive', '1f 9d'],   // i18n-ignore: a format name, not translated
+  ['cpio', 'cpio archive', 'application/x-cpio', 'archive', ['"070707"', '"070701"', '"070702"']],   // i18n-ignore: a format name, not translated
+  ['ar', 'ar archive', 'application/x-archive', 'archive', '"!<arch>" 0a'],   // i18n-ignore: a format name, not translated
+  ['deb', 'Debian package', 'application/vnd.debian.binary-package', 'archive', '"!<arch>" 0a "debian-binary"'],   // i18n-ignore: a format name, not translated
+  ['rpm', 'RPM package', 'application/x-rpm', 'archive', 'ed ab ee db'],   // i18n-ignore: a format name, not translated
+  ['iso', 'ISO 9660 disc image', 'application/x-iso9660-image', 'archive', '@0x8001 "CD001"'],   // i18n-ignore: a format name, not translated
+  ['dmg', 'Apple disk image', 'application/x-apple-diskimage', 'archive', null],   // i18n-ignore: a format name, not translated
+  ['sqfs', 'SquashFS image', 'application/x-squashfs', 'archive', ['"hsqs"', '"sqsh"']],   // i18n-ignore: a format name, not translated
+  ['zlib', 'zlib stream', 'application/zlib', 'archive', ['78 01', '78 9c', '78 da']],   // i18n-ignore: a format name, not translated
   // documents (the ZIP- and OLE2-based ones are named by their extension, or by what the archive holds)
-  ['docx', 'Word document (DOCX)', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'document', '^zip docx docm dotx'],
-  ['xlsx', 'Excel workbook (XLSX)', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'document', '^zip xlsx xlsm xltx'],
-  ['pptx', 'PowerPoint presentation (PPTX)', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'document', '^zip pptx pptm potx ppsx'],
-  ['odt', 'OpenDocument text', 'application/vnd.oasis.opendocument.text', 'document', '^zip odt ott'],
-  ['ods', 'OpenDocument spreadsheet', 'application/vnd.oasis.opendocument.spreadsheet', 'document', '^zip ods ots'],
-  ['odp', 'OpenDocument presentation', 'application/vnd.oasis.opendocument.presentation', 'document', '^zip odp otp'],
-  ['epub', 'EPUB book', 'application/epub+zip', 'document', '^zip epub'],
-  ['pdf', 'PDF document', 'application/pdf', 'document', '"%PDF-"'],
-  ['ps', 'PostScript document', 'application/postscript', 'document', '"%!PS"'],
-  ['eps', 'Encapsulated PostScript', 'application/eps', 'document', ['^ps eps', 'c5 d0 d3 c6']],
-  ['rtf', 'Rich Text document', 'application/rtf', 'document', '"{\\rtf"'],
-  ['ole', 'OLE2 compound document', 'application/x-ole-storage', 'document', 'd0 cf 11 e0 a1 b1 1a e1'],
-  ['doc', 'Word 97-2003 document', 'application/msword', 'document', '^ole doc dot'],
-  ['xls', 'Excel 97-2003 workbook', 'application/vnd.ms-excel', 'document', '^ole xls xlt'],
-  ['ppt', 'PowerPoint 97-2003 presentation', 'application/vnd.ms-powerpoint', 'document', '^ole ppt pps pot'],
-  ['msg', 'Outlook message', 'application/vnd.ms-outlook', 'document', '^ole msg'],
-  ['msi', 'Windows Installer package', 'application/x-msi', 'executable', '^ole msi'],
-  ['djvu', 'DjVu document', 'image/vnd.djvu', 'document', '"AT&TFORM" ?? ?? ?? ?? "DJV"'],
+  ['docx', 'Word document (DOCX)', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'document', '^zip docx docm dotx'],   // i18n-ignore: a format name, not translated
+  ['xlsx', 'Excel workbook (XLSX)', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'document', '^zip xlsx xlsm xltx'],   // i18n-ignore: a format name, not translated
+  ['pptx', 'PowerPoint presentation (PPTX)', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'document', '^zip pptx pptm potx ppsx'],   // i18n-ignore: a format name, not translated
+  ['odt', 'OpenDocument text', 'application/vnd.oasis.opendocument.text', 'document', '^zip odt ott'],   // i18n-ignore: a format name, not translated
+  ['ods', 'OpenDocument spreadsheet', 'application/vnd.oasis.opendocument.spreadsheet', 'document', '^zip ods ots'],   // i18n-ignore: a format name, not translated
+  ['odp', 'OpenDocument presentation', 'application/vnd.oasis.opendocument.presentation', 'document', '^zip odp otp'],   // i18n-ignore: a format name, not translated
+  ['epub', 'EPUB book', 'application/epub+zip', 'document', '^zip epub'],   // i18n-ignore: a format name, not translated
+  ['pdf', 'PDF document', 'application/pdf', 'document', '"%PDF-"'],   // i18n-ignore: a format name, not translated
+  ['ps', 'PostScript document', 'application/postscript', 'document', '"%!PS"'],   // i18n-ignore: a format name, not translated
+  ['eps', 'Encapsulated PostScript', 'application/eps', 'document', ['^ps eps', 'c5 d0 d3 c6']],   // i18n-ignore: a format name, not translated
+  ['rtf', 'Rich Text document', 'application/rtf', 'document', '"{\\rtf"'],   // i18n-ignore: a format name, not translated
+  ['ole', 'OLE2 compound document', 'application/x-ole-storage', 'document', 'd0 cf 11 e0 a1 b1 1a e1'],   // i18n-ignore: a format name, not translated
+  ['doc', 'Word 97-2003 document', 'application/msword', 'document', '^ole doc dot'],   // i18n-ignore: a format name, not translated
+  ['xls', 'Excel 97-2003 workbook', 'application/vnd.ms-excel', 'document', '^ole xls xlt'],   // i18n-ignore: a format name, not translated
+  ['ppt', 'PowerPoint 97-2003 presentation', 'application/vnd.ms-powerpoint', 'document', '^ole ppt pps pot'],   // i18n-ignore: a format name, not translated
+  ['msg', 'Outlook message', 'application/vnd.ms-outlook', 'document', '^ole msg'],   // i18n-ignore: a format name, not translated
+  ['msi', 'Windows Installer package', 'application/x-msi', 'executable', '^ole msi'],   // i18n-ignore: a format name, not translated
+  ['djvu', 'DjVu document', 'image/vnd.djvu', 'document', '"AT&TFORM" ?? ?? ?? ?? "DJV"'],   // i18n-ignore: a format name, not translated
   // executables
-  ['elf', 'ELF executable', 'application/x-elf', 'executable', '7f "ELF"'],
-  ['appimage', 'AppImage', 'application/x-iso9660-appimage', 'executable', '7f "ELF" @8 "AI" 02'],
-  ['macho', 'Mach-O executable', 'application/x-mach-binary', 'executable', ['fe ed fa ce', 'fe ed fa cf', 'ce fa ed fe', 'cf fa ed fe']],
-  ['macho-fat', 'Mach-O universal binary', 'application/x-mach-binary', 'executable', 'ca fe ba bf'],
-  ['class', 'Java class file', 'application/java-vm', 'executable', 'ca fe ba be'],
-  ['pe', 'PE executable', 'application/vnd.microsoft.portable-executable', 'executable', '"MZ"'],
-  ['dll', 'Windows DLL', 'application/vnd.microsoft.portable-executable', 'executable', null],
-  ['dos', 'DOS executable', 'application/x-dosexec', 'executable', null],
-  ['wasm', 'WebAssembly module', 'application/wasm', 'executable', '00 "asm" 01 00 00 00'],
-  ['dex', 'Android Dalvik executable', 'application/x-dex', 'executable', '"dex" 0a 30 3? 3? 00'],
-  ['lua', 'Lua bytecode', 'application/x-lua-bytecode', 'executable', '1b "Lua"'],
-  ['pyc', 'Python bytecode', 'application/x-python-code', 'executable', '?? ?? 0d 0a', pyc],
-  ['shell', 'Shell script', 'application/x-sh', 'executable', '"#!"'],
-  ['script', 'Script', 'text/plain', 'executable', null],
-  ['jar', 'Java archive (JAR)', 'application/java-archive', 'executable', '^zip jar war ear'],
-  ['apk', 'Android package (APK)', 'application/vnd.android.package-archive', 'executable', '^zip apk aab'],
-  ['ipa', 'iOS app (IPA)', 'application/octet-stream', 'executable', '^zip ipa'],
-  ['lnk', 'Windows shortcut', 'application/x-ms-shortcut', 'other', '4c 00 00 00 01 14 02 00 00 00 00 00 c0 00 00 00 00 00 00 46'],
+  ['elf', 'ELF executable', 'application/x-elf', 'executable', '7f "ELF"'],   // i18n-ignore: a format name, not translated
+  ['appimage', 'AppImage', 'application/x-iso9660-appimage', 'executable', '7f "ELF" @8 "AI" 02'],   // i18n-ignore: a format name, not translated
+  ['macho', 'Mach-O executable', 'application/x-mach-binary', 'executable', ['fe ed fa ce', 'fe ed fa cf', 'ce fa ed fe', 'cf fa ed fe']],   // i18n-ignore: a format name, not translated
+  ['macho-fat', 'Mach-O universal binary', 'application/x-mach-binary', 'executable', 'ca fe ba bf'],   // i18n-ignore: a format name, not translated
+  ['class', 'Java class file', 'application/java-vm', 'executable', 'ca fe ba be'],   // i18n-ignore: a format name, not translated
+  ['pe', 'PE executable', 'application/vnd.microsoft.portable-executable', 'executable', '"MZ"'],   // i18n-ignore: a format name, not translated
+  ['dll', 'Windows DLL', 'application/vnd.microsoft.portable-executable', 'executable', null],   // i18n-ignore: a format name, not translated
+  ['dos', 'DOS executable', 'application/x-dosexec', 'executable', null],   // i18n-ignore: a format name, not translated
+  ['wasm', 'WebAssembly module', 'application/wasm', 'executable', '00 "asm" 01 00 00 00'],   // i18n-ignore: a format name, not translated
+  ['dex', 'Android Dalvik executable', 'application/x-dex', 'executable', '"dex" 0a 30 3? 3? 00'],   // i18n-ignore: a format name, not translated
+  ['lua', 'Lua bytecode', 'application/x-lua-bytecode', 'executable', '1b "Lua"'],   // i18n-ignore: a format name, not translated
+  ['pyc', 'Python bytecode', 'application/x-python-code', 'executable', '?? ?? 0d 0a', pyc],   // i18n-ignore: a format name, not translated
+  ['shell', 'Shell script', 'application/x-sh', 'executable', '"#!"'],   // i18n-ignore: a format name, not translated
+  ['script', 'Script', 'text/plain', 'executable', null],   // i18n-ignore: a format name, not translated
+  ['jar', 'Java archive (JAR)', 'application/java-archive', 'executable', '^zip jar war ear'],   // i18n-ignore: a format name, not translated
+  ['apk', 'Android package (APK)', 'application/vnd.android.package-archive', 'executable', '^zip apk aab'],   // i18n-ignore: a format name, not translated
+  ['ipa', 'iOS app (IPA)', 'application/octet-stream', 'executable', '^zip ipa'],   // i18n-ignore: a format name, not translated
+  ['lnk', 'Windows shortcut', 'application/x-ms-shortcut', 'other', '4c 00 00 00 01 14 02 00 00 00 00 00 c0 00 00 00 00 00 00 46'],   // i18n-ignore: a format name, not translated
   // databases and data
   ['sqlite', 'SQLite 3 database', 'application/vnd.sqlite3', 'database', '"SQLite format 3" 00'],
-  ['parquet', 'Parquet file', 'application/vnd.apache.parquet', 'database', '"PAR1"'],
+  ['parquet', 'Parquet file', 'application/vnd.apache.parquet', 'database', '"PAR1"'],   // i18n-ignore: a format name, not translated
   ['hdf5', 'HDF5 file', 'application/x-hdf5', 'database', '89 "HDF" 0d 0a 1a 0a'],
-  ['npy', 'NumPy array', 'application/x-npy', 'data', '93 "NUMPY"'],
-  ['pickle', 'Python pickle', 'application/x-python-pickle', 'data', '80 0?', pickle],
-  ['gitpack', 'Git packfile', 'application/x-git-pack', 'database', '"PACK" 00 00 00 0?', (b) => b[7] === 2 || b[7] === 3],
-  ['pcap', 'PCAP capture', 'application/vnd.tcpdump.pcap', 'data', ['d4 c3 b2 a1', 'a1 b2 c3 d4', '4d 3c b2 a1', 'a1 b2 3c 4d']],
-  ['pcapng', 'PCAPNG capture', 'application/x-pcapng', 'data', '0a 0d 0d 0a'],
-  ['arrow', 'Arrow IPC file', 'application/vnd.apache.arrow.file', 'database', '"ARROW1"'],
-  ['avro', 'Avro data file', 'application/avro', 'database', '"Obj" 01'],
-  ['mdb', 'Access database (MDB)', 'application/x-msaccess', 'database', '00 01 00 00 "Standard Jet DB"'],
-  ['accdb', 'Access database (ACCDB)', 'application/x-msaccess', 'database', '00 01 00 00 "Standard ACE DB"'],
-  ['pgp', 'PGP data', 'application/pgp-encrypted', 'data', '"-----BEGIN PGP"'],
-  ['torrent', 'BitTorrent file', 'application/x-bittorrent', 'data', ['"d8:announce"', '"d13:announce-list"', '"d10:created by"']],
+  ['npy', 'NumPy array', 'application/x-npy', 'data', '93 "NUMPY"'],   // i18n-ignore: a format name, not translated
+  ['pickle', 'Python pickle', 'application/x-python-pickle', 'data', '80 0?', pickle],   // i18n-ignore: a format name, not translated
+  ['gitpack', 'Git packfile', 'application/x-git-pack', 'database', '"PACK" 00 00 00 0?', (b) => b[7] === 2 || b[7] === 3],   // i18n-ignore: a format name, not translated
+  ['pcap', 'PCAP capture', 'application/vnd.tcpdump.pcap', 'data', ['d4 c3 b2 a1', 'a1 b2 c3 d4', '4d 3c b2 a1', 'a1 b2 3c 4d']],   // i18n-ignore: a format name, not translated
+  ['pcapng', 'PCAPNG capture', 'application/x-pcapng', 'data', '0a 0d 0d 0a'],   // i18n-ignore: a format name, not translated
+  ['arrow', 'Arrow IPC file', 'application/vnd.apache.arrow.file', 'database', '"ARROW1"'],   // i18n-ignore: a format name, not translated
+  ['avro', 'Avro data file', 'application/avro', 'database', '"Obj" 01'],   // i18n-ignore: a format name, not translated
+  ['mdb', 'Access database (MDB)', 'application/x-msaccess', 'database', '00 01 00 00 "Standard Jet DB"'],   // i18n-ignore: a format name, not translated
+  ['accdb', 'Access database (ACCDB)', 'application/x-msaccess', 'database', '00 01 00 00 "Standard ACE DB"'],   // i18n-ignore: a format name, not translated
+  ['pgp', 'PGP data', 'application/pgp-encrypted', 'data', '"-----BEGIN PGP"'],   // i18n-ignore: a format name, not translated
+  ['torrent', 'BitTorrent file', 'application/x-bittorrent', 'data', ['"d8:announce"', '"d13:announce-list"', '"d10:created by"']],   // i18n-ignore: a format name, not translated
   // fonts
-  ['ttf', 'TrueType font', 'font/ttf', 'font', ['00 01 00 00', '"true" 00'], (b) => !b[4] && b[5] >= 4 && b[5] < 64],
-  ['otf', 'OpenType font', 'font/otf', 'font', '"OTTO"'],
-  ['woff', 'WOFF font', 'font/woff', 'font', '"wOFF"'],
+  ['ttf', 'TrueType font', 'font/ttf', 'font', ['00 01 00 00', '"true" 00'], (b) => !b[4] && b[5] >= 4 && b[5] < 64],   // i18n-ignore: a format name, not translated
+  ['otf', 'OpenType font', 'font/otf', 'font', '"OTTO"'],   // i18n-ignore: a format name, not translated
+  ['woff', 'WOFF font', 'font/woff', 'font', '"wOFF"'],   // i18n-ignore: a format name, not translated
   ['woff2', 'WOFF2 font', 'font/woff2', 'font', '"wOF2"'],
-  ['ttc', 'TrueType collection', 'font/collection', 'font', '"ttcf"'],
+  ['ttc', 'TrueType collection', 'font/collection', 'font', '"ttcf"'],   // i18n-ignore: a format name, not translated
   // 3d
-  ['glb', 'glTF binary model', 'model/gltf-binary', '3d', '"glTF" 0? 00 00 00'],
-  ['gltf', 'glTF model', 'model/gltf+json', '3d', null],
-  ['fbx', 'FBX model', 'application/octet-stream', '3d', '"Kaydara FBX Binary  " 00'],
-  ['blend', 'Blender file', 'application/x-blender', '3d', '"BLENDER"'],
-  ['stl', 'STL model', 'model/stl', '3d', ['"solid" 20', '"solid" 0a', '"solid" 0d'], (b) => has(b, 'facet') || has(b, 'endsolid')],
-  ['ply', 'PLY model', 'model/ply', '3d', ['"ply" 0a', '"ply" 0d']],
-  ['obj', 'OBJ model', 'model/obj', '3d', null],
-  ['3ds', '3DS model', 'application/x-3ds', '3d', null],
-  ['usdc', 'USD crate file', 'model/vnd.usd', '3d', '"PXR-USDC"'],
-  ['dae', 'COLLADA model', 'model/vnd.collada+xml', '3d', null],
-  ['3mf', '3MF model', 'model/3mf', '3d', '^zip 3mf'],
-  ['usdz', 'USDZ model', 'model/vnd.usdz+zip', '3d', '^zip usdz'],
+  ['glb', 'glTF binary model', 'model/gltf-binary', '3d', '"glTF" 0? 00 00 00'],   // i18n-ignore: a format name, not translated
+  ['gltf', 'glTF model', 'model/gltf+json', '3d', null],   // i18n-ignore: a format name, not translated
+  ['fbx', 'FBX model', 'application/octet-stream', '3d', '"Kaydara FBX Binary  " 00'],   // i18n-ignore: a format name, not translated
+  ['blend', 'Blender file', 'application/x-blender', '3d', '"BLENDER"'],   // i18n-ignore: a format name, not translated
+  ['stl', 'STL model', 'model/stl', '3d', ['"solid" 20', '"solid" 0a', '"solid" 0d'], (b) => has(b, 'facet') || has(b, 'endsolid')],   // i18n-ignore: a format name, not translated
+  ['ply', 'PLY model', 'model/ply', '3d', ['"ply" 0a', '"ply" 0d']],   // i18n-ignore: a format name, not translated
+  ['obj', 'OBJ model', 'model/obj', '3d', null],   // i18n-ignore: a format name, not translated
+  ['3ds', '3DS model', 'application/x-3ds', '3d', null],   // i18n-ignore: a format name, not translated
+  ['usdc', 'USD crate file', 'model/vnd.usd', '3d', '"PXR-USDC"'],   // i18n-ignore: a format name, not translated
+  ['dae', 'COLLADA model', 'model/vnd.collada+xml', '3d', null],   // i18n-ignore: a format name, not translated
+  ['3mf', '3MF model', 'model/3mf', '3d', '^zip 3mf'],   // i18n-ignore: a format name, not translated
+  ['usdz', 'USDZ model', 'model/vnd.usdz+zip', '3d', '^zip usdz'],   // i18n-ignore: a format name, not translated
   // text-ish: the caller opens these as text; SVG is text here too
-  ['xml', 'XML document', 'application/xml', 'text', '~"<?xml"'],
-  ['svg', 'SVG image', 'image/svg+xml', 'text', '~"<svg"'],
-  ['html', 'HTML document', 'text/html', 'text', ['~"<!doctype html"', '~"<html"']],
-  ['pem', 'PEM file', 'application/x-pem-file', 'text', '"-----BEGIN "'],
-  ['json', 'JSON data', 'application/json', 'text', null],
-  ['vcf', 'vCard contact', 'text/vcard', 'text', '"BEGIN:VCARD"'],
-  ['ics', 'iCalendar file', 'text/calendar', 'text', '"BEGIN:VCALENDAR"'],
+  ['xml', 'XML document', 'application/xml', 'text', '~"<?xml"'],   // i18n-ignore: a format name, not translated
+  ['svg', 'SVG image', 'image/svg+xml', 'text', '~"<svg"'],   // i18n-ignore: a format name, not translated
+  ['html', 'HTML document', 'text/html', 'text', ['~"<!doctype html"', '~"<html"']],   // i18n-ignore: a format name, not translated
+  ['pem', 'PEM file', 'application/x-pem-file', 'text', '"-----BEGIN "'],   // i18n-ignore: a format name, not translated
+  ['json', 'JSON data', 'application/json', 'text', null],   // i18n-ignore: a format name, not translated
+  ['vcf', 'vCard contact', 'text/vcard', 'text', '"BEGIN:VCARD"'],   // i18n-ignore: a format name, not translated
+  ['ics', 'iCalendar file', 'text/calendar', 'text', '"BEGIN:VCALENDAR"'],   // i18n-ignore: a format name, not translated
 ];
 
 // A format named only by its extension (it has no mark at the start, or none we can see), and a check that keeps a wrong guess out.
@@ -202,7 +202,7 @@ function zipHint(b) {
   if (b[2] !== 3) return null;
   const s = ascii(b, 0, 4096), n = u16(b, 26), name = s.slice(30, 30 + n), data = 30 + n + u16(b, 28);
   if (name === 'mimetype') { const hit = ZIPMIME.find(([k]) => s.slice(data, data + 64).includes(k)); return hit ? hit[1] : null; }
-  if (s.includes('AndroidManifest.xml')) return 'apk';
+  if (s.includes('AndroidManifest.xml')) return 'apk';   // i18n-ignore: a format name, not translated
   if (name.startsWith('META-INF/')) return 'jar';
   if (s.includes('[Content_Types].xml')) return s.includes('word/') ? 'docx' : s.includes('xl/') ? 'xlsx' : s.includes('ppt/') ? 'pptx' : null;
   return null;

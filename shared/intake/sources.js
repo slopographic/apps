@@ -155,7 +155,11 @@
   // area): their window handler runs first and marks the drop seen. The listeners are added on the page's first file drag, which puts
   // them after every window listener the app made while loading.
   /** The reader such a drop goes to: the page's main spec, never a part of the page (a backup, a logo). */
-  const dropSpec = () => SI.specs().find((s) => s.main) || SI.specs().find((s) => s.main !== false) || null;
+  const noPage = new Set();
+  /** A reader that keeps the page out of it (a SlopDrop zone with window: false: only its own targets take drops). */
+  SI.noPageDrop = (id) => { noPage.add(id); };
+  const pageSpecs = () => SI.specs().filter((s) => !noPage.has(s.id));
+  const dropSpec = () => pageSpecs().find((s) => s.main) || pageSpecs().find((s) => s.main !== false) || null;
   const dialogOpen = () => !!(window.SlopUI && window.SlopUI.openDialogs);
   const ACCENT = 'var(--sui-accent,var(--accent,var(--sl-accent,#3b5bdb)))';
   let veil = null, veilTimer = 0;

@@ -60,6 +60,7 @@
       });
     }
     const spec = () => SI.spec(id) || {};
+    if (o.window === false && SI.noPageDrop) SI.noPageDrop(id); // the page-wide drop of shared/intake leaves this page alone
     const rules = () => (spec().accept && typeof spec().accept === 'object' ? spec().accept : { any: true });
     // A target that is missing from this page (a page without that element, a null from $('id')) is skipped, never an
     // error. When none is left, the zone itself takes the drops, so the zone still works.

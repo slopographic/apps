@@ -8,70 +8,70 @@ const L = (id, label, mime, mode, exportName, exts, names = [], prefixes = []) =
   ({ id, label, ext: exts[0] || id, exts, names, prefixes, mime, mode, exportName });
 
 export const MORE = [
-  L('shell', 'Shell', 'text/x-sh', 'shell', 'shell', ['sh', 'bash', 'zsh', 'ksh', 'fish', 'command'],
+  L('shell', 'Shell', 'text/x-sh', 'shell', 'shell', ['sh', 'bash', 'zsh', 'ksh', 'fish', 'command'],   // i18n-ignore: a language name, not translated
     ['.bashrc', '.bash_profile', '.bash_login', '.bash_logout', '.bash_aliases', '.zshrc', '.zshenv', '.zprofile', '.zlogin',
       '.profile', '.kshrc', '.xinitrc', '.xprofile', 'pkgbuild']),
-  L('makefile', 'Makefile', 'text/x-makefile', 'shell', 'shell', ['mk', 'mak'], ['makefile', 'gnumakefile']),
+  L('makefile', 'Makefile', 'text/x-makefile', 'shell', 'shell', ['mk', 'mak'], ['makefile', 'gnumakefile']),   // i18n-ignore: a language name, not translated
   L('yaml', 'YAML', 'text/yaml', 'yaml', 'yaml', ['yml', 'yaml'], ['.clang-format', '.clang-tidy', '.yamllint']),
   L('toml', 'TOML', 'application/toml', 'toml', 'toml', ['toml'], ['cargo.lock', 'pipfile', 'poetry.lock']),
-  L('properties', 'Properties', 'text/x-properties', 'properties', 'properties', ['properties', 'ini', 'cfg', 'env'],
+  L('properties', 'Properties', 'text/x-properties', 'properties', 'properties', ['properties', 'ini', 'cfg', 'env'],   // i18n-ignore: a language name, not translated
     ['.gitconfig', '.gitmodules', '.editorconfig', '.env', '.npmrc', '.hgrc', '.pylintrc', '.flake8'], ['.env.']),
   L('xml', 'XML', 'application/xml', 'xml', 'xml',
     ['xml', 'xsd', 'xsl', 'xslt', 'svg', 'rss', 'atom', 'plist', 'xaml', 'csproj', 'vbproj', 'fsproj', 'props', 'targets', 'wsdl', 'kml', 'gpx', 'resx']),
   L('sql', 'SQL', 'text/x-sql', 'sql', 'standardSQL', ['sql']),
   L('c', 'C', 'text/x-csrc', 'clike', 'c', ['c', 'h']),
   L('cpp', 'C++', 'text/x-c++src', 'clike', 'cpp', ['cpp', 'cc', 'cxx', 'c++', 'hpp', 'hh', 'hxx', 'h++', 'ino']),
-  L('java', 'Java', 'text/x-java', 'clike', 'java', ['java']),
+  L('java', 'Java', 'text/x-java', 'clike', 'java', ['java']),   // i18n-ignore: a language name, not translated
   L('csharp', 'C#', 'text/x-csharp', 'clike', 'csharp', ['cs']),
-  L('kotlin', 'Kotlin', 'text/x-kotlin', 'clike', 'kotlin', ['kt', 'kts']),
-  L('scala', 'Scala', 'text/x-scala', 'clike', 'scala', ['scala', 'sbt']),
-  L('objectivec', 'Objective-C', 'text/x-objectivec', 'clike', 'objectiveC', ['m']),
-  L('objectivecpp', 'Objective-C++', 'text/x-objectivec++', 'clike', 'objectiveCpp', ['mm']),
-  L('dart', 'Dart', 'application/dart', 'clike', 'dart', ['dart']),
+  L('kotlin', 'Kotlin', 'text/x-kotlin', 'clike', 'kotlin', ['kt', 'kts']),   // i18n-ignore: a language name, not translated
+  L('scala', 'Scala', 'text/x-scala', 'clike', 'scala', ['scala', 'sbt']),   // i18n-ignore: a language name, not translated
+  L('objectivec', 'Objective-C', 'text/x-objectivec', 'clike', 'objectiveC', ['m']),   // i18n-ignore: a language name, not translated
+  L('objectivecpp', 'Objective-C++', 'text/x-objectivec++', 'clike', 'objectiveCpp', ['mm']),   // i18n-ignore: a language name, not translated
+  L('dart', 'Dart', 'application/dart', 'clike', 'dart', ['dart']),   // i18n-ignore: a language name, not translated
   L('glsl', 'GLSL', 'text/x-glsl', 'clike', 'shader', ['glsl', 'vert', 'frag', 'geom']),
-  L('go', 'Go', 'text/x-go', 'go', 'go', ['go']),
-  L('rust', 'Rust', 'text/x-rust', 'rust', 'rust', ['rs']),
-  L('ruby', 'Ruby', 'text/x-ruby', 'ruby', 'ruby', ['rb', 'rake', 'gemspec', 'ru', 'thor', 'podspec', 'jbuilder'],
+  L('go', 'Go', 'text/x-go', 'go', 'go', ['go']),   // i18n-ignore: a language name, not translated
+  L('rust', 'Rust', 'text/x-rust', 'rust', 'rust', ['rs']),   // i18n-ignore: a language name, not translated
+  L('ruby', 'Ruby', 'text/x-ruby', 'ruby', 'ruby', ['rb', 'rake', 'gemspec', 'ru', 'thor', 'podspec', 'jbuilder'],   // i18n-ignore: a language name, not translated
     ['rakefile', 'gemfile', 'vagrantfile', 'guardfile', 'podfile', 'brewfile', 'capfile', 'berksfile', 'fastfile', 'appfile', 'cheffile', '.irbrc', '.pryrc']),
-  L('perl', 'Perl', 'text/x-perl', 'perl', 'perl', ['pl', 'pm', 'pod']),
-  L('lua', 'Lua', 'text/x-lua', 'lua', 'lua', ['lua']),
-  L('swift', 'Swift', 'text/x-swift', 'swift', 'swift', ['swift']),
-  L('dockerfile', 'Dockerfile', 'text/x-dockerfile', 'dockerfile', 'dockerFile', ['dockerfile'], ['dockerfile', 'containerfile'], ['dockerfile.']),
-  L('diff', 'Diff', 'text/x-diff', 'diff', 'diff', ['diff', 'patch']),
-  L('powershell', 'PowerShell', 'text/x-powershell', 'powershell', 'powerShell', ['ps1', 'psm1', 'psd1']),
+  L('perl', 'Perl', 'text/x-perl', 'perl', 'perl', ['pl', 'pm', 'pod']),   // i18n-ignore: a language name, not translated
+  L('lua', 'Lua', 'text/x-lua', 'lua', 'lua', ['lua']),   // i18n-ignore: a language name, not translated
+  L('swift', 'Swift', 'text/x-swift', 'swift', 'swift', ['swift']),   // i18n-ignore: a language name, not translated
+  L('dockerfile', 'Dockerfile', 'text/x-dockerfile', 'dockerfile', 'dockerFile', ['dockerfile'], ['dockerfile', 'containerfile'], ['dockerfile.']),   // i18n-ignore: a language name, not translated
+  L('diff', 'Diff', 'text/x-diff', 'diff', 'diff', ['diff', 'patch']),   // i18n-ignore: a language name, not translated
+  L('powershell', 'PowerShell', 'text/x-powershell', 'powershell', 'powerShell', ['ps1', 'psm1', 'psd1']),   // i18n-ignore: a language name, not translated
   L('r', 'R', 'text/x-rsrc', 'r', 'r', ['r']),
-  L('haskell', 'Haskell', 'text/x-haskell', 'haskell', 'haskell', ['hs', 'lhs']),
-  L('julia', 'Julia', 'text/x-julia', 'julia', 'julia', ['jl']),
-  L('erlang', 'Erlang', 'text/x-erlang', 'erlang', 'erlang', ['erl', 'hrl']),
-  L('commonlisp', 'Common Lisp', 'text/x-common-lisp', 'commonlisp', 'commonLisp', ['lisp', 'lsp', 'cl', 'asd']),
-  L('scheme', 'Scheme', 'text/x-scheme', 'scheme', 'scheme', ['scm', 'ss', 'sch', 'sld', 'rkt']),
-  L('clojure', 'Clojure', 'text/x-clojure', 'clojure', 'clojure', ['clj', 'cljs', 'cljc', 'edn']),
-  L('tcl', 'Tcl', 'text/x-tcl', 'tcl', 'tcl', ['tcl']),
-  L('vb', 'Visual Basic', 'text/x-vb', 'vb', 'vb', ['vb', 'bas']),
+  L('haskell', 'Haskell', 'text/x-haskell', 'haskell', 'haskell', ['hs', 'lhs']),   // i18n-ignore: a language name, not translated
+  L('julia', 'Julia', 'text/x-julia', 'julia', 'julia', ['jl']),   // i18n-ignore: a language name, not translated
+  L('erlang', 'Erlang', 'text/x-erlang', 'erlang', 'erlang', ['erl', 'hrl']),   // i18n-ignore: a language name, not translated
+  L('commonlisp', 'Common Lisp', 'text/x-common-lisp', 'commonlisp', 'commonLisp', ['lisp', 'lsp', 'cl', 'asd']),   // i18n-ignore: a language name, not translated
+  L('scheme', 'Scheme', 'text/x-scheme', 'scheme', 'scheme', ['scm', 'ss', 'sch', 'sld', 'rkt']),   // i18n-ignore: a language name, not translated
+  L('clojure', 'Clojure', 'text/x-clojure', 'clojure', 'clojure', ['clj', 'cljs', 'cljc', 'edn']),   // i18n-ignore: a language name, not translated
+  L('tcl', 'Tcl', 'text/x-tcl', 'tcl', 'tcl', ['tcl']),   // i18n-ignore: a language name, not translated
+  L('vb', 'Visual Basic', 'text/x-vb', 'vb', 'vb', ['vb', 'bas']),   // i18n-ignore: a language name, not translated
   L('vbscript', 'VBScript', 'text/vbscript', 'vbscript', 'vbScript', ['vbs']),
-  L('pascal', 'Pascal', 'text/x-pascal', 'pascal', 'pascal', ['pas', 'dpr', 'lpr']),
-  L('fortran', 'Fortran', 'text/x-fortran', 'fortran', 'fortran', ['f', 'f90', 'f95', 'f03', 'f08', 'f77', 'for']),
-  L('verilog', 'Verilog', 'text/x-verilog', 'verilog', 'verilog', ['v', 'vh', 'sv', 'svh']),
+  L('pascal', 'Pascal', 'text/x-pascal', 'pascal', 'pascal', ['pas', 'dpr', 'lpr']),   // i18n-ignore: a language name, not translated
+  L('fortran', 'Fortran', 'text/x-fortran', 'fortran', 'fortran', ['f', 'f90', 'f95', 'f03', 'f08', 'f77', 'for']),   // i18n-ignore: a language name, not translated
+  L('verilog', 'Verilog', 'text/x-verilog', 'verilog', 'verilog', ['v', 'vh', 'sv', 'svh']),   // i18n-ignore: a language name, not translated
   L('vhdl', 'VHDL', 'text/x-vhdl', 'vhdl', 'vhdl', ['vhd', 'vhdl']),
-  L('coffeescript', 'CoffeeScript', 'text/x-coffeescript', 'coffeescript', 'coffeeScript', ['coffee']),
-  L('latex', 'LaTeX', 'application/x-tex', 'stex', 'stex', ['tex', 'latex', 'ltx', 'sty', 'cls']),
+  L('coffeescript', 'CoffeeScript', 'text/x-coffeescript', 'coffeescript', 'coffeeScript', ['coffee']),   // i18n-ignore: a language name, not translated
+  L('latex', 'LaTeX', 'application/x-tex', 'stex', 'stex', ['tex', 'latex', 'ltx', 'sty', 'cls']),   // i18n-ignore: a language name, not translated
   L('cmake', 'CMake', 'text/x-cmake', 'cmake', 'cmake', ['cmake'], ['cmakelists.txt']),
-  L('nginx', 'Nginx', 'text/x-nginx-conf', 'nginx', 'nginx', ['nginx'], ['nginx.conf']),
-  L('protobuf', 'Protocol Buffers', 'text/x-protobuf', 'protobuf', 'protobuf', ['proto']),
-  L('groovy', 'Groovy', 'text/x-groovy', 'groovy', 'groovy', ['groovy', 'gradle', 'gvy'], ['jenkinsfile']),
+  L('nginx', 'Nginx', 'text/x-nginx-conf', 'nginx', 'nginx', ['nginx'], ['nginx.conf']),   // i18n-ignore: a language name, not translated
+  L('protobuf', 'Protocol Buffers', 'text/x-protobuf', 'protobuf', 'protobuf', ['proto']),   // i18n-ignore: a language name, not translated
+  L('groovy', 'Groovy', 'text/x-groovy', 'groovy', 'groovy', ['groovy', 'gradle', 'gvy'], ['jenkinsfile']),   // i18n-ignore: a language name, not translated
   L('http', 'HTTP', 'message/http', 'http', 'http', ['http']),
   L('d', 'D', 'text/x-d', 'd', 'd', ['d']),
-  L('elm', 'Elm', 'text/x-elm', 'elm', 'elm', ['elm']),
+  L('elm', 'Elm', 'text/x-elm', 'elm', 'elm', ['elm']),   // i18n-ignore: a language name, not translated
   L('ocaml', 'OCaml', 'text/x-ocaml', 'mllike', 'oCaml', ['ml', 'mli']),
   L('fsharp', 'F#', 'text/x-fsharp', 'mllike', 'fSharp', ['fs', 'fsi', 'fsx']),
-  L('sml', 'Standard ML', 'text/x-sml', 'mllike', 'sml', ['sml']),
-  L('gherkin', 'Gherkin', 'text/x-feature', 'gherkin', 'gherkin', ['feature']),
-  L('puppet', 'Puppet', 'text/x-puppet', 'puppet', 'puppet', ['pp']),
-  L('crystal', 'Crystal', 'text/x-crystal', 'crystal', 'crystal', ['cr']),
-  L('haxe', 'Haxe', 'text/x-haxe', 'haxe', 'haxe', ['hx']),
-  L('jinja2', 'Jinja2', 'text/x-jinja2', 'jinja2', 'jinja2', ['j2', 'jinja', 'jinja2']),
-  L('asm', 'Assembly', 'text/x-asm', 'gas', 'gas', ['s', 'asm']),
-  L('wast', 'WebAssembly text', 'text/x-wast', 'wast', 'wast', ['wat', 'wast']),
+  L('sml', 'Standard ML', 'text/x-sml', 'mllike', 'sml', ['sml']),   // i18n-ignore: a language name, not translated
+  L('gherkin', 'Gherkin', 'text/x-feature', 'gherkin', 'gherkin', ['feature']),   // i18n-ignore: a language name, not translated
+  L('puppet', 'Puppet', 'text/x-puppet', 'puppet', 'puppet', ['pp']),   // i18n-ignore: a language name, not translated
+  L('crystal', 'Crystal', 'text/x-crystal', 'crystal', 'crystal', ['cr']),   // i18n-ignore: a language name, not translated
+  L('haxe', 'Haxe', 'text/x-haxe', 'haxe', 'haxe', ['hx']),   // i18n-ignore: a language name, not translated
+  L('jinja2', 'Jinja2', 'text/x-jinja2', 'jinja2', 'jinja2', ['j2', 'jinja', 'jinja2']),   // i18n-ignore: a language name, not translated
+  L('asm', 'Assembly', 'text/x-asm', 'gas', 'gas', ['s', 'asm']),   // i18n-ignore: a language name, not translated
+  L('wast', 'WebAssembly text', 'text/x-wast', 'wast', 'wast', ['wat', 'wast']),   // i18n-ignore: a language name, not translated
   L('cobol', 'COBOL', 'text/x-cobol', 'cobol', 'cobol', ['cob', 'cbl', 'cobol', 'cpy']),
 ];
 

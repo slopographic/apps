@@ -10,13 +10,13 @@ export const ENCODINGS = [
   { id: 'utf-8', label: 'UTF-8' },
   { id: 'utf-16le', label: 'UTF-16 LE' }, { id: 'utf-16be', label: 'UTF-16 BE' },
   { id: 'utf-32le', label: 'UTF-32 LE' }, { id: 'utf-32be', label: 'UTF-32 BE' },
-  { id: 'windows-1252', label: 'Windows-1252 (Western)' }, { id: 'iso-8859-2', label: 'ISO-8859-2 (Central European)' },
-  { id: 'iso-8859-15', label: 'ISO-8859-15 (Western, Euro)' }, { id: 'windows-1250', label: 'Windows-1250 (Central European)' },
-  { id: 'windows-1251', label: 'Windows-1251 (Cyrillic)' }, { id: 'koi8-r', label: 'KOI8-R (Cyrillic)' },
-  { id: 'ibm866', label: 'IBM866 (Cyrillic, DOS)' }, { id: 'macintosh', label: 'Macintosh (Mac Roman)' },
-  { id: 'shift_jis', label: 'Shift_JIS (Japanese)' }, { id: 'euc-jp', label: 'EUC-JP (Japanese)' },
-  { id: 'iso-2022-jp', label: 'ISO-2022-JP (Japanese)' }, { id: 'gbk', label: 'GBK (Simplified Chinese)' },
-  { id: 'gb18030', label: 'GB18030 (Chinese)' }, { id: 'big5', label: 'Big5 (Traditional Chinese)' },
+  { id: 'windows-1252', label: 'Windows-1252 (Western)' }, { id: 'iso-8859-2', label: 'ISO-8859-2 (Central European)' },   // i18n-ignore: an encoding name, not translated
+  { id: 'iso-8859-15', label: 'ISO-8859-15 (Western, Euro)' }, { id: 'windows-1250', label: 'Windows-1250 (Central European)' },   // i18n-ignore: an encoding name, not translated
+  { id: 'windows-1251', label: 'Windows-1251 (Cyrillic)' }, { id: 'koi8-r', label: 'KOI8-R (Cyrillic)' },   // i18n-ignore: an encoding name, not translated
+  { id: 'ibm866', label: 'IBM866 (Cyrillic, DOS)' }, { id: 'macintosh', label: 'Macintosh (Mac Roman)' },   // i18n-ignore: an encoding name, not translated
+  { id: 'shift_jis', label: 'Shift_JIS (Japanese)' }, { id: 'euc-jp', label: 'EUC-JP (Japanese)' },   // i18n-ignore: an encoding name, not translated
+  { id: 'iso-2022-jp', label: 'ISO-2022-JP (Japanese)' }, { id: 'gbk', label: 'GBK (Simplified Chinese)' },   // i18n-ignore: an encoding name, not translated
+  { id: 'gb18030', label: 'GB18030 (Chinese)' }, { id: 'big5', label: 'Big5 (Traditional Chinese)' },   // i18n-ignore: an encoding name, not translated
   { id: 'euc-kr', label: 'EUC-KR (Korean)' },
 ];
 

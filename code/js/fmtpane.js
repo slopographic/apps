@@ -13,7 +13,7 @@ import { helperOn } from './prefs.js';
 const $ = (id) => document.getElementById(id);
 const toast = (m) => window.SlopUI && window.SlopUI.toast(m);
 /** What the pane calls each kind (names of formats are not translated). */
-const KIND = { json: 'JSON', jsonl: 'JSON Lines', xml: 'XML', html: 'HTML', css: 'CSS', js: 'JavaScript', sql: 'SQL', csv: 'CSV', tsv: 'TSV' };
+const KIND = { json: 'JSON', jsonl: 'JSON Lines', xml: 'XML', html: 'HTML', css: 'CSS', js: 'JavaScript', sql: 'SQL', csv: 'CSV', tsv: 'TSV' };   // i18n-ignore: a format name, not translated
 let pane = null, timer = 0, shown = { id: null, lang: null, text: null, out: '' };
 
 export const fmtOn = () => helperOn('fmtview') && getDisplay().fmt;
