@@ -3496,6 +3496,7 @@ Covers: shared/i18n/ui/ar/data.js
 Covers: shared/i18n/ui/ar/data2.js
 Covers: shared/i18n/ui/ar/finder.js
 Covers: shared/i18n/ui/ar/firstrun.js
+Covers: shared/i18n/ui/ar/fmp.js
 Covers: shared/i18n/ui/ar/fonts.js
 Covers: shared/i18n/ui/ar/graphics.js
 Covers: shared/i18n/ui/ar/guides.js
@@ -3537,6 +3538,7 @@ Covers: shared/i18n/ui/de/data.js
 Covers: shared/i18n/ui/de/data2.js
 Covers: shared/i18n/ui/de/finder.js
 Covers: shared/i18n/ui/de/firstrun.js
+Covers: shared/i18n/ui/de/fmp.js
 Covers: shared/i18n/ui/de/fonts.js
 Covers: shared/i18n/ui/de/graphics.js
 Covers: shared/i18n/ui/de/guides.js
@@ -3578,6 +3580,7 @@ Covers: shared/i18n/ui/en/data.js
 Covers: shared/i18n/ui/en/data2.js
 Covers: shared/i18n/ui/en/finder.js
 Covers: shared/i18n/ui/en/firstrun.js
+Covers: shared/i18n/ui/en/fmp.js
 Covers: shared/i18n/ui/en/fonts.js
 Covers: shared/i18n/ui/en/graphics.js
 Covers: shared/i18n/ui/en/guides.js
@@ -3619,6 +3622,7 @@ Covers: shared/i18n/ui/es/data.js
 Covers: shared/i18n/ui/es/data2.js
 Covers: shared/i18n/ui/es/finder.js
 Covers: shared/i18n/ui/es/firstrun.js
+Covers: shared/i18n/ui/es/fmp.js
 Covers: shared/i18n/ui/es/fonts.js
 Covers: shared/i18n/ui/es/graphics.js
 Covers: shared/i18n/ui/es/guides.js
@@ -3660,6 +3664,7 @@ Covers: shared/i18n/ui/fr/data.js
 Covers: shared/i18n/ui/fr/data2.js
 Covers: shared/i18n/ui/fr/finder.js
 Covers: shared/i18n/ui/fr/firstrun.js
+Covers: shared/i18n/ui/fr/fmp.js
 Covers: shared/i18n/ui/fr/fonts.js
 Covers: shared/i18n/ui/fr/graphics.js
 Covers: shared/i18n/ui/fr/guides.js
@@ -3706,6 +3711,7 @@ Covers: shared/i18n/ui/it/data.js
 Covers: shared/i18n/ui/it/data2.js
 Covers: shared/i18n/ui/it/finder.js
 Covers: shared/i18n/ui/it/firstrun.js
+Covers: shared/i18n/ui/it/fmp.js
 Covers: shared/i18n/ui/it/fonts.js
 Covers: shared/i18n/ui/it/graphics.js
 Covers: shared/i18n/ui/it/guides.js
@@ -3747,6 +3753,7 @@ Covers: shared/i18n/ui/ja/data.js
 Covers: shared/i18n/ui/ja/data2.js
 Covers: shared/i18n/ui/ja/finder.js
 Covers: shared/i18n/ui/ja/firstrun.js
+Covers: shared/i18n/ui/ja/fmp.js
 Covers: shared/i18n/ui/ja/fonts.js
 Covers: shared/i18n/ui/ja/graphics.js
 Covers: shared/i18n/ui/ja/guides.js
@@ -3788,6 +3795,7 @@ Covers: shared/i18n/ui/ko/data.js
 Covers: shared/i18n/ui/ko/data2.js
 Covers: shared/i18n/ui/ko/finder.js
 Covers: shared/i18n/ui/ko/firstrun.js
+Covers: shared/i18n/ui/ko/fmp.js
 Covers: shared/i18n/ui/ko/fonts.js
 Covers: shared/i18n/ui/ko/graphics.js
 Covers: shared/i18n/ui/ko/guides.js
@@ -3829,6 +3837,7 @@ Covers: shared/i18n/ui/nl/data.js
 Covers: shared/i18n/ui/nl/data2.js
 Covers: shared/i18n/ui/nl/finder.js
 Covers: shared/i18n/ui/nl/firstrun.js
+Covers: shared/i18n/ui/nl/fmp.js
 Covers: shared/i18n/ui/nl/fonts.js
 Covers: shared/i18n/ui/nl/graphics.js
 Covers: shared/i18n/ui/nl/guides.js
@@ -3870,6 +3879,7 @@ Covers: shared/i18n/ui/pl/data.js
 Covers: shared/i18n/ui/pl/data2.js
 Covers: shared/i18n/ui/pl/finder.js
 Covers: shared/i18n/ui/pl/firstrun.js
+Covers: shared/i18n/ui/pl/fmp.js
 Covers: shared/i18n/ui/pl/fonts.js
 Covers: shared/i18n/ui/pl/graphics.js
 Covers: shared/i18n/ui/pl/guides.js
@@ -3911,6 +3921,7 @@ Covers: shared/i18n/ui/pt-BR/data.js
 Covers: shared/i18n/ui/pt-BR/data2.js
 Covers: shared/i18n/ui/pt-BR/finder.js
 Covers: shared/i18n/ui/pt-BR/firstrun.js
+Covers: shared/i18n/ui/pt-BR/fmp.js
 Covers: shared/i18n/ui/pt-BR/fonts.js
 Covers: shared/i18n/ui/pt-BR/graphics.js
 Covers: shared/i18n/ui/pt-BR/guides.js
@@ -3952,6 +3963,7 @@ Covers: shared/i18n/ui/ru/data.js
 Covers: shared/i18n/ui/ru/data2.js
 Covers: shared/i18n/ui/ru/finder.js
 Covers: shared/i18n/ui/ru/firstrun.js
+Covers: shared/i18n/ui/ru/fmp.js
 Covers: shared/i18n/ui/ru/fonts.js
 Covers: shared/i18n/ui/ru/graphics.js
 Covers: shared/i18n/ui/ru/guides.js
@@ -3993,6 +4005,7 @@ Covers: shared/i18n/ui/sv/data.js
 Covers: shared/i18n/ui/sv/data2.js
 Covers: shared/i18n/ui/sv/finder.js
 Covers: shared/i18n/ui/sv/firstrun.js
+Covers: shared/i18n/ui/sv/fmp.js
 Covers: shared/i18n/ui/sv/fonts.js
 Covers: shared/i18n/ui/sv/graphics.js
 Covers: shared/i18n/ui/sv/guides.js
@@ -4035,6 +4048,7 @@ Covers: shared/i18n/ui/tr/data.js
 Covers: shared/i18n/ui/tr/data2.js
 Covers: shared/i18n/ui/tr/finder.js
 Covers: shared/i18n/ui/tr/firstrun.js
+Covers: shared/i18n/ui/tr/fmp.js
 Covers: shared/i18n/ui/tr/fonts.js
 Covers: shared/i18n/ui/tr/graphics.js
 Covers: shared/i18n/ui/tr/guides.js
@@ -4076,6 +4090,7 @@ Covers: shared/i18n/ui/uk/data.js
 Covers: shared/i18n/ui/uk/data2.js
 Covers: shared/i18n/ui/uk/finder.js
 Covers: shared/i18n/ui/uk/firstrun.js
+Covers: shared/i18n/ui/uk/fmp.js
 Covers: shared/i18n/ui/uk/fonts.js
 Covers: shared/i18n/ui/uk/graphics.js
 Covers: shared/i18n/ui/uk/guides.js
@@ -4120,6 +4135,7 @@ Covers: shared/i18n/ui/zh-CN/data.js
 Covers: shared/i18n/ui/zh-CN/data2.js
 Covers: shared/i18n/ui/zh-CN/finder.js
 Covers: shared/i18n/ui/zh-CN/firstrun.js
+Covers: shared/i18n/ui/zh-CN/fmp.js
 Covers: shared/i18n/ui/zh-CN/fonts.js
 Covers: shared/i18n/ui/zh-CN/graphics.js
 Covers: shared/i18n/ui/zh-CN/guides.js
@@ -4161,6 +4177,7 @@ Covers: shared/i18n/ui/zh-TW/data.js
 Covers: shared/i18n/ui/zh-TW/data2.js
 Covers: shared/i18n/ui/zh-TW/finder.js
 Covers: shared/i18n/ui/zh-TW/firstrun.js
+Covers: shared/i18n/ui/zh-TW/fmp.js
 Covers: shared/i18n/ui/zh-TW/fonts.js
 Covers: shared/i18n/ui/zh-TW/graphics.js
 Covers: shared/i18n/ui/zh-TW/guides.js

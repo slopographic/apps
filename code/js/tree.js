@@ -40,8 +40,10 @@ export function initTree(listEl, callbacks) {
     if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', r.rec.name); } catch (err) { /* not kept */ } }
   });
   host.addEventListener('dragend', () => { dragging = null; clearDrop(); });
+  host.addEventListener('dragleave', clearDrop);
+  document.addEventListener('slop:intake-before', clearDrop);
   host.addEventListener('dragover', (e) => {
-    if (!dragging) return;
+    if (!dragging) { fileHint(e); return; }
     const target = dropTarget(e.target);
     clearDrop();
     if (!canMove(dragging, target)) return;
@@ -136,6 +138,16 @@ function dropTarget(node) {
   return r.kind === 'folder' ? r.rec.id : (r.rec.folderId ?? null);
 }
 const clearDrop = () => { if (host) for (const b of host.querySelectorAll('.drop')) b.classList.remove('drop'); };
+/** The folder under the pointer (null: the root). A file dragged in from the computer is saved into it. */
+export const folderAt = (node) => dropTarget(node);
+const hasFiles = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+/** A file dragged in from the computer: outline the folder it would go into (the shared intake does the drop itself). */
+function fileHint(e) {
+  if (!hasFiles(e)) return;
+  clearDrop();
+  const r = rowOf(e.target), btn = e.target.closest ? e.target.closest('.cd-row') : null;
+  if (r && r.kind === 'folder' && btn) btn.classList.add('drop');
+}
 /** Is `id` the folder `ancestor` or inside it? */
 function within(id, ancestor) {
   for (let f = id, n = 0; f && n < 64; n++) {

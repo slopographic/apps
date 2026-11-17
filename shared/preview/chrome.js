@@ -31,6 +31,7 @@
     '.spv .pv-pages canvas{display:block;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}',
     '.spv .spv-note{position:absolute;left:0;right:0;bottom:10px;padding:0 12px;text-align:center;font-size:12px;opacity:.75;pointer-events:none}',
     '.spv .spv-note.spv-mid{top:0;bottom:0;display:grid;place-items:center}',
+    '.spv .spv-db{position:relative;flex:1 1 auto;min-height:0;overflow:hidden}',   // a database file: the table viewer of shared/fmp
   ].join('');
 
   SP.GAP = 12; // the space between PDF pages, in CSS px (the layout reads it too)
@@ -62,6 +63,19 @@
     if (title) { b.title = title; b.setAttribute('aria-label', title); }
     b.addEventListener('click', () => act());
     return b;
+  };
+
+  /** Loads a script once, and resolves when it has run (SlopLoad where the page has it; a page that has the script counts as loaded). */
+  SP.loadScript = function (src) {
+    if (window.SlopLoad && window.SlopLoad.script) return window.SlopLoad.script(src);
+    if (Array.from(document.scripts).some((s) => s.src === src)) return Promise.resolve();
+    return new Promise((res, rej) => {
+      const s = SP.el('script');
+      s.src = src;
+      s.onload = () => res();
+      s.onerror = () => { s.remove(); rej(new Error('Could not load ' + src)); };
+      document.head.append(s);
+    });
   };
 
   /** File actions. The blob URL is opened in a new window without an opener; the browser's share sheet gets the file. */

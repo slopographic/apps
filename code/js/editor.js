@@ -10,6 +10,7 @@ import { search, searchKeymap, highlightSelectionMatches, openSearchPanel } from
 import { tags as t } from '@lezer/highlight';
 import { languageFor, extOf } from './lang.js';
 import { completionExtensions, languageCompletion } from './completion.js';
+import { displayExtension } from './display.js';
 
 /** Colours come from the --cd-* tokens in css/base.css, so light and dark themes both work. */
 const HIGHLIGHT = syntaxHighlighting(HighlightStyle.define([
@@ -45,6 +46,8 @@ function baseExtensions() {
     drawSelection(), dropCursor(), EditorState.allowMultipleSelections.of(true), // Ctrl+click adds a cursor
     indentOnInput(), indentUnit.of('  '), HIGHLIGHT, bracketMatching(), closeBrackets(),
     rectangularSelection(), crosshairCursor(), // Alt+drag selects a block
+    // A file dragged in from the computer opens in its own tab (the shared intake): CodeMirror would also type its text into this file.
+    EditorView.domEventHandlers({ drop: (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files') }), // intake-ok: only stops CodeMirror's own file handling
     highlightActiveLine(), highlightSelectionMatches(), search({ top: true }), keymap.of(KEYS),
     EditorView.updateListener.of((u) => {
       if (u.docChanged && hooks.change) hooks.change(u.view);
@@ -59,12 +62,22 @@ export function makeState(text, name) {
     doc: text,
     extensions: [
       baseExtensions(), langCompartment.of(langParts(languageFor(name), extOf(name))), completionExtensions(),
-      wrapCompartment.of(prefs.wrap ? EditorView.lineWrapping : []),
+      wrapCompartment.of(prefs.wrap ? EditorView.lineWrapping : []), displayExtension(),
     ],
   });
 }
 /** The support and the completion for a language. `ext` picks the variant (jsx, tsx). */
 const langParts = (lang, ext) => [lang.support(ext), languageCompletion(lang.id)];
+/** A read-only state for the formatted view: the text, line numbers, highlighting for `lang`, wrapping as the editor has it. */
+export function readOnlyState(text, lang) {
+  return EditorState.create({
+    doc: text,
+    extensions: [lineNumbers(), highlightSpecialChars(), foldGutter(), HIGHLIGHT, EditorState.readOnly.of(true), EditorView.editable.of(false),
+      langCompartment.of(langParts(lang, lang.ext)), wrapCompartment.of(prefs.wrap ? EditorView.lineWrapping : [])],
+  });
+}
+/** The effect that gives a document the language `lang`. `extra` is the loaded highlighting of an extra language (lang-load.js). */
+export const langEffect = (lang, extra) => langCompartment.reconfigure(extra ? [extra, languageCompletion(lang.id)] : langParts(lang, lang.ext));
 /** Change the language of the shown document (highlighting and completion). The text and history stay. */
 export function setLanguage(view, lang) {
   view.dispatch({ effects: langCompartment.reconfigure(langParts(lang, lang.ext)) });

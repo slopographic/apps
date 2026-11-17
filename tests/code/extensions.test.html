@@ -41,12 +41,12 @@
   });
 
   describe('Slop Code: Extensions panel', () => {
-    it('lists the three built-in helpers as switches, all on by default', async () => {
+    it('lists the five built-in helpers as switches, all on by default', async () => {
       w = await frame('../../code/');
       const rows = [...w.document.querySelectorAll('#cd-ext-list .cd-ext')];
-      expect(rows.length).toBe(3);
-      expect(rows.map((r) => r.querySelector('.cd-ext-name').textContent)).toEqual(['Formatter', 'Language mode switcher', 'Snippets']);
-      for (const id of ['formatter', 'languageMode', 'snippets']) {
+      expect(rows.length).toBe(5);
+      expect(rows.map((r) => r.querySelector('.cd-ext-name').textContent)).toEqual(['Formatter', 'Language mode switcher', 'Snippets', 'Display options', 'Formatted view']);
+      for (const id of ['formatter', 'languageMode', 'snippets', 'display', 'fmtview']) {
         expect(box(id).getAttribute('role')).toBe('switch');
         expect(box(id).checked).toBe(true);
       }
@@ -55,10 +55,10 @@
     it('a switch is kept in slop-code.extensions as a v1 envelope, and survives a reload', async () => {
       box('snippets').click();
       expect(box('snippets').checked).toBe(false);
-      expect(stored()).toEqual({ v: 1, data: { formatter: true, languageMode: true, snippets: false } });
+      expect(stored()).toEqual({ v: 1, data: { formatter: true, languageMode: true, snippets: false, display: true, fmtview: true } });
       close(w);
       w = await frame('../../code/');
-      await waitFor(() => w.document.getElementById('cd-ext-list').children.length === 3, { timeout: 8000 });
+      await waitFor(() => w.document.getElementById('cd-ext-list').children.length === 5, { timeout: 8000 });
       expect(box('snippets').checked).toBe(false);
       expect(box('formatter').checked).toBe(true);
     });

@@ -5,12 +5,14 @@
 import * as docs from './docs.js';
 import { el, t } from './dom.js';
 import { renderMarkdown } from './markdown.js';
+import { mountHex } from './hexview.js';
 
 const MEDIA = {
   image: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp', 'ico'],
   audio: ['mp3', 'wav', 'ogg', 'oga', 'm4a', 'aac', 'flac', 'opus'],
   video: ['mp4', 'webm', 'ogv', 'mov', 'm4v'],
   pdf: ['pdf'],
+  database: ['fmp12', 'fp7', 'fp5', 'fp3', 'fmp', 'fmpxml'], // FileMaker: shown as tables by the shared preview (shared/fmp)
 };
 
 /** The view kind for a file name ('image', 'audio', 'video' or 'pdf'), or null: text and unknown files are decided by content. */
@@ -52,6 +54,10 @@ function mountFile(doc) {
     el('audio', { controls: true, preload: 'metadata', src: doc.url, 'aria-label': doc.name }));
   if (doc.kind === 'video') return el('div', { class: 'cd-media' }, el('video', { controls: true, preload: 'metadata', src: doc.url, 'aria-label': doc.name, class: 'cd-video' }));
   if (doc.kind === 'pdf') return el('iframe', { class: 'cd-pdf', src: doc.url + '#page=1&view=FitH', title: t('code.view.pdf', { name: doc.name }) });
+  if (doc.kind === 'database' && window.SlopPreview) {
+    const v = window.SlopPreview.create({ title: doc.name, blobUrl: doc.url, blob: doc.blob, kind: 'database', chrome: false });
+    return el('div', { class: 'cd-media' }, v.el);
+  }
   return binaryNode(doc);
 }
 
@@ -62,11 +68,21 @@ function appName(label) {
   return pre && label.startsWith(pre) ? label.slice(pre.length) : label;
 }
 
-/** "Not text": the message, and an "Open in an app" list (apps that accept this type, as in Slop Drive). */
+const megabytes = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
+/** What the first bytes say the file is, or that it is too big for the editor. */
+function kindLine(doc) {
+  const parts = [];
+  if (doc.info) parts.push(t('code.view.looks_like', { kind: doc.info.label }));
+  if (doc.large) parts.push(t('code.view.large', { size: megabytes(doc.size) }));
+  return parts.join(' ');
+}
+
+/** "Not text": the message, what the bytes look like, an "Open in an app" list (apps that accept this type, as in Slop Drive), and
+ * the bytes themselves in a read-only hex view. */
 function binaryNode(doc) {
   const box = el('div', { class: 'cd-bin' },
     el('h2', null, doc.name),
-    el('p', null, t('code.view.not_text')));
+    el('p', null, t('code.view.not_text'), ' ', kindLine(doc)));
   const list = el('div', { class: 'cd-bin-apps' });
   const rec = { id: doc.id, name: doc.name };
   // The one builder (SlopOuttake): the file is already in Slop Drive, so the app opens that record (no copy).
@@ -77,5 +93,8 @@ function binaryNode(doc) {
       ...items.map((it) => el('button', { type: 'button', class: 'sui-btn', onclick: it.act }, appName(it.label))));
   };
   box.append(el('button', { type: 'button', class: 'sui-btn sui-primary', id: 'cd-bin-open', onclick: showApps }, t('code.view.open_app')), list);
+  const hex = el('div', { class: 'cd-bin-hex' });
+  box.append(hex);
+  if (doc.blob) mountHex(hex, doc.blob, { name: doc.name, kind: kindLine(doc) });
   return box;
 }

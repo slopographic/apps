@@ -5,7 +5,9 @@
 // must be another pinned package, so the import map in code/index.html covers the whole graph. Writes one
 // file per package, LICENSES.txt (the licence texts, de-duplicated) and import-map.json (the map to paste into
 // code/index.html). README.md is written by hand; this script prints the table rows for it.
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+// @codemirror/legacy-modes is vendored one file per mode (mode/<name>.js -> legacy-<name>.js, import-map key
+// "@codemirror/legacy-modes/mode/<name>"), because Slop Code loads each language only when a file needs it.
+import { mkdir, writeFile, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,13 +25,24 @@ const PINNED = {
   '@lezer/python': '1.1.19', '@marijn/find-cluster-break': '1.0.4', 'crelt': '1.0.7', 'style-mod': '4.1.4',
   'w3c-keyname': '2.2.8',
 };
+// The legacy modes Slop Code offers (code/js/langs-more.js). A mode that imports a sibling ("./simple-mode.js") needs
+// that sibling listed here too; its import is rewritten to the import-map specifier.
+const LEGACY = { name: '@codemirror/legacy-modes', version: '6.5.5' };
+const MODES = [
+  'shell', 'yaml', 'toml', 'properties', 'xml', 'sql', 'clike', 'go', 'rust', 'simple-mode', 'ruby', 'perl', 'lua',
+  'swift', 'dockerfile', 'diff', 'powershell', 'r', 'haskell', 'julia', 'erlang', 'commonlisp', 'scheme', 'clojure',
+  'tcl', 'vb', 'vbscript', 'pascal', 'fortran', 'verilog', 'vhdl', 'coffeescript', 'stex', 'cmake', 'nginx',
+  'protobuf', 'groovy', 'http', 'd', 'elm', 'mllike', 'gherkin', 'puppet', 'crystal', 'haxe', 'jinja2', 'gas',
+  'wast', 'cobol',
+];
 const fileName = (name) => name.replace(/^@/, '').replace('/', '-') + '.js';
 const text = async (url) => { const r = await globalThis.fetch(url); if (!r.ok) throw new Error(`${r.status} ${url}`); return r.text(); };
 // Top-level import/export statements only (the dist files are not minified).
 const bareImports = (src) => [...src.matchAll(/^\s*(?:import|export)\b[^;]*?\bfrom\s*["']([^"'\n]+)["']|^\s*import\s*["']([^"'\n]+)["']/gm)].map((m) => m[1] || m[2]);
 
-await rm(OUT, { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
+// Clear the generated files, but keep README.md (it is written by hand).
+for (const f of await readdir(OUT)) if (f !== 'README.md') await rm(path.join(OUT, f), { recursive: true, force: true });
 const map = {}, licences = new Map(), rows = [];
 for (const [name, version] of Object.entries(PINNED)) {
   const pkg = JSON.parse(await text(`${CDN}${name}@${version}/package.json`));
@@ -50,7 +63,31 @@ for (const [name, version] of Object.entries(PINNED)) {
   licences.get(key).push(`${name} ${version}`);
   rows.push(`| \`${name}\` | ${version} | ${pkg.license || '?'} | \`${file}\` |`);
 }
+// The legacy modes: one file per mode, one licence text for the package.
+const legacyPkg = JSON.parse(await text(`${CDN}${LEGACY.name}@${LEGACY.version}/package.json`));
+if (legacyPkg.version !== LEGACY.version) throw new Error(`${LEGACY.name}: wanted ${LEGACY.version}, got ${legacyPkg.version}`);
+for (const mode of MODES) {
+  const entry = `mode/${mode}.js`, url = `${CDN}${LEGACY.name}@${LEGACY.version}/${entry}`;
+  let src = await text(url), rewritten = false;
+  for (const spec of bareImports(src)) {
+    const sibling = /^\.\/([\w-]+)\.js$/.exec(spec);
+    if (sibling && MODES.includes(sibling[1])) {
+      src = src.split(`"${spec}"`).join(`"${LEGACY.name}/mode/${sibling[1]}"`).split(`'${spec}'`).join(`'${LEGACY.name}/mode/${sibling[1]}'`);
+      rewritten = true;
+    } else if (spec.startsWith('.') || spec.startsWith('/')) throw new Error(`${mode} imports ${spec}; add it to MODES`);
+    else if (!PINNED[spec]) throw new Error(`${mode} imports ${spec}, which is not pinned`);
+  }
+  if (!/^export\b/m.test(src)) throw new Error(`${mode}: no export found`);
+  const file = `legacy-${mode}.js`, key = `${LEGACY.name}/mode/${mode}`;
+  await writeFile(path.join(OUT, file), `/* ${key} ${LEGACY.version} (${legacyPkg.license}), vendored from ${url}${rewritten ? ' (relative imports rewritten to import-map specifiers)' : ''}. See README.md. */\n${src}`);
+  map[key] = `../vendor/codemirror/${file}`;
+  rows.push(`| \`${key}\` | ${LEGACY.version} | ${legacyPkg.license} | \`${file}\` |`);
+}
+let legacyLic = '(no LICENSE file in the package)';
+try { legacyLic = await text(`${CDN}${LEGACY.name}@${LEGACY.version}/LICENSE`); } catch (e) { /* package ships no LICENSE file */ }
+if (!licences.has(legacyLic.trim())) licences.set(legacyLic.trim(), []);
+licences.get(legacyLic.trim()).push(`${LEGACY.name} ${LEGACY.version} (${MODES.length} modes)`);
 await writeFile(path.join(OUT, 'LICENSES.txt'), [...licences].map(([t, pk]) => `${pk.join(', ')}\n${'-'.repeat(60)}\n${t}\n`).join('\n'));
 await writeFile(path.join(OUT, 'import-map.json'), JSON.stringify({ imports: map }, null, 2) + '\n');
 console.log(rows.join('\n'));
-console.log(`\n${Object.keys(PINNED).length} packages written to ${path.relative(ROOT, OUT)}`);
+console.log(`\n${Object.keys(PINNED).length} packages and ${MODES.length} legacy modes written to ${path.relative(ROOT, OUT)}`);

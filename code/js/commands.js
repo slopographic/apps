@@ -19,8 +19,12 @@ export function commandList(A) {
     C('files', 'code.cmd.files', 'menu.view', ['Mod+B'], { keywords: ['files', 'tree', 'sidebar', 'drawer'] }),
     C('newFolder', 'code.cmd.new_folder', 'menu.file', ['Mod+Alt+Shift+N'], { keywords: ['folder', 'directory', 'create'] }),
     C('extensions', 'code.cmd.extensions', 'menu.view', [], { keywords: ['helpers', 'toggle', 'snippets', 'formatter'] }),
+    C('encoding', 'code.cmd.encoding', 'ui.mb.tools', [], { keywords: ['charset', 'utf-8', 'utf-16', 'latin', 'shift_jis', 'reopen', 'letters'] }),
+    C('eol', 'code.cmd.eol', 'ui.mb.tools', [], { keywords: ['line endings', 'crlf', 'lf', 'windows', 'unix', 'newline'] }),
     C('language', 'code.cmd.language', 'ui.mb.tools', [], { keywords: ['highlight', 'syntax', 'mode', 'language'] }),
     C('format', 'code.ext.formatter_btn', 'ui.mb.tools', ['Shift+Mod+F'], { keywords: ['pretty', 'indent', 'beautify', 'formatter'] }),
+    C('fmtview', 'code.cmd.fmtview', 'menu.view', ['Mod+Alt+V'], { keywords: ['format', 'pretty', 'beautify', 'tidy', 'read only'] }),
+    C('copyFmt', 'code.cmd.copy_fmt', 'menu.view', [], { keywords: ['format', 'pretty', 'copy'] }),
     C('run', 'code.cmd.run', 'ui.mb.tools', ['Mod+Enter'], { keywords: ['preview', 'html', 'javascript'] }),
   ];
 }

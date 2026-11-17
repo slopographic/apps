@@ -5,16 +5,9 @@ import { mimeFor, extOf } from './lang.js';
 const H = () => window.SlopHub;
 const APP = 'code';
 
-/** The text of a record, or null when it is not text (a NUL byte in the first 8 KB). */
-export async function readText(rec) {
-  const head = new Uint8Array(await rec.blob.slice(0, 8192).arrayBuffer());
-  if (head.includes(0)) return null;
-  return rec.blob.text();
-}
-
-/** Write text back to a record: the same id, the same name, a new blob. Throws if the record is gone. */
-export async function writeText(id, text, name) {
-  const out = await H().update(id, { blob: new Blob([text], { type: mimeFor(name) }) });
+/** Write bytes back to a record: the same id, the same name, a new blob. Throws if the record is gone. */
+export async function writeBlob(id, bytes, name) {
+  const out = await H().update(id, { blob: new Blob([bytes], { type: mimeFor(name) }) });
   if (!out) throw new Error('this file is no longer in Slop Drive');
   return out;
 }
