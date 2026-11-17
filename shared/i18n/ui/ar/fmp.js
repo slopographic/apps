@@ -53,4 +53,6 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'ui.fmp.err_corrupt': 'يبدو أن ملف FileMaker هذا تالف، لذلك لا يمكن قراءته. جرّب نسخة احتياطية، أو صدّر جداوله من FileMaker.',
   'ui.fmp.err_too_large': 'ملف FileMaker هذا كبير جدًا بحيث لا يمكن فتحه هنا. صدّر جداوله من FileMaker وافتحها بدلًا منه.',
   'ui.fmp.err_other': 'تعذّر فتح هذا الملف.',
+  'ui.fmp.pattern': 'البحث عن نوع من النصوص',
+  'ui.fmp.pattern_none': 'النص في المربع',
 });

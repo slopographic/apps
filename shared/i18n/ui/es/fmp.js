@@ -41,4 +41,6 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'ui.fmp.err_corrupt': 'Este archivo de FileMaker parece dañado, así que no se puede leer. Prueba con una copia de seguridad o exporta sus tablas desde FileMaker.',
   'ui.fmp.err_too_large': 'Este archivo de FileMaker es demasiado grande para abrirlo aquí. Exporta sus tablas desde FileMaker y abre esas en su lugar.',
   'ui.fmp.err_other': 'No se pudo abrir este archivo.',
+  'ui.fmp.pattern': 'Buscar un tipo de texto',
+  'ui.fmp.pattern_none': 'Texto del cuadro',
 });

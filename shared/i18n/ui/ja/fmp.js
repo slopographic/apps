@@ -38,4 +38,6 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ui.fmp.err_corrupt': 'この FileMaker ファイルは壊れているようで、読み取れません。バックアップのコピーを試すか、FileMaker からテーブルを書き出してください。',
   'ui.fmp.err_too_large': 'この FileMaker ファイルは大きすぎて、ここでは開けません。FileMaker からテーブルを書き出し、そちらを開いてください。',
   'ui.fmp.err_other': 'このファイルを開けませんでした。',
+  'ui.fmp.pattern': '種類を指定して検索',
+  'ui.fmp.pattern_none': 'ボックス内のテキスト',
 });

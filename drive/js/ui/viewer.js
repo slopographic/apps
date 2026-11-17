@@ -104,10 +104,12 @@
     }
     return ul;
   }
+  const FILEMAKER = /\.(fmp12|fp7|fp5|fp3|fmp|fmpxml)$/i; // shared/fmp reads these
   function plainViewer(r, big, sink) {
-    const kind = DR.isAi(r) ? 'pdf' : DR.kindOf(r), blobUrl = URL.createObjectURL(r.blob); // an .ai file shows its PDF page
+    const kind = DR.isAi(r) ? 'pdf' : FILEMAKER.test(r.name || '') ? 'database' : DR.kindOf(r), blobUrl = URL.createObjectURL(r.blob); // an .ai file shows its PDF page; a FileMaker file its tables
     sink.push(blobUrl);
     const o = { title: r.name, blobUrl, kind, chrome: false };
+    if (kind === 'database') o.blob = r.blob;
     if (kind === 'pdf') o.renderPages = () => pdfPages(r.blob, big);
     if (DR.isAi(r)) o.renderPages = () => DR.aiPdfBlob(r.blob).then((pdf) => (pdf ? pdfPages(pdf, big) : { pages: [], note: DR.t('drive.pv.ai_no_pdf') }));
     return window.SlopPreview.create(o);

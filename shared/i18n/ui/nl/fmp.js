@@ -41,4 +41,6 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.fmp.err_corrupt': 'Dit FileMaker-bestand lijkt beschadigd en kan niet worden gelezen. Probeer een back-up of exporteer de tabellen vanuit FileMaker.',
   'ui.fmp.err_too_large': 'Dit FileMaker-bestand is te groot om hier te openen. Exporteer de tabellen vanuit FileMaker en open die in plaats daarvan.',
   'ui.fmp.err_other': 'Dit bestand kon niet worden geopend.',
+  'ui.fmp.pattern': 'Zoek een soort tekst',
+  'ui.fmp.pattern_none': 'Tekst in het vak',
 });

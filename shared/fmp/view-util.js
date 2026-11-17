@@ -43,6 +43,8 @@
     'ui.fmp.export_failed': 'Could not export: {error}',   // i18n-ignore: the English of the key, until the shared tables hold it
     'ui.fmp.opening': 'Opening the database…',   // i18n-ignore: the English of the key, until the shared tables hold it
     'ui.fmp.load_failed': 'The database viewer could not be loaded.',   // i18n-ignore: the English of the key, until the shared tables hold it
+    'ui.fmp.pattern': 'Find a kind of text',   // i18n-ignore: the English of the key, until the shared tables hold it
+    'ui.fmp.pattern_none': 'Text in the box',   // i18n-ignore: the English of the key, until the shared tables hold it
     'ui.fmp.err_title': 'Could not open {name}',   // i18n-ignore: the English of the key, until the shared tables hold it
     'ui.fmp.err_title_noname': 'Could not open this file',   // i18n-ignore: the English of the key, until the shared tables hold it
     'ui.fmp.err_not_filemaker': 'This file is not a FileMaker database.',   // i18n-ignore: the English of the key, until the shared tables hold it

@@ -38,4 +38,6 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.fmp.err_corrupt': '此 FileMaker 檔案似乎已損毀，無法讀取。請嘗試備份副本，或從 FileMaker 匯出其資料表。',
   'ui.fmp.err_too_large': '此 FileMaker 檔案太大，無法在此開啟。請從 FileMaker 匯出其資料表，再開啟匯出的檔案。',
   'ui.fmp.err_other': '無法開啟此檔案。',
+  'ui.fmp.pattern': '尋找某類文字',
+  'ui.fmp.pattern_none': '方塊中的文字',
 });

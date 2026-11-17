@@ -41,4 +41,6 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'ui.fmp.err_corrupt': 'Den här FileMaker-filen verkar vara skadad och kan inte läsas. Prova en säkerhetskopia eller exportera tabellerna från FileMaker.',
   'ui.fmp.err_too_large': 'Den här FileMaker-filen är för stor för att öppnas här. Exportera tabellerna från FileMaker och öppna dem i stället.',
   'ui.fmp.err_other': 'Filen kunde inte öppnas.',
+  'ui.fmp.pattern': 'Sök efter en sorts text',
+  'ui.fmp.pattern_none': 'Text i rutan',
 });

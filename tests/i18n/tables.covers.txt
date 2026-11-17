@@ -400,39 +400,56 @@ Covers: clean/i18n/zh-CN/fields.js
 Covers: clean/i18n/zh-TW/app.js
 Covers: clean/i18n/zh-TW/fields.js
 Covers: code/i18n/ar/app.js
+Covers: code/i18n/ar/search.js
 Covers: code/i18n/ar/tour.js
 Covers: code/i18n/de/app.js
+Covers: code/i18n/de/search.js
 Covers: code/i18n/de/tour.js
 Covers: code/i18n/en/app.js
+Covers: code/i18n/en/search.js
 Covers: code/i18n/en/tour.js
 Covers: code/i18n/es/app.js
+Covers: code/i18n/es/search.js
 Covers: code/i18n/es/tour.js
 Covers: code/i18n/fr/app.js
+Covers: code/i18n/fr/search.js
 Covers: code/i18n/fr/tour.js
 Covers: code/i18n/index.js
 Covers: code/i18n/it/app.js
+Covers: code/i18n/it/search.js
 Covers: code/i18n/it/tour.js
 Covers: code/i18n/ja/app.js
+Covers: code/i18n/ja/search.js
 Covers: code/i18n/ja/tour.js
 Covers: code/i18n/ko/app.js
+Covers: code/i18n/ko/search.js
 Covers: code/i18n/ko/tour.js
 Covers: code/i18n/nl/app.js
+Covers: code/i18n/nl/search.js
 Covers: code/i18n/nl/tour.js
 Covers: code/i18n/pl/app.js
+Covers: code/i18n/pl/search.js
 Covers: code/i18n/pl/tour.js
 Covers: code/i18n/pt-BR/app.js
+Covers: code/i18n/pt-BR/search.js
 Covers: code/i18n/pt-BR/tour.js
 Covers: code/i18n/ru/app.js
+Covers: code/i18n/ru/search.js
 Covers: code/i18n/ru/tour.js
 Covers: code/i18n/sv/app.js
+Covers: code/i18n/sv/search.js
 Covers: code/i18n/sv/tour.js
 Covers: code/i18n/tr/app.js
+Covers: code/i18n/tr/search.js
 Covers: code/i18n/tr/tour.js
 Covers: code/i18n/uk/app.js
+Covers: code/i18n/uk/search.js
 Covers: code/i18n/uk/tour.js
 Covers: code/i18n/zh-CN/app.js
+Covers: code/i18n/zh-CN/search.js
 Covers: code/i18n/zh-CN/tour.js
 Covers: code/i18n/zh-TW/app.js
+Covers: code/i18n/zh-TW/search.js
 Covers: code/i18n/zh-TW/tour.js
 Covers: colors/i18n/ar/app.js
 Covers: colors/i18n/ar/panel.js
@@ -3507,6 +3524,7 @@ Covers: shared/i18n/ui/ar/models2.js
 Covers: shared/i18n/ui/ar/ops.js
 Covers: shared/i18n/ui/ar/ops2.js
 Covers: shared/i18n/ui/ar/ops3.js
+Covers: shared/i18n/ui/ar/patterns.js
 Covers: shared/i18n/ui/ar/presets.js
 Covers: shared/i18n/ui/ar/preview.js
 Covers: shared/i18n/ui/ar/print.js
@@ -3549,6 +3567,7 @@ Covers: shared/i18n/ui/de/models2.js
 Covers: shared/i18n/ui/de/ops.js
 Covers: shared/i18n/ui/de/ops2.js
 Covers: shared/i18n/ui/de/ops3.js
+Covers: shared/i18n/ui/de/patterns.js
 Covers: shared/i18n/ui/de/presets.js
 Covers: shared/i18n/ui/de/preview.js
 Covers: shared/i18n/ui/de/print.js
@@ -3591,6 +3610,7 @@ Covers: shared/i18n/ui/en/models2.js
 Covers: shared/i18n/ui/en/ops.js
 Covers: shared/i18n/ui/en/ops2.js
 Covers: shared/i18n/ui/en/ops3.js
+Covers: shared/i18n/ui/en/patterns.js
 Covers: shared/i18n/ui/en/presets.js
 Covers: shared/i18n/ui/en/preview.js
 Covers: shared/i18n/ui/en/print.js
@@ -3633,6 +3653,7 @@ Covers: shared/i18n/ui/es/models2.js
 Covers: shared/i18n/ui/es/ops.js
 Covers: shared/i18n/ui/es/ops2.js
 Covers: shared/i18n/ui/es/ops3.js
+Covers: shared/i18n/ui/es/patterns.js
 Covers: shared/i18n/ui/es/presets.js
 Covers: shared/i18n/ui/es/preview.js
 Covers: shared/i18n/ui/es/print.js
@@ -3675,6 +3696,7 @@ Covers: shared/i18n/ui/fr/models2.js
 Covers: shared/i18n/ui/fr/ops.js
 Covers: shared/i18n/ui/fr/ops2.js
 Covers: shared/i18n/ui/fr/ops3.js
+Covers: shared/i18n/ui/fr/patterns.js
 Covers: shared/i18n/ui/fr/presets.js
 Covers: shared/i18n/ui/fr/preview.js
 Covers: shared/i18n/ui/fr/print.js
@@ -3722,6 +3744,7 @@ Covers: shared/i18n/ui/it/models2.js
 Covers: shared/i18n/ui/it/ops.js
 Covers: shared/i18n/ui/it/ops2.js
 Covers: shared/i18n/ui/it/ops3.js
+Covers: shared/i18n/ui/it/patterns.js
 Covers: shared/i18n/ui/it/presets.js
 Covers: shared/i18n/ui/it/preview.js
 Covers: shared/i18n/ui/it/print.js
@@ -3764,6 +3787,7 @@ Covers: shared/i18n/ui/ja/models2.js
 Covers: shared/i18n/ui/ja/ops.js
 Covers: shared/i18n/ui/ja/ops2.js
 Covers: shared/i18n/ui/ja/ops3.js
+Covers: shared/i18n/ui/ja/patterns.js
 Covers: shared/i18n/ui/ja/presets.js
 Covers: shared/i18n/ui/ja/preview.js
 Covers: shared/i18n/ui/ja/print.js
@@ -3806,6 +3830,7 @@ Covers: shared/i18n/ui/ko/models2.js
 Covers: shared/i18n/ui/ko/ops.js
 Covers: shared/i18n/ui/ko/ops2.js
 Covers: shared/i18n/ui/ko/ops3.js
+Covers: shared/i18n/ui/ko/patterns.js
 Covers: shared/i18n/ui/ko/presets.js
 Covers: shared/i18n/ui/ko/preview.js
 Covers: shared/i18n/ui/ko/print.js
@@ -3848,6 +3873,7 @@ Covers: shared/i18n/ui/nl/models2.js
 Covers: shared/i18n/ui/nl/ops.js
 Covers: shared/i18n/ui/nl/ops2.js
 Covers: shared/i18n/ui/nl/ops3.js
+Covers: shared/i18n/ui/nl/patterns.js
 Covers: shared/i18n/ui/nl/presets.js
 Covers: shared/i18n/ui/nl/preview.js
 Covers: shared/i18n/ui/nl/print.js
@@ -3890,6 +3916,7 @@ Covers: shared/i18n/ui/pl/models2.js
 Covers: shared/i18n/ui/pl/ops.js
 Covers: shared/i18n/ui/pl/ops2.js
 Covers: shared/i18n/ui/pl/ops3.js
+Covers: shared/i18n/ui/pl/patterns.js
 Covers: shared/i18n/ui/pl/presets.js
 Covers: shared/i18n/ui/pl/preview.js
 Covers: shared/i18n/ui/pl/print.js
@@ -3932,6 +3959,7 @@ Covers: shared/i18n/ui/pt-BR/models2.js
 Covers: shared/i18n/ui/pt-BR/ops.js
 Covers: shared/i18n/ui/pt-BR/ops2.js
 Covers: shared/i18n/ui/pt-BR/ops3.js
+Covers: shared/i18n/ui/pt-BR/patterns.js
 Covers: shared/i18n/ui/pt-BR/presets.js
 Covers: shared/i18n/ui/pt-BR/preview.js
 Covers: shared/i18n/ui/pt-BR/print.js
@@ -3974,6 +4002,7 @@ Covers: shared/i18n/ui/ru/models2.js
 Covers: shared/i18n/ui/ru/ops.js
 Covers: shared/i18n/ui/ru/ops2.js
 Covers: shared/i18n/ui/ru/ops3.js
+Covers: shared/i18n/ui/ru/patterns.js
 Covers: shared/i18n/ui/ru/presets.js
 Covers: shared/i18n/ui/ru/preview.js
 Covers: shared/i18n/ui/ru/print.js
@@ -4016,6 +4045,7 @@ Covers: shared/i18n/ui/sv/models2.js
 Covers: shared/i18n/ui/sv/ops.js
 Covers: shared/i18n/ui/sv/ops2.js
 Covers: shared/i18n/ui/sv/ops3.js
+Covers: shared/i18n/ui/sv/patterns.js
 Covers: shared/i18n/ui/sv/presets.js
 Covers: shared/i18n/ui/sv/preview.js
 Covers: shared/i18n/ui/sv/print.js
@@ -4059,6 +4089,7 @@ Covers: shared/i18n/ui/tr/models2.js
 Covers: shared/i18n/ui/tr/ops.js
 Covers: shared/i18n/ui/tr/ops2.js
 Covers: shared/i18n/ui/tr/ops3.js
+Covers: shared/i18n/ui/tr/patterns.js
 Covers: shared/i18n/ui/tr/presets.js
 Covers: shared/i18n/ui/tr/preview.js
 Covers: shared/i18n/ui/tr/print.js
@@ -4101,6 +4132,7 @@ Covers: shared/i18n/ui/uk/models2.js
 Covers: shared/i18n/ui/uk/ops.js
 Covers: shared/i18n/ui/uk/ops2.js
 Covers: shared/i18n/ui/uk/ops3.js
+Covers: shared/i18n/ui/uk/patterns.js
 Covers: shared/i18n/ui/uk/presets.js
 Covers: shared/i18n/ui/uk/preview.js
 Covers: shared/i18n/ui/uk/print.js
@@ -4146,6 +4178,7 @@ Covers: shared/i18n/ui/zh-CN/models2.js
 Covers: shared/i18n/ui/zh-CN/ops.js
 Covers: shared/i18n/ui/zh-CN/ops2.js
 Covers: shared/i18n/ui/zh-CN/ops3.js
+Covers: shared/i18n/ui/zh-CN/patterns.js
 Covers: shared/i18n/ui/zh-CN/presets.js
 Covers: shared/i18n/ui/zh-CN/preview.js
 Covers: shared/i18n/ui/zh-CN/print.js
@@ -4188,6 +4221,7 @@ Covers: shared/i18n/ui/zh-TW/models2.js
 Covers: shared/i18n/ui/zh-TW/ops.js
 Covers: shared/i18n/ui/zh-TW/ops2.js
 Covers: shared/i18n/ui/zh-TW/ops3.js
+Covers: shared/i18n/ui/zh-TW/patterns.js
 Covers: shared/i18n/ui/zh-TW/presets.js
 Covers: shared/i18n/ui/zh-TW/preview.js
 Covers: shared/i18n/ui/zh-TW/print.js
@@ -4320,6 +4354,7 @@ Covers: shared/seo/i18n/ar/task-everyday-2-a.js
 Covers: shared/seo/i18n/ar/task-everyday-2-b.js
 Covers: shared/seo/i18n/ar/task-everyday-a.js
 Covers: shared/seo/i18n/ar/task-everyday-b.js
+Covers: shared/seo/i18n/ar/task-filemaker.js
 Covers: shared/seo/i18n/ar/task-finance.js
 Covers: shared/seo/i18n/ar/task-fontcreator.js
 Covers: shared/seo/i18n/ar/task-raw.js
@@ -4393,6 +4428,7 @@ Covers: shared/seo/i18n/de/task-everyday-2-a.js
 Covers: shared/seo/i18n/de/task-everyday-2-b.js
 Covers: shared/seo/i18n/de/task-everyday-a.js
 Covers: shared/seo/i18n/de/task-everyday-b.js
+Covers: shared/seo/i18n/de/task-filemaker.js
 Covers: shared/seo/i18n/de/task-finance.js
 Covers: shared/seo/i18n/de/task-fontcreator.js
 Covers: shared/seo/i18n/de/task-raw.js
@@ -4466,6 +4502,7 @@ Covers: shared/seo/i18n/en/task-everyday-2-a.js
 Covers: shared/seo/i18n/en/task-everyday-2-b.js
 Covers: shared/seo/i18n/en/task-everyday-a.js
 Covers: shared/seo/i18n/en/task-everyday-b.js
+Covers: shared/seo/i18n/en/task-filemaker.js
 Covers: shared/seo/i18n/en/task-finance.js
 Covers: shared/seo/i18n/en/task-fontcreator.js
 Covers: shared/seo/i18n/en/task-raw.js
@@ -4539,6 +4576,7 @@ Covers: shared/seo/i18n/es/task-everyday-2-a.js
 Covers: shared/seo/i18n/es/task-everyday-2-b.js
 Covers: shared/seo/i18n/es/task-everyday-a.js
 Covers: shared/seo/i18n/es/task-everyday-b.js
+Covers: shared/seo/i18n/es/task-filemaker.js
 Covers: shared/seo/i18n/es/task-finance.js
 Covers: shared/seo/i18n/es/task-fontcreator.js
 Covers: shared/seo/i18n/es/task-raw.js
@@ -4612,6 +4650,7 @@ Covers: shared/seo/i18n/fr/task-everyday-2-a.js
 Covers: shared/seo/i18n/fr/task-everyday-2-b.js
 Covers: shared/seo/i18n/fr/task-everyday-a.js
 Covers: shared/seo/i18n/fr/task-everyday-b.js
+Covers: shared/seo/i18n/fr/task-filemaker.js
 Covers: shared/seo/i18n/fr/task-finance.js
 Covers: shared/seo/i18n/fr/task-fontcreator.js
 Covers: shared/seo/i18n/fr/task-raw.js
@@ -4686,6 +4725,7 @@ Covers: shared/seo/i18n/it/task-everyday-2-a.js
 Covers: shared/seo/i18n/it/task-everyday-2-b.js
 Covers: shared/seo/i18n/it/task-everyday-a.js
 Covers: shared/seo/i18n/it/task-everyday-b.js
+Covers: shared/seo/i18n/it/task-filemaker.js
 Covers: shared/seo/i18n/it/task-finance.js
 Covers: shared/seo/i18n/it/task-fontcreator.js
 Covers: shared/seo/i18n/it/task-raw.js
@@ -4759,6 +4799,7 @@ Covers: shared/seo/i18n/ja/task-everyday-2-a.js
 Covers: shared/seo/i18n/ja/task-everyday-2-b.js
 Covers: shared/seo/i18n/ja/task-everyday-a.js
 Covers: shared/seo/i18n/ja/task-everyday-b.js
+Covers: shared/seo/i18n/ja/task-filemaker.js
 Covers: shared/seo/i18n/ja/task-finance.js
 Covers: shared/seo/i18n/ja/task-fontcreator.js
 Covers: shared/seo/i18n/ja/task-raw.js
@@ -4832,6 +4873,7 @@ Covers: shared/seo/i18n/ko/task-everyday-2-a.js
 Covers: shared/seo/i18n/ko/task-everyday-2-b.js
 Covers: shared/seo/i18n/ko/task-everyday-a.js
 Covers: shared/seo/i18n/ko/task-everyday-b.js
+Covers: shared/seo/i18n/ko/task-filemaker.js
 Covers: shared/seo/i18n/ko/task-finance.js
 Covers: shared/seo/i18n/ko/task-fontcreator.js
 Covers: shared/seo/i18n/ko/task-raw.js
@@ -4905,6 +4947,7 @@ Covers: shared/seo/i18n/nl/task-everyday-2-a.js
 Covers: shared/seo/i18n/nl/task-everyday-2-b.js
 Covers: shared/seo/i18n/nl/task-everyday-a.js
 Covers: shared/seo/i18n/nl/task-everyday-b.js
+Covers: shared/seo/i18n/nl/task-filemaker.js
 Covers: shared/seo/i18n/nl/task-finance.js
 Covers: shared/seo/i18n/nl/task-fontcreator.js
 Covers: shared/seo/i18n/nl/task-raw.js
@@ -4978,6 +5021,7 @@ Covers: shared/seo/i18n/pl/task-everyday-2-a.js
 Covers: shared/seo/i18n/pl/task-everyday-2-b.js
 Covers: shared/seo/i18n/pl/task-everyday-a.js
 Covers: shared/seo/i18n/pl/task-everyday-b.js
+Covers: shared/seo/i18n/pl/task-filemaker.js
 Covers: shared/seo/i18n/pl/task-finance.js
 Covers: shared/seo/i18n/pl/task-fontcreator.js
 Covers: shared/seo/i18n/pl/task-raw.js
@@ -5051,6 +5095,7 @@ Covers: shared/seo/i18n/pt-BR/task-everyday-2-a.js
 Covers: shared/seo/i18n/pt-BR/task-everyday-2-b.js
 Covers: shared/seo/i18n/pt-BR/task-everyday-a.js
 Covers: shared/seo/i18n/pt-BR/task-everyday-b.js
+Covers: shared/seo/i18n/pt-BR/task-filemaker.js
 Covers: shared/seo/i18n/pt-BR/task-finance.js
 Covers: shared/seo/i18n/pt-BR/task-fontcreator.js
 Covers: shared/seo/i18n/pt-BR/task-raw.js
@@ -5124,6 +5169,7 @@ Covers: shared/seo/i18n/ru/task-everyday-2-a.js
 Covers: shared/seo/i18n/ru/task-everyday-2-b.js
 Covers: shared/seo/i18n/ru/task-everyday-a.js
 Covers: shared/seo/i18n/ru/task-everyday-b.js
+Covers: shared/seo/i18n/ru/task-filemaker.js
 Covers: shared/seo/i18n/ru/task-finance.js
 Covers: shared/seo/i18n/ru/task-fontcreator.js
 Covers: shared/seo/i18n/ru/task-raw.js
@@ -5197,6 +5243,7 @@ Covers: shared/seo/i18n/sv/task-everyday-2-a.js
 Covers: shared/seo/i18n/sv/task-everyday-2-b.js
 Covers: shared/seo/i18n/sv/task-everyday-a.js
 Covers: shared/seo/i18n/sv/task-everyday-b.js
+Covers: shared/seo/i18n/sv/task-filemaker.js
 Covers: shared/seo/i18n/sv/task-finance.js
 Covers: shared/seo/i18n/sv/task-fontcreator.js
 Covers: shared/seo/i18n/sv/task-raw.js
@@ -5270,6 +5317,7 @@ Covers: shared/seo/i18n/tr/task-everyday-2-a.js
 Covers: shared/seo/i18n/tr/task-everyday-2-b.js
 Covers: shared/seo/i18n/tr/task-everyday-a.js
 Covers: shared/seo/i18n/tr/task-everyday-b.js
+Covers: shared/seo/i18n/tr/task-filemaker.js
 Covers: shared/seo/i18n/tr/task-finance.js
 Covers: shared/seo/i18n/tr/task-fontcreator.js
 Covers: shared/seo/i18n/tr/task-raw.js
@@ -5343,6 +5391,7 @@ Covers: shared/seo/i18n/uk/task-everyday-2-a.js
 Covers: shared/seo/i18n/uk/task-everyday-2-b.js
 Covers: shared/seo/i18n/uk/task-everyday-a.js
 Covers: shared/seo/i18n/uk/task-everyday-b.js
+Covers: shared/seo/i18n/uk/task-filemaker.js
 Covers: shared/seo/i18n/uk/task-finance.js
 Covers: shared/seo/i18n/uk/task-fontcreator.js
 Covers: shared/seo/i18n/uk/task-raw.js
@@ -5416,6 +5465,7 @@ Covers: shared/seo/i18n/zh-CN/task-everyday-2-a.js
 Covers: shared/seo/i18n/zh-CN/task-everyday-2-b.js
 Covers: shared/seo/i18n/zh-CN/task-everyday-a.js
 Covers: shared/seo/i18n/zh-CN/task-everyday-b.js
+Covers: shared/seo/i18n/zh-CN/task-filemaker.js
 Covers: shared/seo/i18n/zh-CN/task-finance.js
 Covers: shared/seo/i18n/zh-CN/task-fontcreator.js
 Covers: shared/seo/i18n/zh-CN/task-raw.js
@@ -5489,6 +5539,7 @@ Covers: shared/seo/i18n/zh-TW/task-everyday-2-a.js
 Covers: shared/seo/i18n/zh-TW/task-everyday-2-b.js
 Covers: shared/seo/i18n/zh-TW/task-everyday-a.js
 Covers: shared/seo/i18n/zh-TW/task-everyday-b.js
+Covers: shared/seo/i18n/zh-TW/task-filemaker.js
 Covers: shared/seo/i18n/zh-TW/task-finance.js
 Covers: shared/seo/i18n/zh-TW/task-fontcreator.js
 Covers: shared/seo/i18n/zh-TW/task-raw.js

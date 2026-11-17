@@ -15,6 +15,8 @@ export function commandList(A) {
     C('close', 'code.cmd.close', 'menu.file', ['Mod+Alt+W']),
     C('find', 'code.cmd.find', 'menu.edit', ['Mod+F'], { keywords: ['search'] }),
     C('replace', 'ui.replace', 'menu.edit', ['Mod+H'], { keywords: ['substitute'] }),
+    C('kinds', 'code.cmd.kinds', 'menu.edit', ['Mod+Alt+K'], { keywords: ['ip', 'address', 'email', 'key', 'token', 'secret', 'password', 'detect', 'mask', 'redact'] }),
+    C('findFiles', 'code.cmd.find_files', 'menu.edit', ['Shift+Mod+F'], { keywords: ['search', 'replace', 'every file', 'project', 'grep'] }),
     C('wrap', 'code.cmd.wrap', 'menu.view', ['Mod+Alt+Z'], { keywords: ['word wrap'] }),
     C('files', 'code.cmd.files', 'menu.view', ['Mod+B'], { keywords: ['files', 'tree', 'sidebar', 'drawer'] }),
     C('newFolder', 'code.cmd.new_folder', 'menu.file', ['Mod+Alt+Shift+N'], { keywords: ['folder', 'directory', 'create'] }),

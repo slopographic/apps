@@ -41,4 +41,6 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.fmp.err_corrupt': 'Bu FileMaker dosyası hasarlı görünüyor, bu yüzden okunamıyor. Bir yedek kopyayı deneyin ya da tablolarını FileMaker’dan dışa aktarın.',
   'ui.fmp.err_too_large': 'Bu FileMaker dosyası burada açmak için çok büyük. Tablolarını FileMaker’dan dışa aktarın ve onları açın.',
   'ui.fmp.err_other': 'Bu dosya açılamadı.',
+  'ui.fmp.pattern': 'Bir metin türü bul',
+  'ui.fmp.pattern_none': 'Kutudaki metin',
 });

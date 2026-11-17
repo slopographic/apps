@@ -138,7 +138,7 @@ export function onEdit() {
   clearTimeout(timers.get(d.id));
   timers.set(d.id, setTimeout(() => flushDraft(d.id), 400));
 }
-async function flushDraft(id) {
+export async function flushDraft(id) {
   const d = docs.find(id);
   if (!d) return;
   if (d.dirty) await putDraft(id, docs.textOf(d)); else await dropDraft(id);

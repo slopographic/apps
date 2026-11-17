@@ -47,4 +47,6 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'ui.fmp.err_corrupt': 'Ten plik FileMaker wydaje się uszkodzony, więc nie można go odczytać. Spróbuj użyć kopii zapasowej lub wyeksportuj tabele z FileMaker.',
   'ui.fmp.err_too_large': 'Ten plik FileMaker jest zbyt duży, aby otworzyć go tutaj. Wyeksportuj tabele z FileMaker i otwórz je zamiast niego.',
   'ui.fmp.err_other': 'Nie udało się otworzyć tego pliku.',
+  'ui.fmp.pattern': 'Znajdź rodzaj tekstu',
+  'ui.fmp.pattern_none': 'Tekst w polu',
 });

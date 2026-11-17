@@ -38,4 +38,6 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.fmp.err_corrupt': '이 FileMaker 파일이 손상된 것 같아 읽을 수 없습니다. 백업 사본을 사용해 보거나 FileMaker에서 테이블을 내보내세요.',
   'ui.fmp.err_too_large': '이 FileMaker 파일은 너무 커서 여기서 열 수 없습니다. FileMaker에서 테이블을 내보낸 다음 그 파일을 여세요.',
   'ui.fmp.err_other': '이 파일을 열 수 없습니다.',
+  'ui.fmp.pattern': '텍스트 종류로 찾기',
+  'ui.fmp.pattern_none': '상자 안의 텍스트',
 });

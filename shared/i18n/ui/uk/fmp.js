@@ -47,4 +47,6 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.fmp.err_corrupt': 'Цей файл FileMaker схожий на пошкоджений, тому його неможливо прочитати. Спробуйте резервну копію або експортуйте його таблиці з FileMaker.',
   'ui.fmp.err_too_large': 'Цей файл FileMaker завеликий, щоб відкрити його тут. Експортуйте його таблиці з FileMaker і відкрийте їх.',
   'ui.fmp.err_other': 'Не вдалося відкрити цей файл.',
+  'ui.fmp.pattern': 'Знайти вид тексту',
+  'ui.fmp.pattern_none': 'Текст у полі',
 });

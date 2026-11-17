@@ -1,11 +1,11 @@
 /* Slop Code: the Explorer sidebar's layout. The width (drag the handle, or the arrow keys; a column on a desktop,
- * the drawer on a phone), the collapsible sections (Explorer, Open editors, Extensions) and the Open editors list.
+ * the drawer on a phone), the collapsible sections (Explorer, Search, Open editors, Extensions) and the Open editors list.
  * The width and the collapsed sections are kept per viewer in slop-code.layout (a versioned envelope). */
 import { el, t } from './dom.js';
 import { readPref, writePref } from './prefs.js';
 
 const MIN = 160, MAX = 480, DEFAULT = 232, KEY_STEP = 16;
-const SECTIONS = ['explorer', 'open', 'ext'];
+const SECTIONS = ['explorer', 'search', 'open', 'ext'];
 const state = { width: DEFAULT, collapsed: {} };
 const $ = (id) => document.getElementById(id);
 const clampWidth = (w) => Math.round(Math.min(MAX, Math.max(MIN, Number(w) || DEFAULT)));
@@ -14,7 +14,7 @@ const clampWidth = (w) => Math.round(Math.min(MAX, Math.max(MIN, Number(w) || DE
 export function initLayout() {
   const saved = readPref('layout', {});
   state.width = clampWidth(saved.width);
-  state.collapsed = saved.collapsed && typeof saved.collapsed === 'object' ? { ...saved.collapsed } : {};
+  state.collapsed = { search: true, ...(saved.collapsed && typeof saved.collapsed === 'object' ? saved.collapsed : {}) }; // Search starts closed
   applyWidth();
   applySections();
   for (const btn of document.querySelectorAll('[data-sec-toggle]')) {

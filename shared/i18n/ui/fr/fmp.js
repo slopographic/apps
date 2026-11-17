@@ -41,4 +41,6 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'ui.fmp.err_corrupt': 'Ce fichier FileMaker semble endommagé et ne peut pas être lu. Essayez une copie de sauvegarde, ou exportez ses tables depuis FileMaker.',
   'ui.fmp.err_too_large': 'Ce fichier FileMaker est trop volumineux pour être ouvert ici. Exportez ses tables depuis FileMaker et ouvrez-les à la place.',
   'ui.fmp.err_other': 'Ce fichier n’a pas pu être ouvert.',
+  'ui.fmp.pattern': 'Trouver un type de texte',
+  'ui.fmp.pattern_none': 'Texte de la zone',
 });

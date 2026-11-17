@@ -22,7 +22,7 @@ export async function inspect(blob, name) {
 }
 
 /** The line ending a file mostly uses ('lf' when it has none). */
-function dominantEol(raw) {
+export function dominantEol(raw) {
   const e = detectEol(raw);
   if (e.eol === 'none') return 'lf';
   if (e.eol !== 'mixed') return e.eol;

@@ -6,7 +6,7 @@ import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLi
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { syntaxHighlighting, HighlightStyle, bracketMatching, foldGutter, foldKeymap, indentOnInput, indentUnit } from '@codemirror/language';
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
-import { search, searchKeymap, highlightSelectionMatches, openSearchPanel } from '@codemirror/search';
+import { search, searchKeymap, highlightSelectionMatches, openSearchPanel, SearchQuery, setSearchQuery } from '@codemirror/search';
 import { tags as t } from '@lezer/highlight';
 import { languageFor, extOf } from './lang.js';
 import { completionExtensions, languageCompletion } from './completion.js';
@@ -73,6 +73,7 @@ export function readOnlyState(text, lang) {
   return EditorState.create({
     doc: text,
     extensions: [lineNumbers(), highlightSpecialChars(), foldGutter(), HIGHLIGHT, EditorState.readOnly.of(true), EditorView.editable.of(false),
+      search({ top: true }), keymap.of(searchKeymap), highlightSelectionMatches(), EditorView.contentAttributes.of({ tabindex: '0' }), // Ctrl+F works in the read-only pane too
       langCompartment.of(langParts(lang, lang.ext)), wrapCompartment.of(prefs.wrap ? EditorView.lineWrapping : [])],
   });
 }
@@ -96,4 +97,9 @@ export function showFind(view, replace = false) {
   openSearchPanel(view);
   const r = view.dom.querySelector(replace ? '.cm-search input[name=replace]' : '.cm-search input[name=search]');
   if (r) { r.focus(); if (r.select) r.select(); }
+}
+
+/** Put a search into the view's find panel (so Ctrl+F shows it and F3 goes to the next match). q: { find, replace?, regexp?, caseSensitive?, wholeWord? }. */
+export function setFindQuery(view, q) {
+  view.dispatch({ effects: setSearchQuery.of(new SearchQuery({ search: q.find, replace: q.replace || '', regexp: !!q.regexp, caseSensitive: !!q.caseSensitive, wholeWord: !!q.wholeWord })) });
 }

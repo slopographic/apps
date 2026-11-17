@@ -49,3 +49,6 @@ files whose links were rewritten (test files only).
   stored, value lists, layouts, scripts, relationships and field options are not read.
 - Encrypted (`HBAMe`) files are `encrypted`; XML snippets and Design Reports are `unsupported` (detected, not shown).
 - Never throws synchronously; every loop is bounded by the file size; a fault in one sector skips that sector.
+
+## Find a kind of text
+The table's find box has a list beside it when `shared/patterns/` is on the page (`window.SlopPatterns`; `view-load.js` loads it): choosing "IP address", "E-mail address", "Key or token"... finds the next row with a cell that holds one (and the box text, if any), and marks it. Words: `ui.fmp.pattern`, `ui.fmp.pattern_none` and the kind names `ui.patterns.<id>`.

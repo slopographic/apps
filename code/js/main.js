@@ -7,7 +7,9 @@ import { newView, makeState, setHooks, setWrap, isWrap, showFind } from './edito
 import { initTree, refresh as refreshTree, selectedFolder, revealFolder, newFolder, folderAt } from './tree.js';
 import { initLayout, expandSection } from './explorer.js';
 import { renderExtensions, formatDoc, chooseLanguage } from './extensions.js';
-import { toggleFmt, copyFmt, syncFmt, initFmt } from './fmtpane.js';
+import { toggleFmt, copyFmt, syncFmt, initFmt, fmtView } from './fmtpane.js';
+import { initSearch, focusSearch } from './search.js';
+import { openKinds } from './findkinds.js';
 import { chooseEncoding, chooseEol } from './encops.js';
 import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, setPreview, toast, isPhone, initDrawer } from './ui.js';
 import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restoreTabs, togglePreview } from './ops.js';
@@ -57,6 +59,22 @@ function showExtensions() {
   if (first) first.focus();
 }
 
+/** Find (Ctrl+F) and Replace (Ctrl+H) in whatever is on screen: the editor, the formatted pane when it has focus, or the find box of a
+ * bytes view or a database table. A view that is read only has nothing to replace. */
+function findHere(replace) {
+  const d = docs.current();
+  if (d && d.kind !== 'text') {
+    const input = $('cd-viewer') && $('cd-viewer').querySelector('.cd-hex-findbox, .sfv-find-in');
+    if (replace) { toast(t('code.search.read_only')); return false; }
+    if (!input) return false;
+    input.focus(); if (input.select) input.select();
+    return true;
+  }
+  const pane = fmtView();
+  if (pane && $('cd-fmt-body').contains(document.activeElement)) { showFind(pane, false); return true; }
+  return !!env.view && (showFind(env.view, replace), true);
+}
+
 /** The actions the commands and buttons call. */
 const ACTIONS = {
   open: openPicker,
@@ -64,8 +82,10 @@ const ACTIONS = {
   save: () => saveDoc(),
   saveAs: () => saveAs(),
   close: () => closeDoc(),
-  find: () => env.view && showFind(env.view, false),
-  replace: () => env.view && showFind(env.view, true),
+  find: () => findHere(false),
+  replace: () => findHere(true),
+  findFiles: () => focusSearch(setTreeOpen),
+  kinds: openKinds,
   wrap: toggleWrap,
   files: toggleFiles,
   run: runCurrent,
@@ -116,6 +136,7 @@ async function boot() {
   renderExtensions($('cd-ext-list'));
   wireButtons();
   initFmt();
+  initSearch();
   registerCommands(ACTIONS);
   // a language change: the tabs, the status bar, the helpers and the tree again, in the new language
   onLang(() => { renderChrome(); renderExtensions($('cd-ext-list')); refreshTree(); });

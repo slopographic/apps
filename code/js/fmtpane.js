@@ -16,6 +16,8 @@ const toast = (m) => window.SlopUI && window.SlopUI.toast(m);
 const KIND = { json: 'JSON', jsonl: 'JSON Lines', xml: 'XML', html: 'HTML', css: 'CSS', js: 'JavaScript', sql: 'SQL', csv: 'CSV', tsv: 'TSV' };   // i18n-ignore: a format name, not translated
 let pane = null, timer = 0, shown = { id: null, lang: null, text: null, out: '' };
 
+/** The pane's own editor view (null until it has been shown), so Find can open its search panel. */
+export const fmtView = () => pane;
 export const fmtOn = () => helperOn('fmtview') && getDisplay().fmt;
 
 /** Show or hide the pane (kept per viewer). */
