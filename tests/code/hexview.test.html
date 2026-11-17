@@ -12,6 +12,7 @@
   <script src="../../shared/i18n/i18n.js"></script>
   <script type="module">
   import { mountHex } from '../../code/js/hexview.js';
+  const flat = (x) => String(x).replace(/[^\p{L}\p{N}]/gu, '');
   import { createChunks, CHUNK } from '../../code/js/hex-data.js';
   import { search } from '../../code/js/hex-find.js';
   import { HEX, CH, hex8, parseOffset, parseQuery, sizeLine } from '../../code/js/hex-fmt.js';
@@ -72,7 +73,7 @@
 
     it('has a header with the name, the size and the kind', async () => {
       await show();
-      expect([q('.cd-hex-name').textContent, q('.cd-hex-size').textContent, q('.cd-hex-kind').textContent]).toEqual(['photo.png', '12.4 KB (12,704 bytes)', 'PNG image']);
+      expect([q('.cd-hex-name').textContent, flat(q('.cd-hex-size').textContent), q('.cd-hex-kind').textContent]).toEqual(['photo.png', flat('12.4 KB (12,704 bytes)'), 'PNG image']); // flat: the page's number format does not matter here
       expect([0, 1, 512, 1024, 1536, 5 * 1048576, 2 * 1024 ** 3].map(sizeLine)).toEqual(['0 bytes', '1 byte', '512 bytes', '1 KB (1,024 bytes)', '1.5 KB (1,536 bytes)', '5 MB (5,242,880 bytes)', '2 GB (2,147,483,648 bytes)']);
     });
 
@@ -187,7 +188,7 @@
 
     it('scrolls a huge file end to end: the scroll position maps to the rows, and the last row is the last row', async () => {
       await show(big(), { name: 'big.bin' });
-      expect(q('.cd-hex-size').textContent).toBe('66.8 MB (70,000,000 bytes)');
+      expect(flat(q('.cd-hex-size').textContent)).toBe(flat('66.8 MB (70,000,000 bytes)'));
       expect(parseFloat(q('.cd-hex-space').style.height)).toBeLessThan(8000001);
       const sc = scroller(), bottom = () => sc.getBoundingClientRect().bottom;
       sc.scrollTop = sc.scrollHeight;   // the very end
@@ -217,7 +218,7 @@
       for (let i = 1; i <= 40; i++) { sc.scrollTop = (sc.scrollHeight - sc.clientHeight) * i / 40; await frames(1); expect(drawn()).toBeLessThan(45); }
       expect(performance.now() - t0).toBeLessThan(4000);
       await waitFor(() => rowAt(GB2 - 16));
-      expect([rowAt(GB2 - 16).textContent.startsWith('7ffffff0  '), q('.cd-hex-size').textContent]).toEqual([true, '2 GB (2,147,483,648 bytes)']);
+      expect([rowAt(GB2 - 16).textContent.startsWith('7ffffff0  '), flat(q('.cd-hex-size').textContent)]).toEqual([true, flat('2 GB (2,147,483,648 bytes)')]);
     }, { timeout: 40000 });
 
     it('searches a big file in chunks, a new search replaces the old one, and destroy() ends it', async () => {
