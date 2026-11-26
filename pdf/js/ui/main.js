@@ -19,6 +19,7 @@
   A.saveToDrive = function () {
     var H = hub(); if (!H || !E.state.pages.length) return Promise.resolve(null);
     return S.guarded(t('pdf.app.saving_drive'), function () { return A.currentPdfBlob(); }).then(function (blob) {
+      if (!blob) return null; // not built, or the save was cancelled (ui/cover-save.js)
       var name = U.safeName(S.els.fileName.value || 'document.pdf', 'pdf');
       S.els.fileName.value = name;
       return SP.driveDocs.save(A.driveId, blob, name).then(function (r) {
@@ -56,7 +57,12 @@
     var files = await E.toImages(bytes, { format: 'png', dpi: 150, indices: [idx], base: 'page' });
     return new Blob([files[0].data], { type: 'image/png' });
   };
-  function wrap(label, fn) { return function () { return S.guarded(label, function () { return fn(); }).then(function (b) { if (!b) throw new Error('nothing to send'); return b; }); }; }
+  function wrap(label, fn) {
+    return function () {
+      var cut = null; // a send the person cancelled (ui/cover-save.js) says so, not "nothing to send"
+      return S.guarded(label, function () { return fn().catch(function (e) { if (e && e.cancelled) cut = e; throw e; }); }).then(function (b) { if (!b) throw cut || new Error('nothing to send'); return b; });
+    };
+  }
   /** "Send to <App>" items for the whole PDF (File menu). */
   A.sendItems = function () {
     var H = hub(); if (!H || SP.offline || !E.state.pages.length) return [];

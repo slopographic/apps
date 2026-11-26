@@ -112,7 +112,7 @@
       var lab = p.blank ? U.t('pdf.org.thumb_blank', { n: n }) : U.t('pdf.org.thumb_from', { n: n, file: f ? f.name : '', page: src });
       el.setAttribute('aria-label', p.rot ? U.t('pdf.org.thumb_rotated', { label: lab, deg: String(p.rot) }) : lab);
       el.title = p.blank ? U.t('pdf.org.blank_page') : U.t('pdf.org.thumb_title', { file: f.name, page: src });
-      var badge = el.querySelector('.thumb-badge'), na = (p.annots || []).length;
+      var badge = el.querySelector('.thumb-badge'), na = (p.annots || []).filter(function (a) { return !SP.layers.isCover(a); }).length; // a cover is part of its edit
       var nr = (p.annots || []).filter(function (a) { return a.type === 'redact'; }).length, rb = el.querySelector('.thumb-redact');
       na -= nr; badge.hidden = !na; if (na) badge.innerHTML = U.icon('edit') + na;
       rb.hidden = !(nr || p.redacted); rb.className = 'thumb-redact' + (nr ? ' pending' : '');

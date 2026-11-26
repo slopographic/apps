@@ -13,10 +13,14 @@
     var g = E.geom(p), top = g.H + g.y0;
     return { x: x - g.x0, y: top - (y + h), w: w, h: h };
   }
-  /** A whiteout over a PDF user-space rect {x, y, w, h}: the annotation that covers old text, in fill (default white). */
-  F.coverAnnot = function (p, c, fill) {
+  /** A whiteout over a PDF user-space rect {x, y, w, h}: the annotation that covers old text, in fill (default white). It is
+   *  part of the edit (hides: 'text', core/layers.js L.isCover; of: the id of the new text that replaces it, if any): it is
+   *  never selected or moved on its own, and a save warns that the old text is still in the file (ui/cover-save.js). */
+  F.coverAnnot = function (p, c, fill, of) {
     var r = toPageRect(p, c.x, c.y, c.w, c.h);
-    return { id: U.uid('a'), type: 'whiteout', cx: r.x + r.w / 2, cy: r.y + r.h / 2, w: r.w, h: r.h, rot: 0, fill: fill || '#ffffff', opacity: 1 };
+    var a = { id: U.uid('a'), type: 'whiteout', cx: r.x + r.w / 2, cy: r.y + r.h / 2, w: r.w, h: r.h, rot: 0, fill: fill || '#ffffff', opacity: 1, hides: 'text' };
+    if (of) a.of = of;
+    return a;
   };
   /** Text in the standard font with its baseline at PDF (x, y). opts: font, bold, italic, color. The layout puts the
    *  first baseline pad + 0.9 em below the top of the box, so the box is placed to land the baseline on (x, y). */
@@ -35,10 +39,11 @@
     // each cover in the paper colour under it (editor/edit-colours.js; white when the editor is not loaded)
     var S = SP.editor && SP.editor._, slot = S && S.slots ? S.slots.get(p.id) : null;
     var papers = plan.covers.map(function (c) { var r = toPageRect(p, c.x, c.y, c.w, c.h); return { r: r, rgb: S && S.paperColour ? S.paperColour(slot, r) : [1, 1, 1] }; });
-    papers.forEach(function (q, i) { out.push(F.coverAnnot(p, plan.covers[i], S && S.hex ? S.hex(q.rgb) : null)); });
     // the new text in the old text's colour (S.textInk: the content's, else the glyph pixels', else readable on the paper)
     var ink = S && S.textInk && papers.length ? S.textInk(p, slot, m.segs.map(function (g) { return { x0: g.x0, x1: g.x1, y: g.y, fs: g.fs }; }), papers[0].r, papers[0].rgb) : null;
-    if (plan.text) out.push(F.textAnnot(p, plan.text.x, plan.text.y, plan.text.size, plan.text.text, ink ? { color: ink } : null));
+    var txt = plan.text ? F.textAnnot(p, plan.text.x, plan.text.y, plan.text.size, plan.text.text, ink ? { color: ink } : null) : null;
+    papers.forEach(function (q, i) { out.push(F.coverAnnot(p, plan.covers[i], S && S.hex ? S.hex(q.rgb) : null, txt && txt.id)); });
+    if (txt) out.push(txt);
     return { annots: out, wide: plan.wide };
   };
   /** Applies replacements: items [{pid, m, rep}] (m is a located match from F.search). One undo step each. Resolves the

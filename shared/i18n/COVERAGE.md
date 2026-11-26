@@ -29,7 +29,7 @@ Shared code (shell/, shared/) still has 3074 hard-coded strings; most belong to 
 | # | App | Id | Strings | In tables | Hard-coded | Languages at 100% |
 |---:|---|---|---:|---:|---:|---:|
 | 1 | File convert | convert | 1940 | 977 | 963 | 0 of 29 |
-| 2 | Slop PDF | pdf | 1730 | 1525 | 205 | 0 of 29 |
+| 2 | Slop PDF | pdf | 1741 | 1536 | 205 | 0 of 29 |
 | 3 | PhotoSlop | photoslop | 1365 | 1360 | 5 | 0 of 29 |
 | 4 | SlopLabel | label | 1146 | 693 | 453 | 0 of 29 |
 | 5 | SlopCut | slopedit | 1101 | 745 | 356 | 0 of 29 |
@@ -95,7 +95,7 @@ Shared code (shell/, shared/) still has 3074 hard-coded strings; most belong to 
 | 65 | Checksum | checksum | 42 | 24 | 18 | 0 of 29 |
 | 66 | Privacy page | privacy | 31 | 25 | 6 | 0 of 29 |
 
-Total: 22434 strings in 66 apps.
+Total: 22445 strings in 66 apps.
 
 ## Apps with tables, per language
 

@@ -19,7 +19,7 @@
       el = U.h('div', { class: 'para-frame', tabindex: '0', role: 'group', 'aria-label': U.t('pdf.ed.pm_frame'), 'data-i18n-attr': 'aria-label:pdf.ed.pm_frame' },
         handle('para-h', 'w', 'pdf.ed.pm_drag_width'), handle('para-h', 'e', 'pdf.ed.pm_drag_width'),
         CORNERS.map(function (c) { return handle('para-c slop-hit', c, 'pdf.se.drag_scale'); }), handle('para-r slop-hit', 'rot', 'pdf.se.drag_turn'),
-        U.h('span', { class: 'para-tag' }));
+        U.h('span', { class: 'para-tag' }), U.h('span', { class: 'para-note', role: 'note', hidden: true }));
       wire(el);
       s.layer.appendChild(el);
     }
@@ -28,6 +28,8 @@
     el.classList.toggle('is-editing', !!P.editor);
     el.classList.toggle('is-locked', !!(a && a.locked));
     U.$('.para-tag', el).textContent = a ? U.t(a.rtl ? 'pdf.ed.pm_tag_rtl' : 'pdf.ed.pm_tag', { align: ALIGN[a.align] ? U.t(ALIGN[a.align]) : String(a.align) }) : U.t('pdf.ed.pm_tag_busy');
+    var note = U.$('.para-note', el), hides = P.hidesOld(sel); // the old lines could not be taken off: they are under covers
+    note.hidden = !hides; note.textContent = hides ? U.t('pdf.ed.cover_note') : '';
     el.style.left = (r.x * z) + 'px'; el.style.top = (r.y * z) + 'px'; el.style.width = (r.w * z) + 'px'; el.style.height = (r.h * z) + 'px';
     var rot = a && a.rot ? -a.rot : 0; // page space, y down: a positive rot turns counter-clockwise (para-view.js)
     el.style.transform = rot ? 'rotate(' + rot + 'deg)' : '';

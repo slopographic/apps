@@ -12,6 +12,8 @@
   S.selectedIds = function () { var a = Ed.getSelected(); return group.length ? group.filter(function (id) { return S.findAnnot(id); }) : a ? [a.id] : []; };
   S.groupClear = function () { if (group.length) { group = []; Ed.paint(); } };
   function setGroup(ids, primary) {
+    ids = ids.filter(function (id) { return !SP.layers.isCover(S.findAnnot(id)); }); // a cover over old text belongs to its edit
+    if (primary && ids.indexOf(primary) < 0) primary = null;
     group = ids.length > 1 ? ids.slice() : [];
     S.groupSetting = true; Ed.select(null); Ed.select(primary || ids[ids.length - 1] || null); S.groupSetting = false;
     Ed.paint();
@@ -81,7 +83,7 @@
       if (!rect) { Ed.select(null); if (S.obj && S.obj.sel) S.obj.select(null); if (Ed.noteUI) Ed.noteUI.close(); if (S.selectTextAt && !keep.length) S.selectTextAt(p, at); return; }
       var c = S.ctx(), ids = keep.slice();
       p.annots.forEach(function (a) {
-        if (a.hidden || a.type === 'texthl' || ids.indexOf(a.id) >= 0) return;
+        if (a.hidden || a.type === 'texthl' || SP.layers.isCover(a) || ids.indexOf(a.id) >= 0) return;
         var r = E.annotViewRect(a, c.R, c.W, c.H);
         if (r.x < rect.x + rect.w && r.x + r.w > rect.x && r.y < rect.y + rect.h && r.y + r.h > rect.y) ids.push(a.id);
       });

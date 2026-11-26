@@ -3,7 +3,8 @@
    image-only page (same size and rotation) in a new source file. Text, vector content, form fields,
    comments and other annotations on that page are gone; only web links outside the boxes are kept.
    Untouched pages stay vector. Export also prunes unused XObjects from pages that share resources
-   with a redacted page (E.pruneXObjects), and always writes a fresh file (no incremental history). */
+   with a redacted page (E.pruneXObjects), and always writes a fresh file (no incremental history). The same image pages
+   (R.imagePages) take the old text under Edit text's covers off for good before a save (ui/cover-save.js). */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine;
@@ -70,38 +71,49 @@
     return out;
   }
 
-  /** Applies every pending mark. opts {dpi, stripMeta, onProgress, extra: [{p, box}]}. Resolves {pages, marks}. */
-  E.applyRedactions = async function (opts) {
+  /** Image-only pages in one new source file. entries: [{ p (the page: its size, rotation and web links), from (the page
+   * to draw, default p: a page built with its annotations, ui/cover-save.js), boxes (black boxes burned in), cut (boxes
+   * whose links go, default boxes) }]. opts { dpi, onProgress, name }. Resolves { file (null when no page was drawn),
+   * map: page id → its page in the file }. */
+  R.imagePages = async function (entries, opts) {
     opts = opts || {};
-    var L = PDFLib, pend = R.pending(), extra = opts.extra || [], byPage = new Map();
-    pend.forEach(function (x) { byPage.set(x.p.id, x.p); });
-    extra.forEach(function (x) { byPage.set(x.p.id, x.p); });
-    if (!byPage.size) return { pages: 0, marks: 0 };
-    // page-space boxes of a page: its marks plus the extra boxes (sel-actions.js Remove), which are never stored as marks
-    var boxesOf = function (p) { return R.boxes(p).concat(extra.filter(function (x) { return x.p.id === p.id; }).map(function (x) { return x.box; })); };
-    var out = await L.PDFDocument.create({ updateMetadata: false }), map = new Map(), srcs = new Map(), k = 0, done = 0;
-    for (var entry of byPage) {
-      var p = entry[1], boxes = boxesOf(p);
+    var L = PDFLib, out = await L.PDFDocument.create({ updateMetadata: false }), map = new Map(), srcs = new Map(), k = 0, done = 0;
+    for (var x of entries) {
+      var p = x.p, boxes = x.boxes || [];
       if (!p.blank) {
-        var g = E.geom(p), img = await R.rasterPage(p, boxes, opts.dpi);
+        var g = E.geom(p), img = await R.rasterPage(x.from || p, boxes, opts.dpi);
         var page = out.addPage([g.W, g.H]);
         await drawRaster(out, page, img, g.W, g.H);
         page.setRotation(L.degrees(g.base));
         if (!srcs.has(p.f)) srcs.set(p.f, await L.PDFDocument.load(E.files.get(p.f).bytes, { updateMetadata: false, ignoreEncryption: true, throwOnInvalidObject: false }));
-        keptLinks(srcs.get(p.f), p, boxes).forEach(function (l) {
+        keptLinks(srcs.get(p.f), p, x.cut || boxes).forEach(function (l) {
           var ref = out.context.register(out.context.obj({ Type: 'Annot', Subtype: 'Link', Rect: l.rect, Border: [0, 0, 0], A: { Type: 'Action', S: 'URI', URI: L.PDFString.of(l.uri) } })); // i18n-ignore: PDF names / font names / producer, not UI
           page.node.addAnnot(ref);
         });
         map.set(p.id, k++);
       }
-      if (opts.onProgress) opts.onProgress(++done / byPage.size);
+      if (opts.onProgress) opts.onProgress(++done / entries.length);
     }
     var file = null;
     if (k) {
       out.setProducer('Slop PDF · slopographic.com/pdf'); // i18n-ignore: PDF names / font names / producer, not UI
-      file = await E.registerPdf(await out.save({ useObjectStreams: true }), U.t('pdf.redact.file_name'), null);
+      file = await E.registerPdf(await out.save({ useObjectStreams: true }), opts.name || U.t('pdf.redact.file_name'), null);
       file.noLog = true; // generated: its bytes cannot be replayed
     }
+    return { file: file, map: map };
+  };
+
+  /** Applies every pending mark. opts {dpi, stripMeta, onProgress, extra: [{p, box}]}. Resolves {pages, marks}. */
+  E.applyRedactions = async function (opts) {
+    opts = opts || {};
+    var pend = R.pending(), extra = opts.extra || [], byPage = new Map();
+    pend.forEach(function (x) { byPage.set(x.p.id, x.p); });
+    extra.forEach(function (x) { byPage.set(x.p.id, x.p); });
+    if (!byPage.size) return { pages: 0, marks: 0 };
+    // page-space boxes of a page: its marks plus the extra boxes (sel-actions.js Remove), which are never stored as marks
+    var boxesOf = function (p) { return R.boxes(p).concat(extra.filter(function (x) { return x.p.id === p.id; }).map(function (x) { return x.box; })); };
+    var made = await R.imagePages(Array.from(byPage.values()).map(function (p) { return { p: p, boxes: boxesOf(p) }; }), opts);
+    var file = made.file, map = made.map;
     E.commit(U.t('pdf.redact.apply_cmd'), function (st) {
       st.pages.forEach(function (p) {
         if (!byPage.has(p.id)) return;

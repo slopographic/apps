@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slop PDF: covers belong to their edit</title>
+  <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 800px; border: 0; display: block; }</style>
+</head>
+<body>
+  <!-- A cover an edit leaves over old text it could not take out of the page is part of that edit: clicks go through it, it is
+       not selected, listed or moved on its own, deleting the text keeps it, and the editor says the old text is under a cover.
+       The PDFs are made in the test with the app's pdf-lib; the cover path is forced (cover.helpers.js CV.force). -->
+  <iframe id="app"></iframe>
+  <script src="../harness.js"></script>
+  <script src="pdf.helpers.js"></script>
+  <script src="objects.helpers.js"></script>
+  <script src="para.helpers.js"></script>
+  <script src="select-edit.helpers.js"></script>
+  <script src="cover.helpers.js"></script>
+  <script src="pdf.spec-cover-guard.js"></script>
+  <script>SlopTest.run({ name: 'Slop PDF: covers belong to their edit' });</script>
+</body>
+</html>

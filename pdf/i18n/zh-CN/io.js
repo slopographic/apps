@@ -78,4 +78,16 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'pdf.io.sample_busy_plain': '正在制作示例…',
   'pdf.io.restore': '恢复',
   'pdf.io.close_all': '全部关闭',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': 'Old text is still in the file', // English until translated (cover guard)
+  'pdf.io.cover_body': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
+  'pdf.io.cover_images_note': 'Make those pages images to take the old text out for good. Text on those pages will no longer be selectable; the other pages stay as they are.', // English until translated (cover guard)
+  'pdf.io.cover_keep': 'Save anyway', // English until translated (cover guard)
+  'pdf.io.cover_images': 'Make those pages images', // English until translated (cover guard)
+  'pdf.io.cover_cancelled': 'Cancelled. Nothing was saved.', // English until translated (cover guard)
+  'pdf.io.cover_making': 'Making the pages images…', // English until translated (cover guard)
+  'pdf.io.cover_made': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
+  'pdf.io.cover_undo': 'Make pages images', // English until translated (cover guard)
+  'pdf.io.cover_file_name': 'Image pages.pdf', // English until translated (cover guard)
 });

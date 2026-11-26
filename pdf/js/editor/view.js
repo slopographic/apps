@@ -98,6 +98,7 @@
   S.findAnnot = function (id) { var p = Ed.page(); if (!p) return null; for (var i = 0; i < p.annots.length; i++) if (p.annots[i].id === id) return p.annots[i]; return null; };
   Ed.getSelected = function () { return Ed.selId ? S.findAnnot(Ed.selId) : null; };
   Ed.select = function (id) {
+    if (id && SP.layers.isCover(S.findAnnot(id))) id = null; // a cover over old text is part of its edit, never selected alone
     if (Ed.selId === id) return;
     Ed.selId = id; S.drawSelection();
     if (SP.app) SP.app.editorSelectionChanged();

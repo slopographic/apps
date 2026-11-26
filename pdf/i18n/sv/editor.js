@@ -260,4 +260,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'pdf.ed.an_signature': 'underskrift',
   'pdf.ed.an_stamp': 'stämpel',
   'pdf.ed.an_annotation': 'anteckning',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'Den gamla texten går inte att ta ut ur den här sidan; den döljs under en överstrykning.',
 });

@@ -59,7 +59,7 @@
     'pdf/js/ui/assets.js', 'pdf/js/io/extract-more.js', 'pdf/js/tools/ocg-panel.js', 'pdf/js/redact/panel.js', 'pdf/js/ui/menus.js', 'pdf/js/ui/commands.js',
     'pdf/js/ui/context.js', 'pdf/js/ui/input.js', 'pdf/js/ui/rename.js', 'shared/drop/panel.js', 'shared/intake/rules.js', 'shared/intake/normalize.js', 'shared/intake/pipeline.js', 'shared/intake/intake.js', 'shared/intake/sources.js', 'shared/drop/drop.js', 'shared/drop/choice.js', 'pdf/js/ui/drop.js',
     'pdf/js/ui/doc-tabs.js', 'shared/workspace/workspace.js', 'shared/doctabs/pane-tabs.js', 'pdf/js/ui/pane-preview.js', 'pdf/js/ui/panes.js', 'pdf/js/ui/panes-ui.js', 'pdf/js/ui/open-convert.js', 'pdf/js/ui/view-state.js', 'pdf/js/ui/route.js',
-    'pdf/js/ui/main.js', 'pdf/js/io/build.js', 'shared/offline/manifest.js', 'shared/offline/build.js',
+    'pdf/js/ui/main.js', 'pdf/js/ui/cover-save.js', 'pdf/js/io/build.js', 'shared/offline/manifest.js', 'shared/offline/build.js',
     ],
     binary: [
     'vendor/pdfjs/standard_fonts/FoxitSymbol.pfb', 'vendor/pdfjs/standard_fonts/FoxitDingbats.pfb', 'favicon.ico',
@@ -94,7 +94,7 @@
     'pdf/js/ui/exports.js', 'pdf/js/ui/protect.js', 'pdf/js/ui/page-acts.js', 'pdf/js/ui/assets.js', 'pdf/js/io/extract-more.js', 'pdf/js/tools/ocg-panel.js', 'pdf/js/redact/panel.js', 'pdf/js/ui/commands.js',
     'pdf/js/ui/context.js', 'pdf/js/ui/input.js', 'pdf/js/ui/rename.js', 'pdf/js/ui/doc-tabs.js', 'shared/workspace/workspace.js',
     'shared/doctabs/pane-tabs.js', 'pdf/js/ui/pane-preview.js', 'pdf/js/ui/panes.js', 'pdf/js/ui/panes-ui.js', 'pdf/js/ui/open-convert.js',
-    'pdf/js/ui/view-state.js', 'pdf/js/ui/route.js', 'pdf/js/ui/main.js',
+    'pdf/js/ui/view-state.js', 'pdf/js/ui/route.js', 'pdf/js/ui/main.js', 'pdf/js/ui/cover-save.js',
     ],
   },
   vector: {
