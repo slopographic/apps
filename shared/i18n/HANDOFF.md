@@ -57,14 +57,16 @@ text with tables of their own: the recipe is `APPS-HOWTO.md`, the progress `COVE
 - Later (a language change, another tab's change, or `i18n.js` added by the shell) it appends them, applies the marked
   elements once they are in, and fires `slopi18n` on `window` (`SlopI18n.on(fn)`); `slop-lang` fires at once on `set()`.
   The shell marks its own tag `data-late` and waits for `SlopI18n.ready()` before it mounts the header.
-- The shared components' parts (`ui/<code>/<part>.js`, `UI_PARTS` in `i18n.js`) come on first use: a page fetches only
-  `UI_EAGER` (`shell`, the header's words) with `ui/<code>.js`. The first `t()`, `has()` or `label()` of a `ui.<ns>.*` key
+- The shared components' parts (`ui/<code>/<part>.js`, `UI_PARTS` in `i18n.js`): a page fetches all of them with
+  `ui/<code>.js`, so an app's components read their words at once, when they are built. A tag with `data-ui-parts`
+  fetches only the parts it names: the shell's (`shell,shell2`, on a page with no app code of its own: the landing,
+  task, roundup and guide pages) and the homepage's. There the first `t()`, `has()` or `label()` of a `ui.<ns>.*` key
   that is not in yet fetches the parts holding that namespace (`UI_PARTS.byNs`, written by `node tools/i18n/i18n.mjs
   index ui`) for English and every language fetched so far, in one round for the keys asked for in the same turn, then
-  re-applies the marked elements and fires `slopi18n`, as a language switch does. Until then the call reads like any
-  missing key (the key itself; `has()` false), so a component that builds its text in JS re-reads it on `slopi18n`
-  (`SlopI18n.on`), which it does for a language switch anyway. Loading all 40-odd parts on every page cost every page
-  about 40 requests and 80 KB (gzipped) before anything used them; `tests/i18n/ui-parts-lazy.test.html` holds the line.
+  re-applies the marked elements and fires `slopi18n`, as a language switch does; until then the call reads like any
+  missing key (the key itself; `has()` false). Loading all 40-odd parts on those pages cost each about 40 requests and
+  80 KB (gzipped) before anything used them; `tests/i18n/ui-parts-lazy.test.html` holds the line. Name a part in an
+  app's tag only when every component that reads its words follows `slopi18n`.
 - An offline single-file copy (`<meta content="offline">`) fetches nothing: its manifest embeds the English tables.
 
 ## World-ready

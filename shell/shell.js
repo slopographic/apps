@@ -88,7 +88,8 @@
   if (!window.SlopBrand) queue.push(['brand/brand.js', { brandSrc: (me && me.dataset.brandSrc) || '' }]);
   if (!window.SlopUI) { addCss('shared/slopui.css'); queue.push(['shared/slopui.js']); }
   // The language: i18n.js fetches its own tables (English and the chosen language), after this queue; S.ready waits for them.
-  if (!window.SlopI18n) queue.push(['shared/i18n/i18n.js', { late: '1' }]);
+  // a page with no app code: the shell's ui parts (header, drawer, theme names) at once, the rest on first use (shared/i18n/HANDOFF.md)
+  if (!window.SlopI18n) queue.push(['shared/i18n/i18n.js', { late: '1', uiParts: 'shell,shell2' }]);
   if (!window.SlopLangSwitch) queue.push(['shared/i18n/switcher.js']);   // the header's language menu
   addCss('shell/shell.css');
   addCss('brand/brand.css');   // the brand link's app icon and badge

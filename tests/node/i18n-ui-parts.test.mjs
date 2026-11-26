@@ -17,11 +17,11 @@ const DEFAULT_RE = new RegExp('(/\\*profile:' + 'defaultLang\\*/)([\'"])[^\'"]*[
 const SRC = readFileSync(path.join(ROOT, 'shared/i18n/i18n.js'), 'utf8');
 
 /** Runs i18n.js in a fake page whose language is `code`, with UI_PARTS replaced; returns the script URLs it asks for. */
-function load(code, parts) {
+function load(code, parts, only = null) {
   const urls = [];
   const el = () => ({ setAttribute() {}, hasAttribute: () => false, appendChild() {} });
   const doc = {
-    readyState: 'complete', currentScript: { src: 'https://x.test/shared/i18n/i18n.js', hasAttribute: () => false },
+    readyState: 'complete', currentScript: { src: 'https://x.test/shared/i18n/i18n.js', hasAttribute: () => false, getAttribute: (a) => (a === 'data-ui-parts' ? only : null) },
     documentElement: el(), head: { appendChild: (s) => { urls.push(s.src); if (s.onload) s.onload(); } },
     createElement: () => ({}), querySelector: () => null, querySelectorAll: () => [], addEventListener() {},
   };
@@ -42,19 +42,19 @@ test('UI_PARTS is one line that i18n.js and the tools both read', () => {
   assert.deepEqual([...idx.langs].sort(), folders, 'UI_PARTS.langs are the folders (node tools/i18n/i18n.mjs index ui)');
 });
 
-test('English and a language with parts load them on first use; a language without reads English', async () => {
+test('English and a language with parts load them (data-ui-parts: those, the rest on first use); a language without reads English', async () => {
   const parts = { parts: ['alpha', 'beta'], langs: ['en', 'sv'], byNs: { alpha: ['alpha'], beta: ['beta'] } };
-  const sv = load('sv', parts);
+  const all = load('sv', parts);
+  for (const u of ['ui/en/alpha.js', 'ui/en/beta.js', 'ui/sv/alpha.js', 'ui/sv/beta.js']) assert.ok(all.urls.some((x) => x.endsWith('/shared/i18n/' + u)), u + ' at once');
+  const sv = load('sv', parts, 'alpha');
   assert.equal(sv.api.get(), 'sv');
-  assert.ok(sv.urls.some((x) => x.endsWith('/shared/i18n/ui/sv.js')) && !sv.urls.some((x) => /\/ui\/(en|sv)\/alpha\.js$/.test(x)), 'no part before a key of it is asked for');
-  sv.api.t('ui.alpha.x'); sv.api.t('ui.beta.y');
+  assert.ok(sv.urls.some((x) => x.endsWith('/shared/i18n/ui/sv/alpha.js')) && !sv.urls.some((x) => /\/ui\/(en|sv)\/beta\.js$/.test(x)), 'no other part before a key of it is asked for');
+  sv.api.t('ui.beta.y');
   await new Promise((r) => setTimeout(r, 0));
   for (const u of ['ui/en.js', 'ui/en/alpha.js', 'ui/en/beta.js', 'ui/sv.js', 'ui/sv/alpha.js', 'ui/sv/beta.js']) {
     assert.ok(sv.urls.some((x) => x.endsWith('/shared/i18n/' + u)), u + ' for sv');
   }
   const de = load('de', parts);
-  de.api.t('ui.alpha.x');
-  await new Promise((r) => setTimeout(r, 0));
   assert.ok(de.urls.some((x) => x.endsWith('/shared/i18n/ui/de.js')), 'de base table');
   assert.ok(!de.urls.some((x) => /\/ui\/de\//.test(x)), 'no de parts: German reads English');
   assert.ok(de.urls.some((x) => x.endsWith('/shared/i18n/ui/en/alpha.js')), 'the English part');
