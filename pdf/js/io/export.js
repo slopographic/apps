@@ -245,7 +245,7 @@
       if (opts.onProgress && k % 8 === 0) { opts.onProgress(++step / steps); await U.sleep(0); }
     }
     placed.forEach(function (x) { fixLinks(out, x[0], x[1], firstOut); });
-    var redacted = pages.some(function (p) { return p.redacted; });
+    var redacted = pages.some(function (p) { return p.redacted || p.imaged; }); // imaged: made a picture over its covers (ui/cover-save.js)
     out.getPages().forEach(function (pg) { E.stripPageExtras(pg); if (redacted) E.pruneXObjects(out, pg); });
     if (!st.flattenForms) rebuildAcroForm(out, srcDocs);
     if (opts.meta !== false) E.applyMeta(out);

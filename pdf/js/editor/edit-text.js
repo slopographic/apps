@@ -4,7 +4,8 @@
    never written into the document's own subset font (that holds only the old glyphs). It is set in
    the run's family when that family is installed (shared/fonts), else in the family the person chose in the asset check
    (font-check.js), else in the closest bundled family; standard families (Helvetica, Times, Courier) stay standard. The info
-   line says which font the run uses and what the new text is set in. Words of a recognised page (the invisible OCR layer,
+   line says which font the run uses and what the new text is set in, and when the old text cannot be taken out, that it is
+   hidden under a cover (the cover is part of the edit: core/layers.js L.isCover). Words of a recognised page (the invisible OCR layer,
    ocr/layer.js) are not covered by a box: their characters are replaced in the page's content, the picture under them is
    painted over with the paper colour, and the new text is drawn in Helvetica there, so the page looks edited. */
 (function () {
@@ -172,7 +173,9 @@
     var info = U.h('div', { class: 'edit-info' }, U.t('pdf.ed.et_checking_font'));
     info.style.left = (b.x * z) + 'px'; info.style.top = ((b.y + b.h) * z + 4) + 'px';
     s.layer.append(input, info);
-    S.runEdit = { p: p, run: run, font: font, input: input, info: info, done: false };
+    // the old line is taken off the page while it is typed over (text-strip.js); the commit uses the same copy
+    var took = run.ocr ? null : S.strip.take(p, [S.strip.targetOfRun(run)]);
+    var r = S.runEdit = { p: p, run: run, font: font, input: input, info: info, done: false, took: took };
     input.addEventListener('input', fit);
     input.addEventListener('keydown', function (e) {
       e.stopPropagation();
@@ -183,6 +186,8 @@
     fit();
     input.focus(); input.select();
     showFontInfo(run, info, font);
+    // the info line says when the old text cannot be taken out: the new text will hide it under a cover
+    if (took) took.then(function (k) { if (!k.to && S.runEdit === r) info.appendChild(U.h('span', { class: 'edit-cover' }, U.t('pdf.ed.cover_note'))); });
   };
   /** The info line: the run's font and whether the file embeds it, and what the new text is set in. */
   function showFontInfo(run, info, font) {
@@ -195,10 +200,13 @@
     var embedded = !!run.ps, set = E.stdFontName({ font: font.font, bold: font.bold, italic: font.italic });
     info.textContent = U.t(embedded ? 'pdf.ed.et_font_info_emb' : 'pdf.ed.et_font_info_std', { font: run.label, set: set });
   }
-  S.closeRun = function () {
+  /** Closes the editor. keep: its copy of the page without the old line is about to be used (the commit); else that copy
+   * goes (unless the same line is open again). */
+  S.closeRun = function (keep) {
     var r = S.runEdit; if (!r) return;
     S.runEdit = null; r.done = true;
     r.input.remove(); r.info.remove();
+    if (!keep && r.took) r.took.then(function (k) { if (k.to && !(S.runEdit && S.runEdit.run === r.run)) S.strip.release(k.to); });
   };
   /** Edit text on the run under a selection (sel-bar.js): the run that overlaps the rect {x0, y0, x1, y1} most. */
   Ed.editSelectionRun = function (p, rect) {
@@ -227,24 +235,26 @@
   S.commitRun = function () {
     var r = S.runEdit; if (!r || r.done) return;
     var text = r.input.value, run = r.run, font = r.font, p = r.p, s = S.slots.get(p.id);
-    S.closeRun();
+    S.closeRun(text !== run.str);
     if (text === run.str) return;
     if (run.ocr) { S.replaceOcrRun(p, run, text, s, font); return; }
     var key = E.fontKey(font);
-    if (E.needsScripts && E.needsScripts(text, key)) { E.ensureScripts(text, key, font.bold).then(function () { S.coverRun(p, run, font, text, s); }); return; }
-    S.coverRun(p, run, font, text, s);
+    if (E.needsScripts && E.needsScripts(text, key)) { E.ensureScripts(text, key, font.bold).then(function () { S.coverRun(p, run, font, text, s, r.took); }); return; }
+    S.coverRun(p, run, font, text, s, r.took);
   };
   /** Ordinary text: the old run is taken off the page (text-strip.js: removed from the content, or covered when it cannot
-   * be) and the new text drawn in its place, as one undo step. */
-  S.coverRun = async function (p, run, font, text, s) {
-    var took = run.ocr ? { to: null, paper: [] } : await S.strip.take(p, [S.strip.targetOfRun(run)]); // an OCR word's picture needs a cover
+   * be) and the new text drawn in its place, as one undo step. pending: the take the editor started when it opened. The
+   * covers belong to the new text (of: its id, core/layers.js L.isCover). */
+  S.coverRun = async function (p, run, font, text, s, pending) {
+    var took = run.ocr ? { to: null, paper: [] } : await (pending || S.strip.take(p, [S.strip.targetOfRun(run)])); // an OCR word's picture needs a cover
     // a cover takes the paper colour round the run (not white: text on a coloured band keeps its band), and the new text
     // the run's ink: the colour the content painted it in (edit-colours.js S.textInk; read before the content changes)
     var paper = S.paperColour(s, run.box, took.paper[0]), color = S.textInk(p, s, [S.strip.targetOfRun(run)], run.box, paper), key = E.fontKey(font);
     var m = { segs: [{ x0: run.x0, x1: run.x0 + run.width, y: run.y, fs: run.fs }] };
     var plan = M.coverPlan(m, E.sanitize(text, key), function (t, sz) { return E.measure(t, key, sz); });
-    var annots = took.to ? [] : plan.covers.map(function (c) { return F.coverAnnot(p, c, S.hex(paper)); });
-    if (plan.text) annots.push(F.textAnnot(p, run.x0, run.y, run.fs, plan.text.text, { font: font.font, bold: font.bold, italic: font.italic, weight: font.weight, color: color }));
+    var txt = plan.text ? F.textAnnot(p, run.x0, run.y, run.fs, plan.text.text, { font: font.font, bold: font.bold, italic: font.italic, weight: font.weight, color: color }) : null;
+    var annots = took.to ? [] : plan.covers.map(function (c) { return F.coverAnnot(p, c, S.hex(paper), txt && txt.id); });
+    if (txt) annots.push(txt);
     E.commit(U.t('pdf.ed.undo_edit_text'), function (st) {
       var q = st.pages.filter(function (x) { return x.id === p.id; })[0];
       if (!q) return;

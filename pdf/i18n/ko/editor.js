@@ -259,4 +259,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'pdf.ed.an_signature': '서명',
   'pdf.ed.an_stamp': '스탬프',
   'pdf.ed.an_annotation': '주석',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'The old text can’t be taken out of this page; it’s hidden under a cover.', // English until translated (cover guard)
 });

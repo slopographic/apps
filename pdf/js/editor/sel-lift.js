@@ -23,7 +23,7 @@
     var t = E.textLayout(text), left = Math.min.apply(null, rows.map(function (r) { return r.x; })) - t.pad;
     var baseline = rows[0].bottom - 0.22 * size, top = baseline - t.base(0); // the layout puts the first baseline at base(0) below the top
     text.w = t.w; text.h = t.h; text.cx = left + t.w / 2; text.cy = top + t.h / 2;
-    var covers = boxes.map(function (b) { return A.coverOf(b, A.paperOf(part.pid, b)); });
+    var covers = boxes.map(function (b) { var c = A.coverOf(b, A.paperOf(part.pid, b)); c.of = text.id; return c; }); // they belong to the text
     var x0 = Math.min.apply(null, boxes.map(function (b) { return b.x; })), y0 = Math.min.apply(null, boxes.map(function (b) { return b.y; }));
     var x1 = Math.max.apply(null, boxes.map(function (b) { return b.x + b.w; })), y1 = Math.max.apply(null, boxes.map(function (b) { return b.y + b.h; }));
     return { pid: part.pid, box: { x0: x0, y0: y0, x1: x1, y1: y1 }, text: text, annots: covers.concat([text]) };

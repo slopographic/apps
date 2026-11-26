@@ -55,7 +55,8 @@
       if (a.type === 'arrow') g.appendChild(U.s('path', { d: E.arrowHead(a), fill: a.color || '#000', 'fill-opacity': op }));
       return g;
     }
-    g = U.s('g', { 'data-aid': a.id, class: 'an an-' + a.type, transform: 'translate(' + fmt(a.cx) + ' ' + fmt(a.cy) + ') rotate(' + fmt(-(a.rot || 0)) + ') translate(' + fmt(-a.w / 2) + ' ' + fmt(-a.h / 2) + ')' });
+    // a cover over old text (core/layers.js L.isCover) is part of its edit: clicks go through it (css/workspace.css)
+    g = U.s('g', { 'data-aid': a.id, class: 'an an-' + a.type + (SP.layers.isCover(a) ? ' an-cover' : ''), transform: 'translate(' + fmt(a.cx) + ' ' + fmt(a.cy) + ') rotate(' + fmt(-(a.rot || 0)) + ') translate(' + fmt(-a.w / 2) + ' ' + fmt(-a.h / 2) + ')' });
     g.appendChild(U.s('rect', { x: 0, y: 0, width: fmt(a.w), height: fmt(a.h), fill: 'transparent', class: 'an-hit' }));
     if (a.type === 'text') {
       var t = E.textLayout(a);

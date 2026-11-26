@@ -17,7 +17,7 @@
     if (Ed.isEditingText()) Ed.commitText();
     S.busy(label, 0);
     try { return await fn(function (f, m) { S.busy(m || label, f); }); }
-    catch (e) { console.error(e); SlopUI.alert(t('pdf.act.err_title'), String((e && e.message) || e)); return null; }
+    catch (e) { if (e && e.cancelled) return null; console.error(e); SlopUI.alert(t('pdf.act.err_title'), String((e && e.message) || e)); return null; } // cancelled: the person said so (ui/cover-save.js)
     finally { S.busy(null); }
   }
   S.outName = function (suffix, ext) {
