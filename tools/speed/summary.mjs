@@ -13,7 +13,7 @@ export function problemLine(p) {
   if (p.kind === 'missing') return `${name(p.page)} (${p.preset}): new page, no budget yet (not a failure). Its numbers become its budget at the next node tools/speed/run.mjs --update.`;
   if (p.kind === 'unmeasured') return `${name(p.page)} (${p.preset}): ${p.metric} not measured${p.message ? ': ' + p.message : ''}`;
   const again = p.again === undefined ? '' : `; measured alone ${fmt(p.metric, p.again)}${p.past ? ` (${p.past} runs past it)` : ''}`;
-  return `${name(p.page)} (${p.preset}): ${p.metric} ${fmt(p.metric, p.value)}${again}, budget ${fmt(p.metric, p.budget)} (fails past ${fmt(p.metric, p.limit)})`;
+  return `${name(p.page)} (${p.preset}): ${p.metric} ${fmt(p.metric, p.value)}${again}, budget ${fmt(p.metric, p.budget)}${p.high != null ? `, high ${fmt(p.metric, p.high)}` : ''} (fails past ${fmt(p.metric, p.limit)})`;
 }
 
 /** Distance to a goal as text: "-120 ms" when under it, "+1.20 s" when over. */

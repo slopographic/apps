@@ -16,6 +16,8 @@
 //   --recheck=5         a page preset over its budget on timing is measured again alone this many times after the others,
 //                       each in a new Chrome, and fails only if 4 of them are over too; else it is listed as load-sensitive (0: no recheck;
 //                       tools/speed/budget.mjs, RECHECK, says why)
+//   --noise --from=run1/,run2/,...  no checking: set the highs of numbers that take two values (tools/speed/budget.mjs,
+//                       NOISE) from every single run in several CI runs' unzipped speed-results artifacts
 //   --slow=a/,b/        test only: serve these pages with a script that keeps the main thread busy for 1 s before anything
 //                       shows (tools/speed/serve.mjs), to see that a page made slower still fails, recheck and all
 // Chrome: CHROME_PATH, or Playwright's Chromium.
@@ -26,7 +28,7 @@ import { ROOT, discoverPages } from './pages.mjs';
 import { PRESETS } from './measure.mjs';
 import { openWorker } from './worker.mjs';
 import { serve } from './serve.mjs';
-import { medianRun, compare, ratchet, parseBudgets, formatBudgets, spread, recheckItems, settle, TOLERANCE, RECHECK } from './budget.mjs';
+import { medianRun, compare, ratchet, parseBudgets, formatBudgets, spread, recheckItems, settle, noiseFloor, TOLERANCE, RECHECK } from './budget.mjs';
 import { summary, problemLine, spreadTable } from './summary.mjs';
 import { parseShard, shardPages, pool } from '../../tests/shard.mjs';
 
@@ -34,11 +36,11 @@ export const BUDGETS = path.join(ROOT, 'tools/speed/budgets.json');
 
 /** The command line as options. */
 export function parseArgs(argv) {
-  const o = { runs: 3, jobs: 1, recheck: RECHECK.runs, presets: PRESETS, update: false, record: false, reset: [], slow: [], pages: null, shard: null, out: null, from: null, summary: process.env.GITHUB_STEP_SUMMARY || null };
+  const o = { runs: 3, jobs: 1, recheck: RECHECK.runs, presets: PRESETS, update: false, record: false, noise: false, reset: [], slow: [], pages: null, shard: null, out: null, from: null, summary: process.env.GITHUB_STEP_SUMMARY || null };
   const list = (v) => v.split(',').map((s) => s.trim()).map((s) => (s === '/' ? '' : s.replace(/^\//, '')));
   for (const a of argv) {
     const [k, v = ''] = a.replace(/^--/, '').split(/=(.*)/s);
-    if (k === 'update' || k === 'record') o[k] = true;
+    if (k === 'update' || k === 'record' || k === 'noise') o[k] = true;
     else if (k === 'runs' || k === 'jobs') { o[k] = Number(v); if (!(o[k] >= 1)) throw new Error(`--${k} needs a number >= 1`); }
     else if (k === 'recheck') { o.recheck = Number(v); if (!(o.recheck >= 0)) throw new Error('--recheck needs a number >= 0'); }
     else if (k === 'presets') { o.presets = v.split(','); if (o.presets.some((p) => !PRESETS.includes(p))) throw new Error(`--presets: ${PRESETS.join(', ')}`); }
@@ -49,6 +51,7 @@ export function parseArgs(argv) {
     else throw new Error(`unknown option ${a}`);
   }
   if (o.reset.length && !o.update) throw new Error('--reset goes with --update');
+  if (o.noise && (!o.from || o.update || o.record)) throw new Error('--noise reads CI results: --noise --from=a/,b/ alone');
   if (o.record && o.update) throw new Error('--record checks nothing and writes no budgets; merge its results with --update --from');
   return o;
 }
@@ -78,6 +81,16 @@ export function readResults(paths) {
 
 /** Measures items ([{ page, preset }]) runs times each, jobs at once; label names the pass in the log. With o.fresh every run
  * gets a new Chrome: a page whose number jumps between two values tends to stay on one of them in the same Chrome. */
+/** Every single run in results files, kept apart per file (CI runs of the same page add up): { page: { preset: [numbers] } },
+ * the main pass and the recheck. */
+export function allRuns(paths) {
+  const out = {};
+  for (const r of paths.map((p) => readResults([p]))) for (const src of [r.runs, r.recheck.runs]) {
+    for (const [page, presets] of Object.entries(src)) for (const [preset, list] of Object.entries(presets)) ((out[page] ||= {})[preset] ||= []).push(...list);
+  }
+  return out;
+}
+
 async function measure(items, o, label = '') {
   const site = await serve(ROOT, 0, { slow: o.slow });
   const results = {}, runs = {};
@@ -117,6 +130,13 @@ async function main(argv) {
   const all = discoverPages();
   const budgetsJson = existsSync(BUDGETS) ? JSON.parse(readFileSync(BUDGETS, 'utf8')) : { pages: {} };
   const budgets = parseBudgets(budgetsJson);
+  if (o.noise) {
+    const next = noiseFloor(budgets, allRuns(o.from));
+    const n = Object.values(next).flatMap((ps) => Object.values(ps)).reduce((k, m) => k + Object.keys(m.high || {}).length, 0);
+    writeFileSync(BUDGETS, formatBudgets(budgetsJson.meta, next));
+    console.log(`budgets: ${n} numbers that take two values have a high, written to ${path.relative(process.cwd(), BUDGETS)}`);
+    return 0;
+  }
   let data;
   if (o.from) data = readResults(o.from);
   else {

@@ -31,6 +31,7 @@ test('goal counts: LCP within 500 ms on desktop and 2.5 s on mobile, CLS within 
 test('problems read as one line each', () => {
   assert.match(problemLine({ page: 'new/', preset: 'desktop', kind: 'missing' }), /^\/new\/ \(desktop\): new page, no budget yet \(not a failure\)/);
   assert.equal(problemLine({ page: 'pdf/', preset: 'mobile', kind: 'worse', metric: 'lcp', value: 3100, budget: 2400, limit: 2760 }), '/pdf/ (mobile): lcp 3.10 s, budget 2.40 s (fails past 2.76 s)');
+  assert.equal(problemLine({ page: 'c/', preset: 'mobile', kind: 'worse', metric: 'si', value: 9000, budget: 4800, high: 6250, limit: 7500 }), '/c/ (mobile): si 9.00 s, budget 4.80 s, high 6.25 s (fails past 7.50 s)');
   assert.equal(problemLine({ page: 'pdf/', preset: 'mobile', kind: 'worse', metric: 'bytes', value: 409600, budget: 204800, limit: 225280 }), '/pdf/ (mobile): bytes 400 KB, budget 200 KB (fails past 220 KB)');
 });
 

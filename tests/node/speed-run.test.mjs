@@ -10,7 +10,7 @@ import { spawnSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
-import { parseArgs, pickPages, readResults } from '../../tools/speed/run.mjs';
+import { parseArgs, pickPages, readResults, allRuns } from '../../tools/speed/run.mjs';
 import { serve, compressible, slowed, SLOW_SCRIPT } from '../../tools/speed/serve.mjs';
 import { parseBudgets, RECHECK } from '../../tools/speed/budget.mjs';
 import { openWorker } from '../../tools/speed/worker.mjs';
@@ -25,6 +25,8 @@ test('options: defaults are 3 runs, 1 job, both presets, check (not update)', ()
   assert.deepEqual([u.update, u.reset, u.pages, u.shard, u.runs, u.jobs, u.presets, u.from, u.out], [true, ['', 'pdf/'], ['pdf/'], { index: 2, count: 20 }, 1, 4, ['desktop'], ['a.json', 'b/'], 'x.json']);
   assert.equal(parseArgs(['--record', '--from=x/']).record, true);
   assert.equal(o.recheck, RECHECK.runs, 'over on timing: measured again alone by default');
+  assert.equal(parseArgs(['--noise', '--from=a/,b/']).noise, true);
+  for (const bad of [['--noise'], ['--noise', '--from=a/', '--update']]) assert.throws(() => parseArgs(bad), /--noise/);
   assert.deepEqual([parseArgs(['--recheck=0']).recheck, parseArgs(['--slow=/,pdf/']).slow, o.slow], [0, ['', 'pdf/'], []]);
   for (const bad of [['--recheck=-1'], ['--record', '--update'], ['--runs=0'], ['--presets=tablet'], ['--reset=pdf/'], ['--nope'], ['--shard=3/2']]) assert.throws(() => parseArgs(bad), undefined, bad.join(' '));
 });
@@ -48,6 +50,8 @@ test('results files merge, from files and from directories (as CI\'s artifacts u
   assert.deepEqual(r.results, { 'a/': { desktop: { lcp: 1 }, mobile: { lcp: 2 } }, 'b/': { desktop: { lcp: 3 } } });
   assert.deepEqual(r.runs['a/'].desktop, [{ lcp: 1 }]);
   assert.deepEqual(r.recheck, { results: { 'a/': { mobile: { lcp: 5 } } }, runs: { 'a/': { mobile: [{ lcp: 5 }] } } });
+  // several CI runs of the same pages: their single runs add up (main pass and recheck), where readResults keeps the last
+  assert.deepEqual(allRuns([dir, path.join(dir, 'slice-1.json')])['a/'], { desktop: [{ lcp: 1 }, { lcp: 1 }], mobile: [{ lcp: 5 }] });
 });
 
 test('the server compresses text as Pages does, serves dir/ as its index, redirects dir and answers 404.html', async () => {

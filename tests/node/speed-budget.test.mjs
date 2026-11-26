@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { GOALS, TOLERANCE, ENFORCED, TIMING, RECHECK, median, medianRun, limitOf, meetsGoal, compare, ratchet, formatBudgets, parseBudgets, spread, recheckItems, settle } from '../../tools/speed/budget.mjs';
+import { GOALS, TOLERANCE, ENFORCED, TIMING, RECHECK, median, medianRun, limitOf, meetsGoal, compare, ratchet, formatBudgets, parseBudgets, spread, recheckItems, settle, noiseFloor, quantile, NOISE } from '../../tools/speed/budget.mjs';
 import { metricsOf, lighthouseFlags, playwrightChrome, METRICS, AUDITS } from '../../tools/speed/measure.mjs';
 
 const m = (o = {}) => ({ score: 80, fcp: 800, lcp: 1500, cls: 0.02, tbt: 100, si: 1200, bytes: 300000, requests: 40, ...o });
@@ -88,6 +88,29 @@ test('settle: a timing number past its limit in fewer than 4 of 5 runs alone is 
   assert.equal(settle(first.slice(0, 1), alone('lcp', [null, null])).problems.length, 1);
   assert.equal(settle(first.slice(0, 1), alone('lcp', [3000, 3100])).problems[0].past, '2/2', 'fewer runs than 4: all of them');
   assert.deepEqual(settle(first), { problems: first, sensitive: [] }, 'with no recheck nothing changes');
+});
+
+test('a number that takes two values gets a high from many runs, and fails past the high instead of the budget', () => {
+  assert.deepEqual([quantile([5, 1, 4, 2, 3], 0.9), quantile([1, null, 2], 0.5), quantile([], 0.9)], [5, 1, null]);
+  assert.deepEqual(NOISE, { share: 0.2, runs: 9, pct: 0.9 });
+  // si: 4.8 s or 6.2 s about half the time (the converter pages); lcp: one stray slow run in 10; fcp: too few runs
+  const budgets = { 'c/': { mobile: m({ si: 4800, lcp: 8000, fcp: 4000 }) }, 'gone/': { mobile: m() } };
+  const si = [4800, 6200, 6250, 4850, 6200, 4790, 6300, 6210, 4820, 6220], lcp = [8000, 8050, 9900, 8010, 8020, 7990, 8000, 8030, 8040, 8010];
+  const runs = { 'c/': { mobile: si.map((v, i) => m({ si: v, lcp: lcp[i], fcp: i < 8 ? 9000 : null })) }, 'new/': { mobile: [m()] } };
+  const next = noiseFloor(budgets, runs);
+  assert.deepEqual(next['c/'].mobile.high, { si: 6250 }, 'the 90th percentile of the runs; lcp (1 in 10) and fcp (8 runs) get none');
+  assert.equal(next['c/'].mobile.si, 4800, 'the budget stays: the ratchet still holds the low value');
+  assert.equal(next['new/'], undefined, 'no budget, no high');
+  assert.deepEqual(noiseFloor(next, { 'c/': { mobile: si.map(() => m({ si: 6000 })) } })['c/'].mobile.high, { si: 6250 }, 'never lowered by runs that saw one value');
+  // the slow value passes, a page slower than its slow value fails, and the problem names the high
+  assert.deepEqual(compare({ 'c/': { mobile: m({ si: 6300, lcp: 8000, fcp: 4000 }) } }, next), []);
+  const worse = compare({ 'c/': { mobile: m({ si: 9000, lcp: 8000, fcp: 4000 }) } }, next);
+  assert.deepEqual(worse.map((p) => [p.metric, p.budget, p.high, p.limit]), [['si', 4800, 6250, limitOf('si', 6250)]]);
+  assert.equal(compare({ 'c/': { mobile: m({ si: 6300 }) } }, budgets)[0].metric, 'si', 'without the high the slow value fails');
+  // the ratchet keeps the high and lowers the budget as before; a reset drops it with the rest
+  assert.deepEqual(ratchet(next, { 'c/': { mobile: m({ si: 4700, lcp: 8000, fcp: 4000 }) } })['c/'].mobile.high, { si: 6250 });
+  assert.equal(ratchet(next, { 'c/': { mobile: m({ si: 4700 }) } }, { reset: ['c/'] })['c/'].mobile.high, undefined);
+  assert.deepEqual(parseBudgets(JSON.parse(formatBudgets({}, next))), next, 'budgets.json keeps it');
 });
 
 test('the ratchet lowers budgets and never raises one', () => {
