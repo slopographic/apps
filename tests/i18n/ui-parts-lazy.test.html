@@ -72,7 +72,10 @@
       await waitFor(() => heard > 0, { timeout: 10000 });
       // in the page's language: English here, Swedish in a build whose default language is Swedish
       expect(I.t('ui.fonts.title')).toBe(I.get() === 'sv' ? 'Teckensnitt' : 'Fonts');
-      expect(parts(w).filter((p) => p === 'fonts').length).toBe(1);
+      // fetched once per language: the page's, and English under it as the fallback when the page is in another language
+      const fonts = w.performance.getEntriesByType('resource').map((e) => /\/shared\/i18n\/ui\/([\w-]+)\/fonts\.js$/.exec(e.name)).filter(Boolean).map((m) => m[1]);
+      expect(fonts.length).toBe(new Set(fonts).size);
+      expect(fonts.includes(I.get())).toBe(true);
       I.set('sv');
       await waitFor(() => I.t('ui.fonts.title') === 'Teckensnitt', { timeout: 10000 });   // the parts asked for so far, in Swedish
       heard = 0;
