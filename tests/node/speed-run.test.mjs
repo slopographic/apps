@@ -118,6 +118,12 @@ test('end to end on made-up results: load-sensitive passes, over again alone fai
   assert.equal(check({ ...b, bytes: b.bytes * 2 }, [b, b, b, b, b]).code, 1, 'bytes are exact: a recheck never excuses them');
 });
 
+test('the recheck measures alone (1 job) and gives every run a new Chrome (a page tends to keep one value in one Chrome)', () => {
+  const src = readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../../tools/speed/run.mjs'), 'utf8');
+  assert.match(src, /measure\(again, \{ \.\.\.o, runs: o\.recheck, jobs: 1, fresh: true \}/);
+  assert.match(src, /if \(o\.fresh\) await lh\.close\(\); else if \(lh\.alive\(\)\) idle\.push\(lh\);/);
+});
+
 test('a worker answers with the same interface as one Lighthouse, and reports it has ended', async () => {
   const w = openWorker({ timeout: 60000 });
   assert.equal(typeof w.run, 'function');

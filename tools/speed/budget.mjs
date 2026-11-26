@@ -95,7 +95,9 @@ export const TIMING = ['fcp', 'lcp', 'si', 'tbt', 'cls'];
  * second paint landing late), so a median of 3 beside another Chrome lands on the slow one now and then, on a different
  * page each run (2026-11-26: 13, then 33 such problems on identical code). Measured alone, 33 of 47 such numbers were
  * within budget in every run, and 6 more were past it in 2 or 3 runs of 5 (a median of 5 would still flip on those); a page
- * made slower on purpose (tools/speed/serve.mjs, slow) was past it in all 5. */
+ * made slower on purpose (tools/speed/serve.mjs, slow) was past it in all 5. Each run alone is in a new Chrome: in one Chrome
+ * such a page tends to stay on one value (5 of 5 at 6.2 s on one run, 5 of 5 at 4.8 s on the next, same code), so its
+ * runs would not be 5 chances but one. */
 export const RECHECK = { runs: 5, over: 4, max: 12 };
 
 /** The page presets to measure again: those with a timing number past its limit, in page order, at most max. */

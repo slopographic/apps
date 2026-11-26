@@ -14,7 +14,7 @@
 //   --from=a.json,dir/  no measuring: check (or --update from) results written by --out, e.g. CI's artifacts
 //   --summary=f.md      append the markdown summary there (default: $GITHUB_STEP_SUMMARY when set)
 //   --recheck=5         a page preset over its budget on timing is measured again alone this many times after the others,
-//                       and fails only if 4 of them are over too; else it is listed as load-sensitive (0: no recheck;
+//                       each in a new Chrome, and fails only if 4 of them are over too; else it is listed as load-sensitive (0: no recheck;
 //                       tools/speed/budget.mjs, RECHECK, says why)
 //   --slow=a/,b/        test only: serve these pages with a script that keeps the main thread busy for 1 s before anything
 //                       shows (tools/speed/serve.mjs), to see that a page made slower still fails, recheck and all
@@ -76,7 +76,8 @@ export function readResults(paths) {
   return merged;
 }
 
-/** Measures items ([{ page, preset }]) runs times each, jobs at once; label names the pass in the log. */
+/** Measures items ([{ page, preset }]) runs times each, jobs at once; label names the pass in the log. With o.fresh every run
+ * gets a new Chrome: a page whose number jumps between two values tends to stay on one of them in the same Chrome. */
 async function measure(items, o, label = '') {
   const site = await serve(ROOT, 0, { slow: o.slow });
   const results = {}, runs = {};
@@ -88,7 +89,7 @@ async function measure(items, o, label = '') {
     const take = () => { const w = idle.pop(); if (w) return w; const n = openWorker(); workers.push(n); return n; };
     const once = async (url, preset) => {
       const lh = take();
-      try { return await lh.run(url, preset); } finally { if (lh.alive()) idle.push(lh); }
+      try { return await lh.run(url, preset); } finally { if (o.fresh) await lh.close(); else if (lh.alive()) idle.push(lh); }
     };
     await pool(items, o.jobs, async ({ page, preset }) => {
       const got = [];
@@ -124,7 +125,7 @@ async function main(argv) {
     const again = o.record || o.update || !o.recheck ? [] : recheckItems(compare(data.results, budgets));
     if (again.length) {
       console.log(`${again.length} page preset${again.length === 1 ? '' : 's'} over on timing: measured again alone, ${o.recheck} runs each`);
-      data.recheck = await measure(again, { ...o, runs: o.recheck, jobs: 1 }, 'alone ');
+      data.recheck = await measure(again, { ...o, runs: o.recheck, jobs: 1, fresh: true }, 'alone ');
     }
   }
   if (o.out) {
