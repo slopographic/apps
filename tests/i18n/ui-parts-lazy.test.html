@@ -61,7 +61,7 @@
       }, { timeout: 60000 });
     }
 
-    it('a key of a namespace not in yet fetches its parts, then slopi18n; English, then Swedish', async () => {
+    it('a key of a namespace not in yet fetches its parts, then slopi18n; in the page's language, then Swedish', async () => {
       let page = '';
       for (const p of PAGES) if (await there(p)) { page = p; break; }
       const w = await open(page), I = w.SlopI18n;
@@ -70,7 +70,8 @@
       const stop = I.on(() => { heard++; });
       expect(I.t('ui.fonts.title')).toBe('ui.fonts.title');   // not in yet: the key, as for any missing key
       await waitFor(() => heard > 0, { timeout: 10000 });
-      expect(I.t('ui.fonts.title')).toBe('Fonts');
+      // in the page's language: English here, Swedish in a build whose default language is Swedish
+      expect(I.t('ui.fonts.title')).toBe(I.get() === 'sv' ? 'Teckensnitt' : 'Fonts');
       expect(parts(w).filter((p) => p === 'fonts').length).toBe(1);
       I.set('sv');
       await waitFor(() => I.t('ui.fonts.title') === 'Teckensnitt', { timeout: 10000 });   // the parts asked for so far, in Swedish
