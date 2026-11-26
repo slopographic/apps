@@ -32,9 +32,9 @@
     for (const el of d.querySelectorAll('[title], [aria-label], [placeholder]')) for (const a of ['title', 'aria-label', 'placeholder']) for (const m of (el.getAttribute(a) || '').match(re) || []) out.add(m);
     return [...out];
   }
-  afterEach(() => { if (frame && frame.contentWindow && frame.contentWindow.SlopI18n) frame.contentWindow.SlopI18n.set('en'); });
 
   describe('ui parts on first use', () => {
+    afterEach(() => { if (frame && frame.contentWindow && frame.contentWindow.SlopI18n) frame.contentWindow.SlopI18n.set('en'); });
     for (const page of PAGES) {
       it(`/${page}: only the eager ui parts, within its request budget, no raw key`, async () => {
         const budgets = (await (await fetch('../../tools/speed/budgets.json')).json()).pages;
