@@ -93,14 +93,14 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.io.close_all': '全部關閉',
 
   // ui/cover-save.js: a save with old text still under covers
-  'pdf.io.cover_title': 'Old text is still in the file', // English until translated (cover guard)
-  'pdf.io.cover_body': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_images_note': 'Make those pages images to take the old text out for good. Text on those pages will no longer be selectable; the other pages stay as they are.', // English until translated (cover guard)
-  'pdf.io.cover_keep': 'Save anyway', // English until translated (cover guard)
-  'pdf.io.cover_images': 'Make those pages images', // English until translated (cover guard)
-  'pdf.io.cover_cancelled': 'Cancelled. Nothing was saved.', // English until translated (cover guard)
-  'pdf.io.cover_making': 'Making the pages images…', // English until translated (cover guard)
-  'pdf.io.cover_made': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_undo': 'Make pages images', // English until translated (cover guard)
-  'pdf.io.cover_file_name': 'Image pages.pdf', // English until translated (cover guard)
+  'pdf.io.cover_title': '檔案中仍有舊文字',
+  'pdf.io.cover_body': '{n} 行已編輯的內容，其舊文字仍隱藏在檔案中，任何人都能複製。',
+  'pdf.io.cover_images_note': '將這些頁面轉為圖片，即可永久移除舊文字。這些頁面上的文字將無法再被選取；其他頁面維持不變。',
+  'pdf.io.cover_keep': '仍要儲存',
+  'pdf.io.cover_images': '將這些頁面轉為圖片',
+  'pdf.io.cover_cancelled': '已取消，未儲存任何內容。',
+  'pdf.io.cover_making': '正在將頁面轉為圖片…',
+  'pdf.io.cover_made': '{n} 頁已轉為圖片：舊文字已永久移除。',
+  'pdf.io.cover_undo': '將頁面轉為圖片',
+  'pdf.io.cover_file_name': '圖片頁面.pdf',
 });

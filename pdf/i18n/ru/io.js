@@ -86,20 +86,20 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'pdf.io.close_all': 'Закрыть все',
 
   // ui/cover-save.js: a save with old text still under covers
-  'pdf.io.cover_title': 'Old text is still in the file', // English until translated (cover guard)
-  'pdf.io.cover_body': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#one': '{n} edited line still has its old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#few': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#many': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_images_note': 'Make those pages images to take the old text out for good. Text on those pages will no longer be selectable; the other pages stay as they are.', // English until translated (cover guard)
-  'pdf.io.cover_keep': 'Save anyway', // English until translated (cover guard)
-  'pdf.io.cover_images': 'Make those pages images', // English until translated (cover guard)
-  'pdf.io.cover_cancelled': 'Cancelled. Nothing was saved.', // English until translated (cover guard)
-  'pdf.io.cover_making': 'Making the pages images…', // English until translated (cover guard)
-  'pdf.io.cover_made': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#one': '{n} page is an image now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#few': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#many': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_undo': 'Make pages images', // English until translated (cover guard)
-  'pdf.io.cover_file_name': 'Image pages.pdf', // English until translated (cover guard)
+  'pdf.io.cover_title': 'Старый текст всё ещё есть в файле',
+  'pdf.io.cover_body': '{n} изменённых строк всё ещё содержат скрытый старый текст в файле. Его может скопировать любой.',
+  'pdf.io.cover_body#one': '{n} изменённая строка всё ещё содержит скрытый старый текст в файле. Его может скопировать любой.',
+  'pdf.io.cover_body#few': '{n} изменённые строки всё ещё содержат скрытый старый текст в файле. Его может скопировать любой.',
+  'pdf.io.cover_body#many': '{n} изменённых строк всё ещё содержат скрытый старый текст в файле. Его может скопировать любой.',
+  'pdf.io.cover_images_note': 'Превратите эти страницы в изображения, чтобы навсегда убрать старый текст. Текст на этих страницах больше нельзя будет выделить; остальные страницы останутся без изменений.',
+  'pdf.io.cover_keep': 'Всё равно сохранить',
+  'pdf.io.cover_images': 'Превратить эти страницы в изображения',
+  'pdf.io.cover_cancelled': 'Отменено. Ничего не сохранено.',
+  'pdf.io.cover_making': 'Превращаем страницы в изображения…',
+  'pdf.io.cover_made': '{n} страниц теперь изображения: старый текст удалён навсегда.',
+  'pdf.io.cover_made#one': '{n} страница теперь изображение: старый текст удалён навсегда.',
+  'pdf.io.cover_made#few': '{n} страницы теперь изображения: старый текст удалён навсегда.',
+  'pdf.io.cover_made#many': '{n} страниц теперь изображения: старый текст удалён навсегда.',
+  'pdf.io.cover_undo': 'Превратить страницы в изображения',
+  'pdf.io.cover_file_name': 'Страницы-изображения.pdf',
 });

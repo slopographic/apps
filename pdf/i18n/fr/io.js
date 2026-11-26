@@ -107,16 +107,16 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'pdf.io.close_all': 'Tout fermer',
 
   // ui/cover-save.js: a save with old text still under covers
-  'pdf.io.cover_title': 'Old text is still in the file', // English until translated (cover guard)
-  'pdf.io.cover_body': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#one': '{n} edited line still has its old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_images_note': 'Make those pages images to take the old text out for good. Text on those pages will no longer be selectable; the other pages stay as they are.', // English until translated (cover guard)
-  'pdf.io.cover_keep': 'Save anyway', // English until translated (cover guard)
-  'pdf.io.cover_images': 'Make those pages images', // English until translated (cover guard)
-  'pdf.io.cover_cancelled': 'Cancelled. Nothing was saved.', // English until translated (cover guard)
-  'pdf.io.cover_making': 'Making the pages images…', // English until translated (cover guard)
-  'pdf.io.cover_made': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#one': '{n} page is an image now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_undo': 'Make pages images', // English until translated (cover guard)
-  'pdf.io.cover_file_name': 'Image pages.pdf', // English until translated (cover guard)
+  'pdf.io.cover_title': 'L’ancien texte est toujours dans le fichier',
+  'pdf.io.cover_body': '{n} lignes modifiées ont encore leur ancien texte caché dans le fichier. N’importe qui peut le copier.',
+  'pdf.io.cover_body#one': '{n} ligne modifiée a encore son ancien texte caché dans le fichier. N’importe qui peut le copier.',
+  'pdf.io.cover_images_note': 'Transformez ces pages en images pour retirer définitivement l’ancien texte. Le texte de ces pages ne pourra plus être sélectionné ; les autres pages restent inchangées.',
+  'pdf.io.cover_keep': 'Enregistrer quand même',
+  'pdf.io.cover_images': 'Transformer ces pages en images',
+  'pdf.io.cover_cancelled': 'Annulé. Rien n’a été enregistré.',
+  'pdf.io.cover_making': 'Transformation des pages en images…',
+  'pdf.io.cover_made': '{n} pages sont désormais des images : l’ancien texte a été définitivement supprimé.',
+  'pdf.io.cover_made#one': '{n} page est désormais une image : l’ancien texte a été définitivement supprimé.',
+  'pdf.io.cover_undo': 'Transformer les pages en images',
+  'pdf.io.cover_file_name': 'Pages en images.pdf',
 });

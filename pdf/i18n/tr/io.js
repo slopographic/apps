@@ -107,16 +107,16 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.io.close_all': 'Tümünü kapat',
 
   // ui/cover-save.js: a save with old text still under covers
-  'pdf.io.cover_title': 'Old text is still in the file', // English until translated (cover guard)
-  'pdf.io.cover_body': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#one': '{n} edited line still has its old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_images_note': 'Make those pages images to take the old text out for good. Text on those pages will no longer be selectable; the other pages stay as they are.', // English until translated (cover guard)
-  'pdf.io.cover_keep': 'Save anyway', // English until translated (cover guard)
-  'pdf.io.cover_images': 'Make those pages images', // English until translated (cover guard)
-  'pdf.io.cover_cancelled': 'Cancelled. Nothing was saved.', // English until translated (cover guard)
-  'pdf.io.cover_making': 'Making the pages images…', // English until translated (cover guard)
-  'pdf.io.cover_made': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#one': '{n} page is an image now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_undo': 'Make pages images', // English until translated (cover guard)
-  'pdf.io.cover_file_name': 'Image pages.pdf', // English until translated (cover guard)
+  'pdf.io.cover_title': 'Eski metin hâlâ dosyada',
+  'pdf.io.cover_body': '{n} düzenlenmiş satırın eski metni hâlâ dosyada gizli kalıyor. Herkes bunu kopyalayabilir.',
+  'pdf.io.cover_body#one': '{n} düzenlenmiş satırın eski metni hâlâ dosyada gizli kalıyor. Herkes bunu kopyalayabilir.',
+  'pdf.io.cover_images_note': 'Eski metni kalıcı olarak kaldırmak için bu sayfaları görüntüye dönüştürün. Bu sayfalardaki metin artık seçilemeyecek; diğer sayfalar olduğu gibi kalacak.',
+  'pdf.io.cover_keep': 'Yine de kaydet',
+  'pdf.io.cover_images': 'Bu sayfaları görüntüye dönüştür',
+  'pdf.io.cover_cancelled': 'İptal edildi. Hiçbir şey kaydedilmedi.',
+  'pdf.io.cover_making': 'Sayfalar görüntüye dönüştürülüyor…',
+  'pdf.io.cover_made': '{n} sayfa artık görüntü: eski metin kalıcı olarak kaldırıldı.',
+  'pdf.io.cover_made#one': '{n} sayfa artık görüntü: eski metin kalıcı olarak kaldırıldı.',
+  'pdf.io.cover_undo': 'Sayfaları görüntüye dönüştür',
+  'pdf.io.cover_file_name': 'Görüntü sayfaları.pdf',
 });

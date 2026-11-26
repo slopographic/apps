@@ -215,5 +215,5 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'pdf.ed.an_annotation': '批注',
 
   // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
-  'pdf.ed.cover_note': 'The old text can’t be taken out of this page; it’s hidden under a cover.', // English until translated (cover guard)
+  'pdf.ed.cover_note': '无法从此页面去除旧文本；它被隐藏在遮盖层下。',
 });

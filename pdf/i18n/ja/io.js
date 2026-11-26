@@ -105,14 +105,14 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.io.close_all': 'すべて閉じる',
 
   // ui/cover-save.js: a save with old text still under covers
-  'pdf.io.cover_title': 'Old text is still in the file', // English until translated (cover guard)
-  'pdf.io.cover_body': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_images_note': 'Make those pages images to take the old text out for good. Text on those pages will no longer be selectable; the other pages stay as they are.', // English until translated (cover guard)
-  'pdf.io.cover_keep': 'Save anyway', // English until translated (cover guard)
-  'pdf.io.cover_images': 'Make those pages images', // English until translated (cover guard)
-  'pdf.io.cover_cancelled': 'Cancelled. Nothing was saved.', // English until translated (cover guard)
-  'pdf.io.cover_making': 'Making the pages images…', // English until translated (cover guard)
-  'pdf.io.cover_made': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_undo': 'Make pages images', // English until translated (cover guard)
-  'pdf.io.cover_file_name': 'Image pages.pdf', // English until translated (cover guard)
+  'pdf.io.cover_title': '元のテキストがまだファイルに残っています',
+  'pdf.io.cover_body': '編集した {n} 行の元のテキストが、まだファイル内に隠れて残っています。誰でもコピーできます。',
+  'pdf.io.cover_images_note': '元のテキストを完全に消すには、それらのページを画像にしてください。それらのページのテキストは選択できなくなります。ほかのページはそのままです。',
+  'pdf.io.cover_keep': 'そのまま保存',
+  'pdf.io.cover_images': 'それらのページを画像にする',
+  'pdf.io.cover_cancelled': 'キャンセルしました。何も保存されていません。',
+  'pdf.io.cover_making': 'ページを画像に変換しています…',
+  'pdf.io.cover_made': '{n} ページが画像になりました。元のテキストは完全に消えました。',
+  'pdf.io.cover_undo': 'ページを画像にする',
+  'pdf.io.cover_file_name': '画像ページ.pdf',
 });

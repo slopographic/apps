@@ -115,24 +115,24 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.io.close_all': 'إغلاق الكل',
 
   // ui/cover-save.js: a save with old text still under covers
-  'pdf.io.cover_title': 'Old text is still in the file', // English until translated (cover guard)
-  'pdf.io.cover_body': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#zero': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#one': '{n} edited line still has its old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#two': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#few': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_body#many': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_images_note': 'Make those pages images to take the old text out for good. Text on those pages will no longer be selectable; the other pages stay as they are.', // English until translated (cover guard)
-  'pdf.io.cover_keep': 'Save anyway', // English until translated (cover guard)
-  'pdf.io.cover_images': 'Make those pages images', // English until translated (cover guard)
-  'pdf.io.cover_cancelled': 'Cancelled. Nothing was saved.', // English until translated (cover guard)
-  'pdf.io.cover_making': 'Making the pages images…', // English until translated (cover guard)
-  'pdf.io.cover_made': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#zero': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#one': '{n} page is an image now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#two': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#few': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_made#many': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_undo': 'Make pages images', // English until translated (cover guard)
-  'pdf.io.cover_file_name': 'Image pages.pdf', // English until translated (cover guard)
+  'pdf.io.cover_title': 'ما زال النص القديم موجوداً في الملف',
+  'pdf.io.cover_body': '{n} أسطر معدّلة ما زال نصها القديم مخفياً في الملف. يمكن لأي شخص نسخه.',
+  'pdf.io.cover_body#zero': '{n} أسطر معدّلة ما زال نصها القديم مخفياً في الملف. يمكن لأي شخص نسخه.',
+  'pdf.io.cover_body#one': '{n} سطر معدَّل ما زال نصه القديم مخفياً في الملف. يمكن لأي شخص نسخه.',
+  'pdf.io.cover_body#two': '{n} سطرين معدّلين ما زال نصهما القديم مخفياً في الملف. يمكن لأي شخص نسخه.',
+  'pdf.io.cover_body#few': '{n} أسطر معدّلة ما زال نصها القديم مخفياً في الملف. يمكن لأي شخص نسخه.',
+  'pdf.io.cover_body#many': '{n} سطراً معدَّلاً ما زال نصه القديم مخفياً في الملف. يمكن لأي شخص نسخه.',
+  'pdf.io.cover_images_note': 'حوِّل تلك الصفحات إلى صور لإزالة النص القديم نهائياً. لن يعود النص في تلك الصفحات قابلاً للتحديد، أما الصفحات الأخرى فتبقى كما هي.',
+  'pdf.io.cover_keep': 'احفظ على أي حال',
+  'pdf.io.cover_images': 'تحويل تلك الصفحات إلى صور',
+  'pdf.io.cover_cancelled': 'أُلغي الحفظ. لم يُحفظ شيء.',
+  'pdf.io.cover_making': 'جارٍ تحويل الصفحات إلى صور…',
+  'pdf.io.cover_made': '{n} صفحات صارت صوراً الآن: زال النص القديم نهائياً.',
+  'pdf.io.cover_made#zero': '{n} صفحات صارت صوراً الآن: زال النص القديم نهائياً.',
+  'pdf.io.cover_made#one': '{n} صفحة صارت صورةً الآن: زال النص القديم نهائياً.',
+  'pdf.io.cover_made#two': '{n} صفحتين صارتا صورتين الآن: زال النص القديم نهائياً.',
+  'pdf.io.cover_made#few': '{n} صفحات صارت صوراً الآن: زال النص القديم نهائياً.',
+  'pdf.io.cover_made#many': '{n} صفحةً صارت صورةً الآن: زال النص القديم نهائياً.',
+  'pdf.io.cover_undo': 'تحويل الصفحات إلى صور',
+  'pdf.io.cover_file_name': 'صفحات الصور.pdf',
 });

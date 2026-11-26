@@ -105,14 +105,14 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'pdf.io.close_all': '모두 닫기',
 
   // ui/cover-save.js: a save with old text still under covers
-  'pdf.io.cover_title': 'Old text is still in the file', // English until translated (cover guard)
-  'pdf.io.cover_body': '{n} edited lines still have their old text hidden in the file. Anyone can copy it.', // English until translated (cover guard)
-  'pdf.io.cover_images_note': 'Make those pages images to take the old text out for good. Text on those pages will no longer be selectable; the other pages stay as they are.', // English until translated (cover guard)
-  'pdf.io.cover_keep': 'Save anyway', // English until translated (cover guard)
-  'pdf.io.cover_images': 'Make those pages images', // English until translated (cover guard)
-  'pdf.io.cover_cancelled': 'Cancelled. Nothing was saved.', // English until translated (cover guard)
-  'pdf.io.cover_making': 'Making the pages images…', // English until translated (cover guard)
-  'pdf.io.cover_made': '{n} pages are images now: the old text is gone for good.', // English until translated (cover guard)
-  'pdf.io.cover_undo': 'Make pages images', // English until translated (cover guard)
-  'pdf.io.cover_file_name': 'Image pages.pdf', // English until translated (cover guard)
+  'pdf.io.cover_title': '원본 텍스트가 아직 파일에 남아 있습니다',
+  'pdf.io.cover_body': '편집한 줄 {n}개의 원본 텍스트가 여전히 파일 안에 숨겨져 있습니다. 누구나 복사할 수 있습니다.',
+  'pdf.io.cover_images_note': '원본 텍스트를 완전히 없애려면 해당 페이지를 이미지로 바꾸세요. 그 페이지의 텍스트는 더 이상 선택할 수 없으며, 다른 페이지는 그대로 유지됩니다.',
+  'pdf.io.cover_keep': '그래도 저장',
+  'pdf.io.cover_images': '해당 페이지를 이미지로 만들기',
+  'pdf.io.cover_cancelled': '취소했습니다. 아무것도 저장되지 않았습니다.',
+  'pdf.io.cover_making': '페이지를 이미지로 만드는 중…',
+  'pdf.io.cover_made': '페이지 {n}개가 이제 이미지입니다. 원본 텍스트가 완전히 제거되었습니다.',
+  'pdf.io.cover_undo': '페이지를 이미지로 만들기',
+  'pdf.io.cover_file_name': '이미지 페이지.pdf',
 });

@@ -268,5 +268,5 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'pdf.ed.an_annotation': 'анотація',
 
   // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
-  'pdf.ed.cover_note': 'The old text can’t be taken out of this page; it’s hidden under a cover.', // English until translated (cover guard)
+  'pdf.ed.cover_note': 'Старий текст не можна прибрати з цієї сторінки; він прихований під накладкою.',
 });
