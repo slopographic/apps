@@ -42,17 +42,22 @@ test('UI_PARTS is one line that i18n.js and the tools both read', () => {
   assert.deepEqual([...idx.langs].sort(), folders, 'UI_PARTS.langs are the folders (node tools/i18n/i18n.mjs index ui)');
 });
 
-test('English and a language with parts load them; a language without reads English', async () => {
-  const parts = { parts: ['alpha', 'beta'], langs: ['en', 'sv'] };
+test('English and a language with parts load them on first use; a language without reads English', async () => {
+  const parts = { parts: ['alpha', 'beta'], langs: ['en', 'sv'], byNs: { alpha: ['alpha'], beta: ['beta'] } };
   const sv = load('sv', parts);
   assert.equal(sv.api.get(), 'sv');
+  assert.ok(sv.urls.some((x) => x.endsWith('/shared/i18n/ui/sv.js')) && !sv.urls.some((x) => /\/ui\/(en|sv)\/alpha\.js$/.test(x)), 'no part before a key of it is asked for');
+  sv.api.t('ui.alpha.x'); sv.api.t('ui.beta.y');
+  await new Promise((r) => setTimeout(r, 0));
   for (const u of ['ui/en.js', 'ui/en/alpha.js', 'ui/en/beta.js', 'ui/sv.js', 'ui/sv/alpha.js', 'ui/sv/beta.js']) {
     assert.ok(sv.urls.some((x) => x.endsWith('/shared/i18n/' + u)), u + ' for sv');
   }
   const de = load('de', parts);
+  de.api.t('ui.alpha.x');
+  await new Promise((r) => setTimeout(r, 0));
   assert.ok(de.urls.some((x) => x.endsWith('/shared/i18n/ui/de.js')), 'de base table');
   assert.ok(!de.urls.some((x) => /\/ui\/de\//.test(x)), 'no de parts: German reads English');
-  assert.ok(de.urls.some((x) => x.endsWith('/shared/i18n/ui/en/alpha.js')), 'the English parts');
+  assert.ok(de.urls.some((x) => x.endsWith('/shared/i18n/ui/en/alpha.js')), 'the English part');
   de.api.add('en', { 'ui.alpha.x': 'Hello' });
   assert.equal(de.api.t('ui.alpha.x'), 'Hello', 'the fallback is English');
 });

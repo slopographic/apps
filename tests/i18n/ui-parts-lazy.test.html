@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The shared components' word parts on first use: a page fetches only the header's, the rest when a key asks</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; } iframe { border: 0; display: block; width: 1280px; height: 800px; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script>
+  // Covers: shared/i18n/i18n.js, shell/shell.js
+  // Page weight: loading all 40-odd ui parts (shared/i18n/ui/<code>/<part>.js) on every page cost every page about 40
+  // requests and 80 KB (gzipped) and made the Page speed workflow fail them all. A page fetches UI_EAGER only; a ui.<ns>.*
+  // key fetches its parts on first use (shared/i18n/HANDOFF.md, Loading). The pages below must stay within their request
+  // budgets in tools/speed/budgets.json (the limit tools/speed/budget.mjs allows) and show no raw key once loaded.
+  const { describe, it, afterEach, expect, sleep, waitFor, run } = SlopTest;
+  const PAGES = ['best/free-background-removers/', 'best/free-exif-remover/', 'slopisolate/bulk-background-remover/', 'slopisolate/video-background-remover/', ''];
+  let frame = null;
+  async function open(page) {
+    if (frame) frame.remove();
+    frame = document.createElement('iframe');
+    frame.src = '../../' + page;
+    document.body.append(frame);
+    await waitFor(() => { const w = frame.contentWindow; return w && w.document.readyState === 'complete' && w.SlopShell && w.SlopI18n && w.document.querySelector('.sh-hdr'); }, { timeout: 30000 });
+    await sleep(1500);   // the idle loads (AI agents' boot, the offline worker) have run too
+    return frame.contentWindow;
+  }
+  const parts = (w) => w.performance.getEntriesByType('resource').map((e) => /\/shared\/i18n\/ui\/([\w-]+)\/([\w-]+)\.js$/.exec(e.name)).filter(Boolean).map((m) => m[2]);
+  /** The ui.<ns>.<name> keys showing as text or in a tooltip, label or placeholder. */
+  function rawKeys(d) {
+    const re = /\bui\.[a-z0-9]+\.[a-z0-9_.#]+/g, out = new Set(d.body.innerText.match(re) || []);
+    for (const el of d.querySelectorAll('[title], [aria-label], [placeholder]')) for (const a of ['title', 'aria-label', 'placeholder']) for (const m of (el.getAttribute(a) || '').match(re) || []) out.add(m);
+    return [...out];
+  }
+  afterEach(() => { if (frame && frame.contentWindow && frame.contentWindow.SlopI18n) frame.contentWindow.SlopI18n.set('en'); });
+
+  describe('ui parts on first use', () => {
+    for (const page of PAGES) {
+      it(`/${page}: only the eager ui parts, within its request budget, no raw key`, async () => {
+        const budgets = (await (await fetch('../../tools/speed/budgets.json')).json()).pages;
+        const w = await open(page);
+        expect(w.SlopI18n.UI_PARTS.parts.length > 20).toBe(true);
+        const got = parts(w).filter((p) => p !== 'shell');
+        // the homepage's mascot asks for its words (ui.buddy.*): those parts, none other
+        expect(got.filter((p) => !(page === '' && w.SlopI18n.UI_PARTS.byNs.buddy.includes(p)))).toEqual([]);
+        for (const preset of ['desktop', 'mobile']) {
+          const b = budgets[page + '|' + preset];
+          if (!b) continue;
+          const limit = b.requests + Math.max(4, b.requests * 0.1);   // tools/speed/budget.mjs TOLERANCE.requests
+          const n = w.performance.getEntriesByType('resource').length + 1;   // and the page itself, as Lighthouse counts
+          if (n > limit) throw new Error(`/${page} makes ${n} requests, its ${preset} budget is ${b.requests} (fails past ${limit})`);
+        }
+        expect(rawKeys(w.document)).toEqual([]);
+      }, { timeout: 60000 });
+    }
+
+    it('a key of a namespace not in yet fetches its parts, then slopi18n; English, then Swedish', async () => {
+      const w = await open(PAGES[0]), I = w.SlopI18n;
+      expect(parts(w).includes('fonts')).toBe(false);
+      let heard = 0;
+      const stop = I.on(() => { heard++; });
+      expect(I.t('ui.fonts.title')).toBe('ui.fonts.title');   // not in yet: the key, as for any missing key
+      await waitFor(() => heard > 0, { timeout: 10000 });
+      expect(I.t('ui.fonts.title')).toBe('Fonts');
+      expect(parts(w).filter((p) => p === 'fonts').length).toBe(1);
+      I.set('sv');
+      await waitFor(() => I.t('ui.fonts.title') === 'Teckensnitt', { timeout: 10000 });   // the parts asked for so far, in Swedish
+      heard = 0;
+      expect(I.t('ui.calc.expected', { what: 'x' })).toBe('ui.calc.expected');
+      await waitFor(() => heard > 0, { timeout: 10000 });
+      expect(I.t('ui.calc.expected', { what: 'x' })).toBe('x förväntades');
+      stop();
+    }, { timeout: 60000 });
+  });
+  run();
+  </script>
+</body>
+</html>

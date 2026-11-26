@@ -1,6 +1,6 @@
 /* Language switcher foundation. Classic script, exposes window.SlopI18n. Load it in the <head> of a page, after
  * shared/profile/profile.js (and after shared/theme/theme.js). It loads its own string tables, lazily: the shared chrome
- * (shared/i18n/strings.js + <code>.js), the shared components (shared/i18n/ui/<code>.js), and an app's tables when the
+ * (shared/i18n/strings.js + <code>.js), the shared components (shared/i18n/ui/<code>.js; its parts on first use), and an app's tables when the
  * page names them (an app's i18n/index.js calls source()). Only English and the chosen language are fetched.
  * The language list (LANGS) is data: add an entry to make a language choosable. A key the chosen language lacks is read
  * from English, so a page never shows an empty label. quality: 'beta' marks a table that has not had a native review.
@@ -12,43 +12,31 @@
   var L = function (code, name, en, dir, extra) { return Object.freeze(Object.assign({ code: code, name: name, en: en, dir: dir, complete: true }, extra || {})); };
   var BETA = { quality: 'beta' };   // script: the stylesheet in shared/i18n/script/ the language needs (fonts, line breaks)
   var LANGS = Object.freeze([
-    L('en', 'English', 'English', 'ltr'),
-    L('es', 'Español', 'Spanish', 'ltr'),
-    L('fr', 'Français', 'French', 'ltr'),
-    L('de', 'Deutsch', 'German', 'ltr'),
-    L('pt-BR', 'Português (Brasil)', 'Portuguese (Brazil)', 'ltr'),
-    L('it', 'Italiano', 'Italian', 'ltr'),
-    L('ar', 'العربية', 'Arabic', 'rtl'),
-    L('sv', 'Svenska', 'Swedish', 'ltr', { appNames: true }),
-    L('zh-CN', '简体中文', 'Chinese (Simplified)', 'ltr', { script: 'han-sc' }),
-    L('zh-TW', '繁體中文', 'Chinese (Traditional)', 'ltr', { script: 'han-tc' }),
-    L('ja', '日本語', 'Japanese', 'ltr', { script: 'jpan' }),
-    L('ko', '한국어', 'Korean', 'ltr', { script: 'kore' }),
-    L('hi', 'हिन्दी', 'Hindi', 'ltr', { script: 'deva' }),
-    L('ru', 'Русский', 'Russian', 'ltr', { script: 'cyrl' }),
-    L('uk', 'Українська', 'Ukrainian', 'ltr', { script: 'cyrl' }),
-    L('pl', 'Polski', 'Polish', 'ltr'),
-    L('nl', 'Nederlands', 'Dutch', 'ltr'),
-    L('tr', 'Türkçe', 'Turkish', 'ltr'),
-    L('id', 'Bahasa Indonesia', 'Indonesian', 'ltr'),
-    L('vi', 'Tiếng Việt', 'Vietnamese', 'ltr', { script: 'viet' }),
-    L('he', 'עברית', 'Hebrew', 'rtl', { script: 'hebr' }),
-    L('sw', 'Kiswahili', 'Swahili', 'ltr', BETA),
-    L('am', 'አማርኛ', 'Amharic', 'ltr', { quality: 'beta', script: 'ethi' }),
-    L('ha', 'Hausa', 'Hausa', 'ltr', BETA),
-    L('yo', 'Yorùbá', 'Yoruba', 'ltr', { quality: 'beta', script: 'viet' }),
-    L('ig', 'Igbo', 'Igbo', 'ltr', { quality: 'beta', script: 'viet' }),
-    L('zu', 'isiZulu', 'Zulu', 'ltr', BETA),
-    L('xh', 'isiXhosa', 'Xhosa', 'ltr', BETA),
+    L('en', 'English', 'English', 'ltr'), L('es', 'Español', 'Spanish', 'ltr'),
+    L('fr', 'Français', 'French', 'ltr'), L('de', 'Deutsch', 'German', 'ltr'),
+    L('pt-BR', 'Português (Brasil)', 'Portuguese (Brazil)', 'ltr'), L('it', 'Italiano', 'Italian', 'ltr'),
+    L('ar', 'العربية', 'Arabic', 'rtl'), L('sv', 'Svenska', 'Swedish', 'ltr', { appNames: true }),
+    L('zh-CN', '简体中文', 'Chinese (Simplified)', 'ltr', { script: 'han-sc' }), L('zh-TW', '繁體中文', 'Chinese (Traditional)', 'ltr', { script: 'han-tc' }),
+    L('ja', '日本語', 'Japanese', 'ltr', { script: 'jpan' }), L('ko', '한국어', 'Korean', 'ltr', { script: 'kore' }),
+    L('hi', 'हिन्दी', 'Hindi', 'ltr', { script: 'deva' }), L('ru', 'Русский', 'Russian', 'ltr', { script: 'cyrl' }),
+    L('uk', 'Українська', 'Ukrainian', 'ltr', { script: 'cyrl' }), L('pl', 'Polski', 'Polish', 'ltr'),
+    L('nl', 'Nederlands', 'Dutch', 'ltr'), L('tr', 'Türkçe', 'Turkish', 'ltr'),
+    L('id', 'Bahasa Indonesia', 'Indonesian', 'ltr'), L('vi', 'Tiếng Việt', 'Vietnamese', 'ltr', { script: 'viet' }),
+    L('he', 'עברית', 'Hebrew', 'rtl', { script: 'hebr' }), L('sw', 'Kiswahili', 'Swahili', 'ltr', BETA),
+    L('am', 'አማርኛ', 'Amharic', 'ltr', { quality: 'beta', script: 'ethi' }), L('ha', 'Hausa', 'Hausa', 'ltr', BETA),
+    L('yo', 'Yorùbá', 'Yoruba', 'ltr', { quality: 'beta', script: 'viet' }), L('ig', 'Igbo', 'Igbo', 'ltr', { quality: 'beta', script: 'viet' }),
+    L('zu', 'isiZulu', 'Zulu', 'ltr', BETA), L('xh', 'isiXhosa', 'Xhosa', 'ltr', BETA),
     L('af', 'Afrikaans', 'Afrikaans', 'ltr', BETA),
   ]);
   var DEFAULT = 'en';   // the fallback language: a key missing in the chosen language is read from here
   // The language a visitor gets when nothing is stored. tools/whitelabel rewrites the literal from the profile's defaultLang; keep it on one line.
   var DEFAULT_CHOICE = /*profile:defaultLang*/'en';
   var KEY_RE = /\{(\w+)\}/g;
+  var UI_EAGER = ['shell'];   // the ui parts every page fetches at once (the header's words); the rest on first use (want)
   var APP = 'native.app.';   // the prefix of the iPhone/iPad app's own wording (appWord)
-  // The shared components' tables beyond ui/<code>.js (ui/<code>/<part>.js; other languages read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
-  var UI_PARTS = /*ui-parts*/{ parts: ['agent', 'ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'ai9', 'backup', 'backup2', 'backup3', 'buddy', 'buddy2', 'calc', 'calendar', 'config', 'data', 'data2', 'finder', 'firstrun', 'fmp', 'fonts', 'graphics', 'guides', 'macros', 'misc', 'models', 'models2', 'ops', 'ops2', 'ops3', 'patterns', 'presets', 'preview', 'print', 'sheets', 'shell', 'shell2', 'templates', 'video', 'watermark', 'widgets'], langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'] };
+  // The shared components' tables beyond ui/<code>.js (ui/<code>/<part>.js; other languages read English), and which parts hold
+  // each key namespace (byNs: ui.<ns>.*). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
+  var UI_PARTS = /*ui-parts*/{ parts: ['agent', 'ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'ai9', 'backup', 'backup2', 'backup3', 'buddy', 'buddy2', 'calc', 'calendar', 'config', 'data', 'data2', 'finder', 'firstrun', 'fmp', 'fonts', 'graphics', 'guides', 'macros', 'misc', 'models', 'models2', 'ops', 'ops2', 'ops3', 'patterns', 'presets', 'preview', 'print', 'sheets', 'shell', 'shell2', 'templates', 'video', 'watermark', 'widgets'], langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'], byNs: { agent: ['agent'], ai: ['ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'ai9'], appbar: ['shell'], appdesc: ['shell2'], backup: ['backup'], buddy: ['buddy', 'buddy2'], buffer: ['misc'], cal: ['calendar'], calc: ['calc'], cfgv: ['config'], color: ['misc'], config: ['config', 'widgets'], convert: ['ai2'], cutout: ['misc'], d3: ['misc'], data: ['data', 'data2'], deck: ['preview'], dpick: ['backup3'], faces: ['preview'], fin: ['data2'], finder: ['finder'], firstrun: ['firstrun'], fmp: ['fmp'], fonts: ['fonts'], graphics: ['graphics'], guard: ['backup3'], guides: ['guides'], heic: ['misc'], hub: ['shell'], ics: ['calendar'], kinds: ['preview'], layout: ['templates'], library: ['shell'], list: ['finder'], macro: ['macros'], mb: ['widgets'], misc: ['misc'], models: ['models', 'models2'], motion: ['templates'], nav: ['print'], ops: ['ops', 'ops2', 'ops3'], outtake: ['widgets'], patterns: ['patterns'], pdfc: ['print'], presets: ['presets'], print: ['print'], pv: ['preview'], raw: ['misc'], recur: ['calendar'], reminders: ['calendar'], review: ['misc'], sheets: ['sheets'], shell: ['shell'], size: ['shell'], spot: ['misc'], storage: ['backup3'], sync: ['backup2'], tasks: ['backup3'], theme: ['shell2'], tpl: ['templates'], video: ['video'], wm: ['watermark'] } };
   // The languages with app words (apps/<code>.js: titles, taglines, the homepage strip and footer). Written by node tools/seo/write.mjs (apptables.mjs); keep it on one line.
   var APP_LANGS = /*app-langs*/['en', 'ar', 'de', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'];
   var me = typeof document !== 'undefined' ? document.currentScript : null;
@@ -118,12 +106,12 @@
       var s = appWord(code, key, vars);
       if (s === null) s = lookup(code, key, vars);
       if (s === null) s = lookup(DEFAULT, key, vars);
-      if (s === null) return key;
+      if (s === null) { want(key, code); return key; }
       return fill(s, Object.assign({ brand: brand() }, vars || {}), loc);
     }
     function t(key, vars) { return tr(get(), key, vars); }   // in the chosen language
     /** True when the key has a string in the chosen language or in English. */
-    function has(key) { return find(get(), key) !== null || find(DEFAULT, key) !== null; }
+    function has(key) { return find(get(), key) !== null || find(DEFAULT, key) !== null || want(key, get()); }
     /** A label a shared component was given: a function is called, a string that is a key is translated, any other
      * string is the user's own text. Components keep the value and call label() again on every change (live switch). */
     function label(v, vars) { if (typeof v === 'function') v = v(vars); return typeof v === 'string' && has(v) ? t(v, vars) : v; }
@@ -146,7 +134,7 @@
     function at(code, locale) {
       var c = byCode[code] ? code : DEFAULT, loc = locale || c;
       return Object.freeze({ code: c, locale: loc, t: function (key, vars) { return tr(c, key, vars, loc); },
-        has: function (key) { return find(c, key) !== null || find(DEFAULT, key) !== null; },
+        has: function (key) { return find(c, key) !== null || find(DEFAULT, key) !== null || want(key, c); },
         num: function (n, opt) { return num(n, opt, loc); }, date: function (d, opt) { return date(d, opt, loc); },
         money: function (n, cur, opt) { return money(n, cur, opt, loc); }, list: function (items, opt) { return listOf(items, opt, loc); } });
     }
@@ -206,6 +194,7 @@
     function need(code, parsing, ns) {
       code = code || get();
       if (!doc || !doc.createElement || offline()) return Promise.resolve(true);
+      if (!ns || ns === 'ui') uiCodes[code] = true;
       if (!ns) style(code, parsing);
       var codes = code === DEFAULT ? [DEFAULT] : [DEFAULT, code];
       var p = [];
@@ -226,6 +215,18 @@
       sources.push({ ns: spec.ns, files: files, langs: spec.files ? null : (spec.langs || [DEFAULT]) });
       var parsing = !!(doc && doc.readyState === 'loading' && doc.currentScript && !doc.currentScript.hasAttribute('data-late'));
       need(get(), parsing).then(function () { if (!parsing) changed(); });
+    }
+    /* ---- The ui parts on first use: a ui.<ns>.* key not in yet fetches the parts holding ns (UI_PARTS.byNs) for each language fetched so far,
+     * then re-applies and fires 'slopi18n' as a language switch does (components re-read their words). Returns false: not there yet. */
+    var uiWant = UI_EAGER.reduce(function (o, p) { o[p] = true; return o; }, {}), uiCodes = {}, uiQueued = null;
+    function want(key, code) {
+      var m = /^ui\.(\w+)\./.exec(typeof key === 'string' ? key : ''), parts = (m && UI_PARTS.byNs && UI_PARTS.byNs[m[1]]) || [], fresh = false;
+      parts.forEach(function (p) { if (!uiWant[p]) fresh = uiWant[p] = true; });
+      if (parts.length && code && !uiCodes[code]) fresh = uiCodes[code] = true;
+      if (fresh && !uiQueued && doc && doc.createElement && !offline()) pending.push(uiQueued = Promise.resolve().then(function () {
+        uiQueued = null; return Promise.all(Object.keys(uiCodes).map(function (c) { return need(c, false, 'ui'); }));   // one round per turn
+      }).then(changed));
+      return false;
     }
     /** Resolves when every table asked for so far has run. */
     function ready() { return Promise.all(pending.slice()).then(function () { return get(); }); }
@@ -272,7 +273,7 @@
         return [root + c + '.js'].concat(byCode[c] && byCode[c].appNames ? [root + c + '-apps.js'] : []);
       } });
       source({ ns: 'ui', files: function (c) {
-        return [root + 'ui/' + c + '.js'].concat(UI_PARTS.langs.indexOf(c) < 0 ? [] : UI_PARTS.parts.map(function (p) { return root + 'ui/' + c + '/' + p + '.js'; }));
+        return [root + 'ui/' + c + '.js'].concat(UI_PARTS.langs.indexOf(c) < 0 ? [] : UI_PARTS.parts.filter(function (p) { return uiWant[p]; }).map(function (p) { return root + 'ui/' + c + '/' + p + '.js'; }));
       } });
       // English app words only once another language is in use (a page in English reads them from its HTML and the registry)
       source({ ns: 'apps', files: function (c) {

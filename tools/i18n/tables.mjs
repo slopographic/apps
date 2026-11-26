@@ -52,11 +52,21 @@ export function sharedTables(ns) {
   return { ns, langs: Object.keys(tables), tables, files };
 }
 
-/** The UI_PARTS literal of shared/i18n/i18n.js (the ui parts a page loads): { parts, langs }. */
+/** The UI_PARTS literal of shared/i18n/i18n.js (the ui parts a page can load): { parts, langs, byNs }. */
 export const UI_PARTS_RE = /\/\*ui-parts\*\/(\{[^\n]*?\});/;
 export function uiPartsIndex() {
   const m = read('shared/i18n/i18n.js').match(UI_PARTS_RE);
   return m ? Object.assign({ ns: 'ui' }, JSON.parse(m[1].replace(/'/g, '"').replace(/(\w+):/g, '"$1":'))) : null;
+}
+
+/** Which ui parts hold each key namespace (ui.<ns>.*), from the English parts (appTables(...).byPart.en): { ns: [part, ...] }.
+ * i18n.js fetches a namespace's parts the first time a page asks for one of its keys (UI_PARTS.byNs). */
+export function uiNamespaces(byPart) {
+  const out = {};
+  for (const part of Object.keys(byPart || {}).sort()) {
+    for (const k of byPart[part].keys()) { const ns = /^ui\.(\w+)\./.exec(k)?.[1]; if (ns && !(out[ns] ||= []).includes(part)) out[ns].push(part); }
+  }
+  return Object.fromEntries(Object.keys(out).sort().map((ns) => [ns, out[ns]]));
 }
 
 /** An app's tables, from <dir>i18n/index.js (its parts and languages) and <dir>i18n/<code>/<part>.js. A shared area
