@@ -176,7 +176,6 @@ var PERL={                                      //   null - magic touch
   '${^UTF8LOCALE}':    5,
   '$PERL_VERSION':    5,
   '$^V':    5,
-  '${^WIN32_SLOPPY_STAT}':    5,
   '$EXECUTABLE_NAME':    5,
   '$^X':    5,
   '$1':    5, // - regexp $1, $2...
