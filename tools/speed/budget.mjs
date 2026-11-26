@@ -81,6 +81,43 @@ export function compare(results, budgets) {
   return out;
 }
 
+/** The timing numbers: they depend on how busy the machine is (bytes and requests do not, and are never measured again). */
+export const TIMING = ['fcp', 'lcp', 'si', 'tbt', 'cls'];
+/** The recheck: a page preset over its budget on timing in the main pass (where --jobs Chromes share the runner's cores) is
+ * measured again alone, runs times, after the others, at most max of them per run (past that, a slowdown is everywhere and
+ * the rest fail as measured). Its median there decides. Why: on CI's 4 cores, mobile Speed Index and LCP of about one page
+ * preset in six jump between two values from run to run (1.2 s or 2.4 s, the second paint landing late), so a median of 3
+ * beside another Chrome lands on the slow one now and then, on a different page each run (2026-11-26: 13, then 33 such
+ * problems on identical code, most within budget when measured again). */
+export const RECHECK = { runs: 5, max: 12 };
+
+/** The page presets to measure again: those with a timing number past its limit, in page order, at most max. */
+export function recheckItems(problems, max = RECHECK.max) {
+  const seen = new Set(), out = [];
+  for (const p of problems) {
+    const key = p.page + '|' + p.preset;
+    if (p.kind !== 'worse' || !TIMING.includes(p.metric) || seen.has(key)) continue;
+    seen.add(key);
+    out.push({ page: p.page, preset: p.preset });
+  }
+  return out.slice(0, max);
+}
+
+/** The problems after the recheck. again: { page: { preset: numbers } }, the medians measured alone. A timing problem
+ * whose number is within its limit (or meets the goal) there is load-sensitive, reported and not failed; one still past it
+ * fails, with both numbers (again: the alone median). Problems not measured again (bytes, requests, past max) stay. */
+export function settle(problems, again = {}) {
+  const out = [], sensitive = [];
+  for (const p of problems) {
+    const got = again[p.page]?.[p.preset];
+    if (p.kind !== 'worse' || !TIMING.includes(p.metric) || !got || got.error) { out.push(p); continue; }
+    const v = got[p.metric];
+    if (v != null && (v <= p.limit || meetsGoal(p.preset, p.metric, v))) sensitive.push({ ...p, again: v });
+    else out.push({ ...p, again: v ?? null });
+  }
+  return { problems: out, sensitive };
+}
+
 /** The lower of a budget and a measured number for one metric (higher for score), never raising the budget. */
 function lower(metric, old, now) {
   if (old == null) return now ?? null;

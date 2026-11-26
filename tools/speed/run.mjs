@@ -13,6 +13,11 @@
 //                       or a workflow_dispatch with record), whose results --update --from then merges into the budgets
 //   --from=a.json,dir/  no measuring: check (or --update from) results written by --out, e.g. CI's artifacts
 //   --summary=f.md      append the markdown summary there (default: $GITHUB_STEP_SUMMARY when set)
+//   --recheck=5         a page preset over its budget on timing is measured again alone this many times after the others,
+//                       and fails only if that median is over too; else it is listed as load-sensitive (0: no recheck;
+//                       tools/speed/budget.mjs, RECHECK, says why)
+//   --slow=a/,b/        test only: serve these pages with a script that keeps the main thread busy for 1 s before anything
+//                       shows (tools/speed/serve.mjs), to see that a page made slower still fails, recheck and all
 // Chrome: CHROME_PATH, or Playwright's Chromium.
 import { readFileSync, writeFileSync, appendFileSync, existsSync, readdirSync, statSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
@@ -21,7 +26,7 @@ import { ROOT, discoverPages } from './pages.mjs';
 import { PRESETS } from './measure.mjs';
 import { openWorker } from './worker.mjs';
 import { serve } from './serve.mjs';
-import { medianRun, compare, ratchet, parseBudgets, formatBudgets, spread, TOLERANCE } from './budget.mjs';
+import { medianRun, compare, ratchet, parseBudgets, formatBudgets, spread, recheckItems, settle, TOLERANCE, RECHECK } from './budget.mjs';
 import { summary, problemLine, spreadTable } from './summary.mjs';
 import { parseShard, shardPages, pool } from '../../tests/shard.mjs';
 
@@ -29,14 +34,15 @@ export const BUDGETS = path.join(ROOT, 'tools/speed/budgets.json');
 
 /** The command line as options. */
 export function parseArgs(argv) {
-  const o = { runs: 3, jobs: 1, presets: PRESETS, update: false, record: false, reset: [], pages: null, shard: null, out: null, from: null, summary: process.env.GITHUB_STEP_SUMMARY || null };
+  const o = { runs: 3, jobs: 1, recheck: RECHECK.runs, presets: PRESETS, update: false, record: false, reset: [], slow: [], pages: null, shard: null, out: null, from: null, summary: process.env.GITHUB_STEP_SUMMARY || null };
   const list = (v) => v.split(',').map((s) => s.trim()).map((s) => (s === '/' ? '' : s.replace(/^\//, '')));
   for (const a of argv) {
     const [k, v = ''] = a.replace(/^--/, '').split(/=(.*)/s);
     if (k === 'update' || k === 'record') o[k] = true;
     else if (k === 'runs' || k === 'jobs') { o[k] = Number(v); if (!(o[k] >= 1)) throw new Error(`--${k} needs a number >= 1`); }
+    else if (k === 'recheck') { o.recheck = Number(v); if (!(o.recheck >= 0)) throw new Error('--recheck needs a number >= 0'); }
     else if (k === 'presets') { o.presets = v.split(','); if (o.presets.some((p) => !PRESETS.includes(p))) throw new Error(`--presets: ${PRESETS.join(', ')}`); }
-    else if (k === 'reset' || k === 'pages') o[k] = list(v);
+    else if (k === 'reset' || k === 'pages' || k === 'slow') o[k] = list(v);
     else if (k === 'from') o.from = v.split(',').filter(Boolean);
     else if (k === 'shard') o.shard = parseShard(v);
     else if (k === 'out' || k === 'summary') o[k] = v;
@@ -55,21 +61,24 @@ export function pickPages(all, { pages = null, shard = null } = {}) {
   return out;
 }
 
-/** Results files merged: { results: { page: { preset } }, runs: { page: { preset: [...] } } }. Paths may be directories. */
+/** Results files merged: { results: { page: { preset } }, runs: { page: { preset: [...] } }, recheck: { results, runs } }
+ * (recheck: the page presets measured again alone). Paths may be directories. */
 export function readResults(paths) {
   const files = paths.flatMap((p) => (statSync(p).isDirectory() ? readdirSync(p, { recursive: true }).filter((f) => f.endsWith('.json')).map((f) => path.join(p, f)) : [p]));
-  const merged = { results: {}, runs: {} };
+  const merged = { results: {}, runs: {}, recheck: { results: {}, runs: {} } };
+  const add = (into, from) => { for (const key of ['results', 'runs']) for (const [page, presets] of Object.entries(from[key] || {})) Object.assign((into[key][page] ||= {}), presets); };
   for (const f of files) {
     const j = JSON.parse(readFileSync(f, 'utf8'));
     if (!j.results) continue;
-    for (const key of ['results', 'runs']) for (const [page, presets] of Object.entries(j[key] || {})) Object.assign((merged[key][page] ||= {}), presets);
+    add(merged, j);
+    if (j.recheck) add(merged.recheck, j.recheck);
   }
   return merged;
 }
 
-async function measure(pages, o) {
-  const site = await serve(ROOT, 0);
-  const items = pages.flatMap((page) => o.presets.map((preset) => ({ page, preset })));
+/** Measures items ([{ page, preset }]) runs times each, jobs at once; label names the pass in the log. */
+async function measure(items, o, label = '') {
+  const site = await serve(ROOT, 0, { slow: o.slow });
   const results = {}, runs = {};
   const workers = [], idle = [];
   let done = 0;
@@ -92,13 +101,13 @@ async function measure(pages, o) {
       (runs[page] ||= {})[preset] = got;
       (results[page] ||= {})[preset] = got.length ? medianRun(got) : { error };
       const m = results[page][preset];
-      console.log(`[${++done}/${items.length}] /${page} ${preset}: ${m.error ? 'error ' + m.error : `LCP ${m.lcp} ms, FCP ${m.fcp}, CLS ${m.cls}, TBT ${m.tbt}, score ${m.score}`}`);
+      console.log(`${label}[${++done}/${items.length}] /${page} ${preset}: ${m.error ? 'error ' + m.error : `LCP ${m.lcp} ms, FCP ${m.fcp}, CLS ${m.cls}, TBT ${m.tbt}, score ${m.score}`}`);
     });
   } finally {
     await Promise.all(workers.filter((w) => w.alive()).map((w) => w.close()));
     await site.close();
   }
-  console.log(`measured ${items.length} page presets x ${o.runs} runs in ${Math.round((Date.now() - t0) / 1000)} s`);
+  console.log(`${label}measured ${items.length} page presets x ${o.runs} runs in ${Math.round((Date.now() - t0) / 1000)} s`);
   return { results, runs };
 }
 
@@ -109,7 +118,15 @@ async function main(argv) {
   const budgets = parseBudgets(budgetsJson);
   let data;
   if (o.from) data = readResults(o.from);
-  else data = await measure(pickPages(all, o), o);
+  else {
+    data = await measure(pickPages(all, o).flatMap((page) => o.presets.map((preset) => ({ page, preset }))), o);
+    // The page presets over on timing, measured again with nothing else running (the main pass is done).
+    const again = o.record || o.update || !o.recheck ? [] : recheckItems(compare(data.results, budgets));
+    if (again.length) {
+      console.log(`${again.length} page preset${again.length === 1 ? '' : 's'} over on timing: measured again alone, ${o.recheck} runs each`);
+      data.recheck = await measure(again, { ...o, runs: o.recheck, jobs: 1 }, 'alone ');
+    }
+  }
   if (o.out) {
     mkdirSync(path.dirname(path.resolve(o.out)), { recursive: true });
     const { version } = JSON.parse(readFileSync(path.join(ROOT, 'node_modules/lighthouse/package.json'), 'utf8'));
@@ -124,13 +141,14 @@ async function main(argv) {
     console.log(`budgets: ${Object.keys(next).length} pages written to ${path.relative(process.cwd(), BUDGETS)}`);
     return 0;
   }
-  const problems = o.record ? [] : compare(data.results, budgets);
+  const { problems, sensitive } = o.record ? { problems: [], sensitive: [] } : settle(compare(data.results, budgets), data.recheck?.results);
   const title = o.shard ? `Page speed, slice ${o.shard.index} of ${o.shard.count}` : 'Page speed';
   const noise = Object.keys(data.runs || {}).length ? spreadTable(spread(data.runs), TOLERANCE) : '';
-  if (o.summary) appendFileSync(o.summary, summary(data.results, problems, { title, recording: o.record }) + '\n' + (o.from ? noise : ''));
+  if (o.summary) appendFileSync(o.summary, summary(data.results, problems, { title, recording: o.record, sensitive }) + '\n' + (o.from ? noise : ''));
   if (o.from && noise) console.log(noise);
+  for (const p of sensitive) console.log(`load-sensitive: ${problemLine(p)}`);
   for (const p of problems) console.error(problemLine(p));
-  console.log(`speed: ${Object.keys(data.results).length} pages, ${problems.length} problem${problems.length === 1 ? '' : 's'}`);
+  console.log(`speed: ${Object.keys(data.results).length} pages, ${problems.length} problem${problems.length === 1 ? '' : 's'}, ${sensitive.length} load-sensitive`);
   // A page with no budget yet (a new page) is reported, not failed: its numbers become its budget at the next --update.
   return problems.some((p) => p.kind !== 'missing') ? 1 : 0;
 }

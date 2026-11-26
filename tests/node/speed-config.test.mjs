@@ -45,6 +45,13 @@ test('the workflow records instead of checking when budgets.json is missing or r
   assert.match(wf, /--from=speed-results \$MODE/);
 });
 
+test('a manual run can narrow the pages and slow some on purpose, read from the environment, never on a push; the recheck stays on', () => {
+  for (const k of ['pages', 'slow']) assert.match(wf, new RegExp(`\n      ${k}:\n        description: [^\n]+\n        type: string\n        default: ''`), k);
+  assert.match(wf, /PAGES: \$\{\{ inputs\.pages \}\}\n\s*SLOW: \$\{\{ inputs\.slow \}\}/);
+  assert.match(wf, /\$\{PAGES:\+"--pages=\$PAGES"\} \$\{SLOW:\+"--slow=\$SLOW"\}/);
+  assert.doesNotMatch(wf, /run:[^\n]*\$\{\{ inputs\.(pages|slow) \}\}|--recheck=0/, 'inputs reach the shell as variables; nothing turns the recheck off');
+});
+
 test('Lighthouse and chrome-launcher are pinned exactly in tools/speed/deps.mjs, installed only by the speed workflow', async () => {
   const { DEPS, installArgs } = await import(pathToFileURL(path.join(ROOT, 'tools/speed/deps.mjs')).href);
   for (const name of ['lighthouse', 'chrome-launcher']) {

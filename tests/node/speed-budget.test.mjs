@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { GOALS, TOLERANCE, ENFORCED, median, medianRun, limitOf, meetsGoal, compare, ratchet, formatBudgets, parseBudgets, spread } from '../../tools/speed/budget.mjs';
+import { GOALS, TOLERANCE, ENFORCED, TIMING, RECHECK, median, medianRun, limitOf, meetsGoal, compare, ratchet, formatBudgets, parseBudgets, spread, recheckItems, settle } from '../../tools/speed/budget.mjs';
 import { metricsOf, lighthouseFlags, playwrightChrome, METRICS, AUDITS } from '../../tools/speed/measure.mjs';
 
 const m = (o = {}) => ({ score: 80, fcp: 800, lcp: 1500, cls: 0.02, tbt: 100, si: 1200, bytes: 300000, requests: 40, ...o });
@@ -49,6 +49,37 @@ test('compare: a number the run could not get, or a failed run, is a problem', (
   const budgets = { 'a/': { desktop: m() } };
   assert.deepEqual(compare({ 'a/': { desktop: m({ lcp: null }) } }, budgets).map((p) => [p.kind, p.metric]), [['unmeasured', 'lcp']]);
   assert.equal(compare({ 'a/': { desktop: { error: 'NO_FCP' } } }, budgets)[0].message, 'NO_FCP');
+});
+
+test('recheck: only page presets over on timing are measured again, once each, at most max', () => {
+  const budgets = { 'a/': { mobile: m(), desktop: m() }, 'b/': { mobile: m() }, 'c/': { mobile: m() } };
+  const problems = compare({
+    'a/': { mobile: m({ si: 2400, lcp: 2500 }), desktop: m({ bytes: 900000 }) },
+    'b/': { mobile: m({ requests: 90 }) },
+    'c/': { mobile: m({ cls: 0.5 }) },
+    'new/': { mobile: m() },
+  }, budgets);
+  assert.deepEqual(recheckItems(problems), [{ page: 'a/', preset: 'mobile' }, { page: 'c/', preset: 'mobile' }]);
+  assert.deepEqual(recheckItems(problems, 1), [{ page: 'a/', preset: 'mobile' }]);
+  assert.deepEqual(TIMING, ['fcp', 'lcp', 'si', 'tbt', 'cls']);
+  assert.ok(RECHECK.runs >= 5 && RECHECK.runs % 2 === 1, 'an odd number of runs alone, so the median is one of them');
+});
+
+test('settle: over beside another Chrome but within budget alone is load-sensitive; over in both fails; bytes never get a second chance', () => {
+  const budgets = { 'a/': { mobile: m({ lcp: 2000 }) }, 'b/': { mobile: m() } };
+  // a/: Speed Index jumped (1.2 s -> 2.4 s, the slow paint of a bimodal page) in the main pass, back alone; its LCP is slower in both
+  const first = compare({ 'a/': { mobile: m({ si: 2400, lcp: 3000, bytes: 999999 }) }, 'b/': { mobile: m({ si: 2400 }) } }, budgets);
+  assert.deepEqual(first.map((p) => p.page + p.metric), ['a/lcp', 'a/si', 'a/bytes', 'b/si']);
+  const again = { 'a/': { mobile: m({ si: 1250, lcp: 2900 }) } };
+  const { problems, sensitive } = settle(first, again);
+  assert.deepEqual(sensitive.map((p) => [p.page, p.metric, p.value, p.again]), [['a/', 'si', 2400, 1250]]);
+  assert.deepEqual(problems.map((p) => [p.page, p.metric, p.again]), [['a/', 'lcp', 2900], ['a/', 'bytes', undefined], ['b/', 'si', undefined]],
+    'b/ was not measured again (past max): it fails as measured');
+  // alone it meets the goal: not a failure; alone it could not be measured: still a failure
+  assert.equal(settle(compare({ 'a/': { mobile: m({ lcp: 3000 }) } }, budgets), { 'a/': { mobile: m({ lcp: 2400 }) } }).problems.length, 0);
+  assert.equal(settle(compare({ 'a/': { mobile: m({ lcp: 3000 }) } }, budgets), { 'a/': { mobile: { error: 'NO_LCP' } } }).problems.length, 1);
+  assert.equal(settle(compare({ 'a/': { mobile: m({ lcp: 3000 }) } }, budgets), { 'a/': { mobile: m({ lcp: null }) } }).problems[0].again, null);
+  assert.deepEqual(settle(first), { problems: first, sensitive: [] }, 'with no recheck nothing changes');
 });
 
 test('the ratchet lowers budgets and never raises one', () => {

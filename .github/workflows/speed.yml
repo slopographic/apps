@@ -2,7 +2,9 @@ name: Page speed
 
 # Lighthouse on every page of the site (tools/speed/run.mjs), on the mobile and desktop presets, the median of 3 runs per
 # page, checked against the ratchet in tools/speed/budgets.json: a page fails when it gets slower or heavier than its budget
-# by more than the noise tolerance (tools/speed/budget.mjs), or when it has no budget. The goal is LCP within 500 ms on
+# by more than the noise tolerance (tools/speed/budget.mjs). Each slice measures 2 pages at once; a page over on timing
+# (not bytes or requests) is then measured again alone, 5 runs, and fails only if that median is over too, else it is
+# listed as load-sensitive (on 4 cores, two Chromes slow each other's paints; tools/speed/budget.mjs, RECHECK). The goal is LCP within 500 ms on
 # desktop (2.5 s on mobile) and CLS under 0.1 everywhere. Its own workflow, so the rules and tests stay fast: the pages are
 # split into 20 slices that run as parallel jobs in Playwright's image (Chromium preinstalled; the same version as
 # .github/workflows/rules.yml, tests/node/speed-config.test.mjs checks it), each serving the checkout with gzip as GitHub
@@ -23,6 +25,14 @@ on:
         description: Measure every page and check nothing (to record new budgets from the speed-results artifact)
         type: boolean
         default: false
+      pages:
+        description: Only these pages, comma-separated (empty for every page; / is the homepage)
+        type: string
+        default: ''
+      slow:
+        description: Test only - serve these pages made slower on purpose (1 s of script before anything shows), to see them fail
+        type: string
+        default: ''
 
 # The GITHUB_TOKEN can only read the repository; a job that needs more says so in its own permissions block.
 permissions:
@@ -55,10 +65,13 @@ jobs:
       - name: The page speed tools (pinned in tools/speed/deps.mjs, not in package.json)
         run: npm install --no-save --no-audit --no-fund $(node tools/speed/deps.mjs)
       - name: Lighthouse, slice ${{ matrix.shard }} of 20
+        env:
+          PAGES: ${{ inputs.pages }}
+          SLOW: ${{ inputs.slow }}
         run: |
           MODE=""
           if [ "${{ inputs.record }}" = "true" ] || [ ! -f tools/speed/budgets.json ]; then MODE=--record; fi
-          node tools/speed/run.mjs --shard=${{ matrix.shard }}/20 --runs=3 --jobs=2 $MODE --out=speed-results/slice-${{ matrix.shard }}.json
+          node tools/speed/run.mjs --shard=${{ matrix.shard }}/20 --runs=3 --jobs=2 $MODE ${PAGES:+"--pages=$PAGES"} ${SLOW:+"--slow=$SLOW"} --out=speed-results/slice-${{ matrix.shard }}.json
       - uses: actions/upload-artifact@v5
         if: always()
         with:

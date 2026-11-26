@@ -12,7 +12,8 @@ const name = (page) => '/' + page;
 export function problemLine(p) {
   if (p.kind === 'missing') return `${name(p.page)} (${p.preset}): new page, no budget yet (not a failure). Its numbers become its budget at the next node tools/speed/run.mjs --update.`;
   if (p.kind === 'unmeasured') return `${name(p.page)} (${p.preset}): ${p.metric} not measured${p.message ? ': ' + p.message : ''}`;
-  return `${name(p.page)} (${p.preset}): ${p.metric} ${fmt(p.metric, p.value)}, budget ${fmt(p.metric, p.budget)} (fails past ${fmt(p.metric, p.limit)})`;
+  const again = p.again === undefined ? '' : `; measured alone ${fmt(p.metric, p.again)}`;
+  return `${name(p.page)} (${p.preset}): ${p.metric} ${fmt(p.metric, p.value)}${again}, budget ${fmt(p.metric, p.budget)} (fails past ${fmt(p.metric, p.limit)})`;
 }
 
 /** Distance to a goal as text: "-120 ms" when under it, "+1.20 s" when over. */
@@ -35,8 +36,9 @@ export function goalCounts(results, preset) {
   return { pages: rows.length, lcp: rows.filter((m) => m.lcp != null && m.lcp <= g.lcp).length, cls: rows.filter((m) => m.cls != null && m.cls <= g.cls).length };
 }
 
-/** The whole summary. results: { page: { preset: numbers } }; problems from compare(); title names the run (a shard). */
-export function summary(results, problems, { title = 'Page speed', presets = ['desktop', 'mobile'], n = 15, recording = false } = {}) {
+/** The whole summary. results: { page: { preset: numbers } }; problems and sensitive (the load-sensitive ones) from
+ * settle() in tools/speed/budget.mjs; title names the run (a shard). */
+export function summary(results, problems, { title = 'Page speed', presets = ['desktop', 'mobile'], n = 15, recording = false, sensitive = [] } = {}) {
   const out = [`## ${title}`, ''];
   const pages = Object.keys(results).length;
   if (recording) out.push(`Recording budgets: ${pages} pages measured, none checked. Merge the speed-results artifact with node tools/speed/run.mjs --update --from=<the unzipped artifact> and commit tools/speed/budgets.json.`);
@@ -45,6 +47,10 @@ export function summary(results, problems, { title = 'Page speed', presets = ['d
     out.push(`**${problems.length} problem${problems.length === 1 ? '' : 's'}** on ${pages} pages:`, '');
     for (const p of problems.slice(0, 50)) out.push(`- ${problemLine(p)}`);
     if (problems.length > 50) out.push(`- and ${problems.length - 50} more (see the results artifact)`);
+  }
+  if (sensitive.length) {
+    out.push('', `Load-sensitive (not failures): ${sensitive.length} number${sensitive.length === 1 ? ' was' : 's were'} over budget beside another Chrome and within it measured alone:`, '');
+    for (const p of sensitive.slice(0, 50)) out.push(`- ${problemLine(p)}`);
   }
   out.push('');
   for (const preset of presets) {
