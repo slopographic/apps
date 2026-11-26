@@ -6,6 +6,15 @@
 // ratchet instead: tools/speed/budgets.json has each page's measured numbers, and a page fails when it gets worse than its
 // budget by more than the noise tolerance below. `node tools/speed/run.mjs --update` lowers budgets after an improvement and
 // never raises one; --reset=<page> re-records a page on purpose (say why in the commit).
+//
+// Re-recorded on purpose (the pages, why):
+// - 2026-11-26, the 64 app pages, the 128 converter pages (convert/<a>-to-<b>/: the converter app), press/, settings/,
+//   ai/chatgpt-alternative/ and gallery/raw-photo-viewer/, from the speed run on wip/speed-fix (8d3804a). Since the first
+//   budgets (2026-10-25) every shared component reads its words from shared/i18n/ui/<code>/<part>.js, and an app's
+//   components read them when they are built, so an app page needs all of them at once: now one file per language
+//   (shared/i18n/ui-all/<code>.min.js, about 60 KB gzipped, +1 request), not 42. The rest of each raise is the apps' own
+//   growth in that month (their own word tables, new features). Pages with no app code fetch the parts on first use
+//   (shared/i18n/HANDOFF.md, Loading) and kept their budgets; tests/i18n/ui-parts-lazy.test.html holds them there.
 
 export const GOALS = { desktop: { lcp: 500, cls: 0.1 }, mobile: { lcp: 2500, cls: 0.1 } };
 
