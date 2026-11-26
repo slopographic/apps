@@ -102,20 +102,20 @@ test('end to end on made-up results: load-sensitive passes, over again alone fai
   const check = (main, again) => {
     const dir = mkdtempSync(path.join(os.tmpdir(), 'speed-e2e-'));
     const runs = [main, main, main];
-    writeFileSync(path.join(dir, 'slice-1.json'), JSON.stringify({ results: { [page]: { mobile: main } }, runs: { [page]: { mobile: runs } }, ...(again && { recheck: { results: { [page]: { mobile: again } }, runs: {} } }) }));
+    writeFileSync(path.join(dir, 'slice-1.json'), JSON.stringify({ results: { [page]: { mobile: main } }, runs: { [page]: { mobile: runs } }, ...(again && { recheck: { results: { [page]: { mobile: again[0] } }, runs: { [page]: { mobile: again } } } }) }));
     const out = path.join(dir, 'summary.md');
     const r = spawnSync(process.execPath, ['tools/speed/run.mjs', `--from=${dir}`, `--summary=${out}`], { cwd: path.join(path.dirname(new URL(import.meta.url).pathname), '../..'), encoding: 'utf8' });
     return { code: r.status, text: readFileSync(out, 'utf8'), log: r.stdout + r.stderr };
   };
   const over = { ...b, si: b.si * 3 };
-  const sensitive = check(over, { ...b });
+  const sensitive = check(over, [over, b, b, over, b]);
   assert.equal(sensitive.code, 0, sensitive.log);
   assert.match(sensitive.text, /Load-sensitive \(not failures\): 1 number/);
-  const slow = check(over, { ...b, si: b.si * 3 });
+  const slow = check(over, [over, over, b, over, over]);
   assert.equal(slow.code, 1, slow.log);
-  assert.match(slow.text, /\*\*1 problem\*\*[\s\S]*si .*measured alone/);
+  assert.match(slow.text, /\*\*1 problem\*\*[\s\S]*si .*measured alone .* \(4\/5 runs past it\)/);
   assert.equal(check(over).code, 1, 'over on timing and not measured again: fails');
-  assert.equal(check({ ...b, bytes: b.bytes * 2 }, { ...b }).code, 1, 'bytes are exact: a recheck never excuses them');
+  assert.equal(check({ ...b, bytes: b.bytes * 2 }, [b, b, b, b, b]).code, 1, 'bytes are exact: a recheck never excuses them');
 });
 
 test('a worker answers with the same interface as one Lighthouse, and reports it has ended', async () => {

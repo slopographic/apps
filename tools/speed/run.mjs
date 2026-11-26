@@ -14,7 +14,7 @@
 //   --from=a.json,dir/  no measuring: check (or --update from) results written by --out, e.g. CI's artifacts
 //   --summary=f.md      append the markdown summary there (default: $GITHUB_STEP_SUMMARY when set)
 //   --recheck=5         a page preset over its budget on timing is measured again alone this many times after the others,
-//                       and fails only if that median is over too; else it is listed as load-sensitive (0: no recheck;
+//                       and fails only if 4 of them are over too; else it is listed as load-sensitive (0: no recheck;
 //                       tools/speed/budget.mjs, RECHECK, says why)
 //   --slow=a/,b/        test only: serve these pages with a script that keeps the main thread busy for 1 s before anything
 //                       shows (tools/speed/serve.mjs), to see that a page made slower still fails, recheck and all
@@ -141,7 +141,7 @@ async function main(argv) {
     console.log(`budgets: ${Object.keys(next).length} pages written to ${path.relative(process.cwd(), BUDGETS)}`);
     return 0;
   }
-  const { problems, sensitive } = o.record ? { problems: [], sensitive: [] } : settle(compare(data.results, budgets), data.recheck?.results);
+  const { problems, sensitive } = o.record ? { problems: [], sensitive: [] } : settle(compare(data.results, budgets), data.recheck?.runs);
   const title = o.shard ? `Page speed, slice ${o.shard.index} of ${o.shard.count}` : 'Page speed';
   const noise = Object.keys(data.runs || {}).length ? spreadTable(spread(data.runs), TOLERANCE) : '';
   if (o.summary) appendFileSync(o.summary, summary(data.results, problems, { title, recording: o.record, sensitive }) + '\n' + (o.from ? noise : ''));

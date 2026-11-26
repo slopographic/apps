@@ -65,20 +65,28 @@ test('recheck: only page presets over on timing are measured again, once each, a
   assert.ok(RECHECK.runs >= 5 && RECHECK.runs % 2 === 1, 'an odd number of runs alone, so the median is one of them');
 });
 
-test('settle: over beside another Chrome but within budget alone is load-sensitive; over in both fails; bytes never get a second chance', () => {
+test('settle: a timing number past its limit in fewer than 4 of 5 runs alone is load-sensitive, in 4 or more it fails; bytes never get a second chance', () => {
   const budgets = { 'a/': { mobile: m({ lcp: 2000 }) }, 'b/': { mobile: m() } };
-  // a/: Speed Index jumped (1.2 s -> 2.4 s, the slow paint of a bimodal page) in the main pass, back alone; its LCP is slower in both
+  // a/: Speed Index jumped (1.2 s -> 2.4 s, the slow paint of a bimodal page) in the main pass, mostly back alone; its LCP is slower every time
   const first = compare({ 'a/': { mobile: m({ si: 2400, lcp: 3000, bytes: 999999 }) }, 'b/': { mobile: m({ si: 2400 }) } }, budgets);
   assert.deepEqual(first.map((p) => p.page + p.metric), ['a/lcp', 'a/si', 'a/bytes', 'b/si']);
-  const again = { 'a/': { mobile: m({ si: 1250, lcp: 2900 }) } };
+  const alone = (key, values) => ({ 'a/': { mobile: values.map((v) => m({ [key]: v })) } });
+  const si = [1250, 2400, 1190, 2380, 1220], lcp = [2900, 2950, 2400, 3100, 2880];
+  const again = { 'a/': { mobile: si.map((v, i) => m({ si: v, lcp: lcp[i] })) } };
   const { problems, sensitive } = settle(first, again);
-  assert.deepEqual(sensitive.map((p) => [p.page, p.metric, p.value, p.again]), [['a/', 'si', 2400, 1250]]);
-  assert.deepEqual(problems.map((p) => [p.page, p.metric, p.again]), [['a/', 'lcp', 2900], ['a/', 'bytes', undefined], ['b/', 'si', undefined]],
+  assert.deepEqual(sensitive.map((p) => [p.page, p.metric, p.value, p.again, p.past]), [['a/', 'si', 2400, 1250, '2/5']], 'a median of 5 would pass it too, narrowly');
+  assert.deepEqual(problems.map((p) => [p.page, p.metric, p.again, p.past]), [['a/', 'lcp', 2900, '4/5'], ['a/', 'bytes', undefined, undefined], ['b/', 'si', undefined, undefined]],
     'b/ was not measured again (past max): it fails as measured');
-  // alone it meets the goal: not a failure; alone it could not be measured: still a failure
-  assert.equal(settle(compare({ 'a/': { mobile: m({ lcp: 3000 }) } }, budgets), { 'a/': { mobile: m({ lcp: 2400 }) } }).problems.length, 0);
-  assert.equal(settle(compare({ 'a/': { mobile: m({ lcp: 3000 }) } }, budgets), { 'a/': { mobile: { error: 'NO_LCP' } } }).problems.length, 1);
-  assert.equal(settle(compare({ 'a/': { mobile: m({ lcp: 3000 }) } }, budgets), { 'a/': { mobile: m({ lcp: null }) } }).problems[0].again, null);
+  assert.equal(RECHECK.over, 4);
+  // 3 of 5 past: its median is over, but it is not reproducible, so not a failure
+  const three = settle(first.slice(1, 2), alone('si', [2400, 2400, 2400, 1200, 1200]));
+  assert.deepEqual([three.problems.length, three.sensitive[0].past, three.sensitive[0].again], [0, '3/5', 2400]);
+  assert.equal(settle(first.slice(1, 2), alone('si', [2400, 2400, 2400, 2400, 1200])).problems.length, 1);
+  // alone it meets the goal: not past it; alone it could not be measured: still a failure
+  assert.equal(settle(first.slice(0, 1), alone('lcp', [2400, 2450, 2490, 2300, 2350])).problems.length, 0);
+  assert.equal(settle(first.slice(0, 1), { 'a/': { mobile: [{ error: 'NO_LCP' }] } }).problems[0].again, undefined);
+  assert.equal(settle(first.slice(0, 1), alone('lcp', [null, null])).problems.length, 1);
+  assert.equal(settle(first.slice(0, 1), alone('lcp', [3000, 3100])).problems[0].past, '2/2', 'fewer runs than 4: all of them');
   assert.deepEqual(settle(first), { problems: first, sensitive: [] }, 'with no recheck nothing changes');
 });
 

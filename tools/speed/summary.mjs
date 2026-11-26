@@ -1,7 +1,7 @@
 // The speed check's markdown summary (CI writes it to the job's step summary): the problems first, then how many pages
 // meet each goal, then the slowest pages, worst first, with their distance to the goal. Pure; tested in
 // tests/node/speed-summary.test.mjs.
-import { GOALS } from './budget.mjs';
+import { GOALS, RECHECK } from './budget.mjs';
 
 const ms = (v) => (v == null ? 'n/a' : v >= 1000 ? `${(v / 1000).toFixed(2)} s` : `${Math.round(v)} ms`);
 const kb = (v) => (v == null ? 'n/a' : `${Math.round(v / 1024)} KB`);
@@ -12,7 +12,7 @@ const name = (page) => '/' + page;
 export function problemLine(p) {
   if (p.kind === 'missing') return `${name(p.page)} (${p.preset}): new page, no budget yet (not a failure). Its numbers become its budget at the next node tools/speed/run.mjs --update.`;
   if (p.kind === 'unmeasured') return `${name(p.page)} (${p.preset}): ${p.metric} not measured${p.message ? ': ' + p.message : ''}`;
-  const again = p.again === undefined ? '' : `; measured alone ${fmt(p.metric, p.again)}`;
+  const again = p.again === undefined ? '' : `; measured alone ${fmt(p.metric, p.again)}${p.past ? ` (${p.past} runs past it)` : ''}`;
   return `${name(p.page)} (${p.preset}): ${p.metric} ${fmt(p.metric, p.value)}${again}, budget ${fmt(p.metric, p.budget)} (fails past ${fmt(p.metric, p.limit)})`;
 }
 
@@ -49,7 +49,7 @@ export function summary(results, problems, { title = 'Page speed', presets = ['d
     if (problems.length > 50) out.push(`- and ${problems.length - 50} more (see the results artifact)`);
   }
   if (sensitive.length) {
-    out.push('', `Load-sensitive (not failures): ${sensitive.length} number${sensitive.length === 1 ? ' was' : 's were'} over budget beside another Chrome and within it measured alone:`, '');
+    out.push('', `Load-sensitive (not failures): ${sensitive.length} number${sensitive.length === 1 ? ' was' : 's were'} over budget beside another Chrome and past it in fewer than ${RECHECK.over} of ${RECHECK.runs} runs alone:`, '');
     for (const p of sensitive.slice(0, 50)) out.push(`- ${problemLine(p)}`);
   }
   out.push('');

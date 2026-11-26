@@ -56,7 +56,7 @@ test('a recording run says so instead of judging, and the noise table lists each
 test('load-sensitive numbers are listed apart, not as failures; a failure measured again shows both numbers', () => {
   const p = { page: 'pdf/', preset: 'mobile', kind: 'worse', metric: 'si', value: 2400, budget: 1200, limit: 1500 };
   assert.equal(problemLine({ ...p, again: 2350 }), '/pdf/ (mobile): si 2.40 s; measured alone 2.35 s, budget 1.20 s (fails past 1.50 s)');
-  const text = summary(results, [], { sensitive: [{ ...p, again: 1210 }] });
-  assert.match(text, /All 4 pages are within their budgets\.\n\nLoad-sensitive \(not failures\): 1 number was over budget beside another Chrome and within it measured alone:\n\n- \/pdf\/ \(mobile\): si 2\.40 s; measured alone 1\.21 s/);
+  const text = summary(results, [], { sensitive: [{ ...p, again: 1210, past: '1/5' }] });
+  assert.match(text, /All 4 pages are within their budgets\.\n\nLoad-sensitive \(not failures\): 1 number was over budget beside another Chrome and past it in fewer than 4 of 5 runs alone:\n\n- \/pdf\/ \(mobile\): si 2\.40 s; measured alone 1\.21 s \(1\/5 runs past it\)/);
   assert.doesNotMatch(summary(results, []), /Load-sensitive/);
 });

@@ -15,6 +15,11 @@
 //   (shared/i18n/ui-all/<code>.min.js, about 60 KB gzipped, +1 request), not 42. The rest of each raise is the apps' own
 //   growth in that month (their own word tables, new features). Pages with no app code fetch the parts on first use
 //   (shared/i18n/HANDOFF.md, Loading) and kept their budgets; tests/i18n/ui-parts-lazy.test.html holds them there.
+// - 2026-11-26, one number each, from the speed runs on wip/speed-steady (the first with the recheck below): settings/
+//   mobile CLS 0 -> 0.499, img3d/ mobile CLS 0 -> 0.194, qr/ desktop CLS 0.009 -> 0.158, convert/mp3-to-ogg/ mobile SI
+//   5.04 -> 6.29 s, label/bartender-alternative/ mobile LCP 2.62 -> 3.23 s. On code unchanged since they were recorded,
+//   each was past its limit in 4 or 5 of 5 runs alone and in most runs of three CI runs: the ratchet had kept a lucky low
+//   median of a page whose number jumps between two values. The three layout shifts are real (past the 0.1 goal; fix them).
 
 export const GOALS = { desktop: { lcp: 500, cls: 0.1 }, mobile: { lcp: 2500, cls: 0.1 } };
 
@@ -85,11 +90,13 @@ export function compare(results, budgets) {
 export const TIMING = ['fcp', 'lcp', 'si', 'tbt', 'cls'];
 /** The recheck: a page preset over its budget on timing in the main pass (where --jobs Chromes share the runner's cores) is
  * measured again alone, runs times, after the others, at most max of them per run (past that, a slowdown is everywhere and
- * the rest fail as measured). Its median there decides. Why: on CI's 4 cores, mobile Speed Index and LCP of about one page
- * preset in six jump between two values from run to run (1.2 s or 2.4 s, the second paint landing late), so a median of 3
- * beside another Chrome lands on the slow one now and then, on a different page each run (2026-11-26: 13, then 33 such
- * problems on identical code, most within budget when measured again). */
-export const RECHECK = { runs: 5, max: 12 };
+ * the rest fail as measured). It fails only if at least over of those runs are past the limit too. Why: on CI's 4 cores,
+ * mobile Speed Index and LCP of about one page preset in six jump between two values from run to run (1.2 s or 2.4 s, the
+ * second paint landing late), so a median of 3 beside another Chrome lands on the slow one now and then, on a different
+ * page each run (2026-11-26: 13, then 33 such problems on identical code). Measured alone, 33 of 47 such numbers were
+ * within budget in every run, and 6 more were past it in 2 or 3 runs of 5 (a median of 5 would still flip on those); a page
+ * made slower on purpose (tools/speed/serve.mjs, slow) was past it in all 5. */
+export const RECHECK = { runs: 5, over: 4, max: 12 };
 
 /** The page presets to measure again: those with a timing number past its limit, in page order, at most max. */
 export function recheckItems(problems, max = RECHECK.max) {
@@ -103,17 +110,19 @@ export function recheckItems(problems, max = RECHECK.max) {
   return out.slice(0, max);
 }
 
-/** The problems after the recheck. again: { page: { preset: numbers } }, the medians measured alone. A timing problem
- * whose number is within its limit (or meets the goal) there is load-sensitive, reported and not failed; one still past it
- * fails, with both numbers (again: the alone median). Problems not measured again (bytes, requests, past max) stay. */
-export function settle(problems, again = {}) {
+/** The problems after the recheck. again: { page: { preset: [numbers] } }, the runs measured alone. A timing problem past
+ * its limit (and short of the goal) in fewer than over of them is load-sensitive, reported and not failed; one past it in
+ * over or more fails. Either way it carries again (the alone median) and past ('4/5': the alone runs past the limit).
+ * Problems not measured again (bytes, requests, past max, a recheck with no numbers) stay as they are. */
+export function settle(problems, again = {}, over = RECHECK.over) {
   const out = [], sensitive = [];
   for (const p of problems) {
-    const got = again[p.page]?.[p.preset];
-    if (p.kind !== 'worse' || !TIMING.includes(p.metric) || !got || got.error) { out.push(p); continue; }
-    const v = got[p.metric];
-    if (v != null && (v <= p.limit || meetsGoal(p.preset, p.metric, v))) sensitive.push({ ...p, again: v });
-    else out.push({ ...p, again: v ?? null });
+    const runs = (again[p.page]?.[p.preset] || []).map((r) => r?.[p.metric]).filter((v) => v != null);
+    if (p.kind !== 'worse' || !TIMING.includes(p.metric) || !runs.length) { out.push(p); continue; }
+    const n = runs.filter((v) => v > p.limit && !meetsGoal(p.preset, p.metric, v)).length;
+    const med = median(runs);
+    const q = { ...p, again: p.metric === 'cls' ? Math.round(med * 1000) / 1000 : Math.round(med), past: `${n}/${runs.length}` };
+    (n >= Math.min(over, runs.length) ? out : sensitive).push(q);
   }
   return { problems: out, sensitive };
 }
