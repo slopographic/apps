@@ -17,6 +17,8 @@
   const { describe, it, afterEach, expect, sleep, waitFor, run } = SlopTest;
   const PAGES = ['best/free-background-removers/', 'best/free-exif-remover/', 'slopisolate/bulk-background-remover/', 'slopisolate/video-background-remover/', ''];
   let frame = null;
+  // a build without the SEO pages (a white-label site that is not indexed) has only the homepage of these
+  const there = async (page) => (await fetch('../../' + page + 'index.html', { method: 'HEAD' })).ok;
   async function open(page) {
     if (frame) frame.remove();
     frame = document.createElement('iframe');
@@ -38,6 +40,7 @@
     afterEach(() => { if (frame && frame.contentWindow && frame.contentWindow.SlopI18n) frame.contentWindow.SlopI18n.set('en'); });
     for (const page of PAGES) {
       it(`/${page}: only the eager ui parts, within its request budget, no raw key`, async () => {
+        if (!(await there(page))) return;
         const budgets = (await (await fetch('../../tools/speed/budgets.json')).json()).pages;
         const w = await open(page);
         expect(w.SlopI18n.UI_PARTS.parts.length > 20).toBe(true);
@@ -59,7 +62,9 @@
     }
 
     it('a key of a namespace not in yet fetches its parts, then slopi18n; English, then Swedish', async () => {
-      const w = await open(PAGES[0]), I = w.SlopI18n;
+      let page = '';
+      for (const p of PAGES) if (await there(p)) { page = p; break; }
+      const w = await open(page), I = w.SlopI18n;
       expect(parts(w).includes('fonts')).toBe(false);
       let heard = 0;
       const stop = I.on(() => { heard++; });
