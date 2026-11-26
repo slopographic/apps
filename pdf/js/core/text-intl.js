@@ -38,10 +38,12 @@
     };
     var out = [];
     B.segments(line, { fontOf: fontOf }).forEach(function (seg) {
+      // a line of only spaces, digits and punctuation has no font around them (left after deleting the letters): its own
+      var font = seg.font || key;
       // a character the run's font lacks (a symbol beside Arabic, say) goes back to the text's own font
-      var fcs = seg.font === key ? cs : E.charsetOf(seg.font), cur = null, parts = [];
+      var fcs = font === key ? cs : E.charsetOf(font), cur = null, parts = [];
       for (var ch of seg.text) {
-        var f = fcs.has(ch.codePointAt(0)) ? seg.font : key;
+        var f = fcs.has(ch.codePointAt(0)) ? font : key;
         if (cur && cur.font === f) cur.text += ch; else { cur = { text: ch, font: f, rtl: seg.rtl }; parts.push(cur); }
       }
       // inside a right-to-left segment the runs go right to left too (each run's text stays in logical order)
