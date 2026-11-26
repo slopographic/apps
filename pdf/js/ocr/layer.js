@@ -86,7 +86,9 @@
   }
   /** The content streams of a page (refs) and their decoded text, streams joined by a newline. */
   function contentOf(doc, page) {
-    var L = window.PDFLib, c = page.node.Contents(), refs = !c ? [] : c instanceof L.PDFArray ? c.asArray() : [c];
+    // a lone stream's reference (Contents() resolves it to the stream): replaceWord deletes the old streams by it
+    var L = window.PDFLib, raw = page.node.get(L.PDFName.of('Contents')), c = page.node.Contents(); // i18n-ignore: PDF names / font names / producer, not UI
+    var refs = !c ? [] : c instanceof L.PDFArray ? c.asArray() : [raw instanceof L.PDFRef ? raw : c];
     var text = refs.map(function (r) {
       var s = doc.context.lookup(r);
       return latin1(s instanceof L.PDFRawStream ? L.decodePDFRawStream(s).decode() : s.getUnencodedContents());
