@@ -61,7 +61,7 @@
       }, { timeout: 60000 });
     }
 
-    it('a key of a namespace not in yet fetches its parts, then slopi18n; in the page's language, then Swedish', async () => {
+    it('a key of a namespace not in yet fetches its parts, then slopi18n; in the page’s language, then Swedish', async () => {
       let page = '';
       for (const p of PAGES) if (await there(p)) { page = p; break; }
       const w = await open(page), I = w.SlopI18n;
