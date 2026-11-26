@@ -57,6 +57,18 @@ text with tables of their own: the recipe is `APPS-HOWTO.md`, the progress `COVE
 - Later (a language change, another tab's change, or `i18n.js` added by the shell) it appends them, applies the marked
   elements once they are in, and fires `slopi18n` on `window` (`SlopI18n.on(fn)`); `slop-lang` fires at once on `set()`.
   The shell marks its own tag `data-late` and waits for `SlopI18n.ready()` before it mounts the header.
+- The shared components' parts (`ui/<code>/<part>.js`, `UI_PARTS` in `i18n.js`): a page fetches all of them with
+  `ui/<code>.js`, so an app's components read their words at once, when they are built, in one file per language
+  (`ui-all/<code>.min.js`: the parts without their comments, written by `node tools/i18n/i18n.mjs index ui`; one request,
+  not 40-odd). A tag with `data-ui-parts`
+  fetches only the parts it names: the shell's (`shell,shell2`, on a page with no app code of its own: the landing,
+  task, roundup and guide pages) and the homepage's. There the first `t()`, `has()` or `label()` of a `ui.<ns>.*` key
+  that is not in yet fetches the parts holding that namespace (`UI_PARTS.byNs`, written by `node tools/i18n/i18n.mjs
+  index ui`) for English and every language fetched so far, in one round for the keys asked for in the same turn, then
+  re-applies the marked elements and fires `slopi18n`, as a language switch does; until then the call reads like any
+  missing key (the key itself; `has()` false). Loading all 40-odd parts on those pages cost each about 40 requests and
+  80 KB (gzipped) before anything used them; `tests/i18n/ui-parts-lazy.test.html` holds the line. Name a part in an
+  app's tag only when every component that reads its words follows `slopi18n`.
 - An offline single-file copy (`<meta content="offline">`) fetches nothing: its manifest embeds the English tables.
 
 ## World-ready
@@ -142,7 +154,7 @@ A change in another tab re-applies on `storage`.
   one file per language adding under its own code, `t()` fallback and vars, the stored choice, `apply()` on a fake DOM
   (`dir="rtl"`), every chrome table holding every English key with the same placeholders, the logical-property CSS, and
   every chrome key the shell, the consent strip, the support card, the homepage and Settings use existing in English.
-- `tests/node/i18n-load.test.mjs`: the lazy loading (only English and the chosen language, written at parse time, appended
+- `tests/node/i18n-load.test.mjs`: the lazy loading (only English and the chosen language, the ui parts on first use, written at parse time, appended
   later with `slopi18n` after), an app's `index.js`, the offline copy fetching nothing, the script stylesheets, plural
   forms through `Intl.PluralRules`, and `num/date/money/list`.
 - `tests/node/i18n-tables.test.mjs`: the checker (`tools/i18n`) finds nothing, `COVERAGE.md` and

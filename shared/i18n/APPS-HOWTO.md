@@ -44,8 +44,10 @@ and at the start of `scripts`; they run in English.
 
 The words of a shared component go in `shared/i18n/ui/<code>/<part>.js` (keys `ui.<area>.<name>`, one part per area:
 `ai.js`, `calc.js`, ...; at most 300 lines, so `ai2.js` when it grows). Every page loads them with `ui/<code>.js`
-(`UI_PARTS` in `i18n.js`, written by `node tools/i18n/i18n.mjs index ui`), English and the languages with a folder;
-a language without one reads English. `ui/<code>.js` itself stays the base table every language has in full. The
+(`UI_PARTS` in `i18n.js` and the one-file copies in `ui-all/`, written by `node tools/i18n/i18n.mjs index ui`: run it
+after changing a part),
+English and the languages with a folder; a language without one reads English. A page without app code (the shell's
+`data-ui-parts`) fetches a part on first use instead (`HANDOFF.md`, Loading). `ui/<code>.js` itself stays the base table every language has in full. The
 business suite's words are `shared/biz/i18n` (keys `biz.*`, loaded by the business pages); another
 `shared/<area>/i18n/index.js` works the same way (`index <ns>` writes it). The checker and the coverage report read
 them all (`APPS-HOWTO.md` § 6). An offline single-file copy lists the English parts it needs in
