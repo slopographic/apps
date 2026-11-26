@@ -57,10 +57,14 @@ function page({ lang, parsing = true, offline = false, late = false } = {}) {
 /** English's app words (shared/i18n/apps/en.js): an English page needs none, unless the build starts in another language
  * (its pages are written in that one, so English words come from the table). */
 const enWords = (p) => (p.I().DEFAULT_CHOICE !== 'en' ? ['shared/i18n/apps/en.js'] : []);
-/** The shared components' parts of a language after ui/<code>.js (UI_PARTS in i18n.js; none for a language without them). */
-function uiParts(code) {
-  const P = JSON.parse(/var UI_PARTS = \/\*ui-parts\*\/(\{.*\});/.exec(read('shared/i18n/i18n.js'))[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
-  return P.langs.includes(code) ? P.parts.map((p) => `shared/i18n/ui/${code}/${p}.js`) : [];
+const UI = JSON.parse(/var UI_PARTS = \/\*ui-parts\*\/(\{.*\});/.exec(read('shared/i18n/i18n.js'))[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
+const EAGER = ['shell'];   // a page whose i18n.js tag says data-ui-parts="shell" (the shell's says "shell,shell2")
+const firstUse = { getAttribute: (a) => (a === 'data-ui-parts' ? EAGER.join(' ') : null) };
+/** The shared components' parts a page fetches at once after ui/<code>.js: every one, in one file (ui-all/<code>.min.js),
+ * or those its tag names in data-ui-parts (none for a language without parts). */
+function uiParts(code, parts = null) {
+  if (!UI.langs.includes(code)) return [];
+  return parts ? UI.parts.filter((p) => parts.includes(p)).map((p) => `shared/i18n/ui/${code}/${p}.js`) : [`shared/i18n/ui-all/${code}.min.js`];
 }
 const urls = (writes) => writes.map((h) => (/(?:src|href)="([^"]+)"/.exec(h) || [])[1].slice(SITE.length));
 
@@ -134,6 +138,43 @@ test('later (not parsing), set() applies at once, fetches the new tables and the
   assert.equal(p.events[p.events.length - 1], 'slopi18n');
   stop();
   assert.equal(p.attrs.lang, 'de');
+});
+
+test('with data-ui-parts a ui part comes on first use: a key of its namespace fetches it (English and the chosen language), then slopi18n', async () => {
+  assert.match(read('shell/shell.js'), /\['shared\/i18n\/i18n\.js', \{ late: '1', uiParts: 'shell,shell2' \}\]/, 'the shell asks for its own parts only');
+  const p = page({ lang: 'sv', parsing: false, late: true });
+  p.script('shared/i18n/i18n.js', firstUse);
+  await p.I().ready();
+  const I = p.I(), fetched = () => p.added.map((e) => e.src.slice(SITE.length)).filter((u) => /^shared\/i18n\/ui\/\w+\//.test(u));
+  assert.deepEqual(fetched(), [...uiParts('en', EAGER), ...uiParts('sv', EAGER)], 'only the parts the tag names at first');
+  const events = p.events.length;
+  assert.equal(I.t('ui.fonts.title'), 'ui.fonts.title', 'not in yet: the key, as for any missing key');
+  assert.equal(I.has('ui.wm.nope'), false);
+  assert.equal(I.label('ui.fonts.get_more'), 'ui.fonts.get_more');
+  await I.ready();
+  await new Promise((r) => setTimeout(r, 5));
+  const parts = [...new Set([...UI.byNs.fonts, ...UI.byNs.wm])];
+  assert.deepEqual(fetched().sort(), [...uiParts('en', [...EAGER, ...parts]), ...uiParts('sv', [...EAGER, ...parts])].sort(), 'the parts of both namespaces, in one round');
+  assert.deepEqual(p.events.slice(events), ['slopi18n'], 'one slopi18n once they are in: components re-read their words');
+  assert.equal(I.t('ui.fonts.title'), 'Teckensnitt');
+  const n = p.added.length;
+  I.t('ui.fonts.title'); I.t('ui.fonts.no_such_key'); I.t('ui.nosuchns.x');
+  await new Promise((r) => setTimeout(r, 5));
+  assert.equal(p.added.length, n, 'a part is fetched once; a key no part holds fetches nothing');
+  // another language through at(): the parts asked for so far, in that language too
+  const de = I.at('de');
+  de.t('ui.calc.nope');
+  await I.ready();
+  await new Promise((r) => setTimeout(r, 5));
+  for (const part of UI.byNs.calc) assert.ok(fetched().includes(`shared/i18n/ui/de/${part}.js`) || !UI.langs.includes('de'), 'de ' + part);
+  assert.ok(fetched().includes('shared/i18n/ui/de/fonts.js') || !UI.langs.includes('de'), 'de fonts too');
+});
+
+test('every ui namespace is mapped to the parts that hold it (UI_PARTS.byNs, node tools/i18n/i18n.mjs index ui)', () => {
+  const seen = {};
+  for (const part of UI.parts) for (const m of read(`shared/i18n/ui/en/${part}.js`).matchAll(/^\s*'ui\.(\w+)\./gm)) (seen[m[1]] ||= new Set()).add(part);
+  assert.deepEqual(Object.keys(UI.byNs).sort(), Object.keys(seen).sort());
+  for (const [ns, parts] of Object.entries(seen)) assert.deepEqual([...UI.byNs[ns]].sort(), [...parts].sort(), ns);
 });
 
 test('at(code) reads another language without switching the page; need(code, false, ns) fetches only that source', async () => {

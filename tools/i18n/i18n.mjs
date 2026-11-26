@@ -9,9 +9,9 @@
 //                                                    (index ui: UI_PARTS in shared/i18n/i18n.js; index biz: shared/biz/i18n/index.js)
 //   node tools/i18n/i18n.mjs todo <app id> <code>     the English keys a language still lacks, as table lines to fill in
 // extract lists UI-API strings (kind 'ui') by default; --prose adds the literals that only read like words.
-import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { apps, appTables, sharedApp, sharedAreas, pageAreas, uiPartsIndex, UI_PARTS_RE, ROOT, COVERS, coversText } from './tables.mjs';
+import { apps, appTables, sharedApp, sharedAreas, pageAreas, uiPartsIndex, uiNamespaces, uiBundle, uiBundlePath, UI_PARTS_RE, ROOT, COVERS, coversText } from './tables.mjs';
 import { check } from './check.mjs';
 import { hardcoded, scan, render, raise, OUT, BASELINE } from './coverage.mjs';
 
@@ -73,8 +73,11 @@ if (cmd === 'extract') {
   if (!app || app.id === 'shared') { console.error('No such app: ' + arg[0]); process.exit(2); }
   if (app.id === 'ui-parts') {   // the ui parts' index is a literal in i18n.js
     const t = appTables(app), f = path.join(ROOT, 'shared/i18n/i18n.js');
-    const lit = `{ parts: ${JSON.stringify(Object.keys(t.byPart.en || {}).sort())}, langs: ${JSON.stringify(t.dirs)} }`.replace(/"/g, "'").replace(/','/g, "', '");
+    const ns = Object.entries(uiNamespaces(t.byPart.en)).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(', ');
+    const lit = `{ parts: ${JSON.stringify(Object.keys(t.byPart.en || {}).sort())}, langs: ${JSON.stringify(t.dirs)}, byNs: { ${ns} } }`.replace(/"/g, "'").replace(/','/g, "', '");
     writeFileSync(f, readFileSync(f, 'utf8').replace(UI_PARTS_RE, '/*ui-parts*/' + lit + ';'));
+    mkdirSync(path.join(ROOT, 'shared/i18n/ui-all'), { recursive: true });
+    for (const code of t.dirs) writeFileSync(path.join(ROOT, uiBundlePath(code)), uiBundle(code));   // every part in one file
   } else writeFileSync(path.join(ROOT, app.base || path.join(app.dir, 'i18n/'), 'index.js'), indexSource(app));
   writeFileSync(path.join(ROOT, COVERS), coversText());
   console.log(`Wrote the index of ${app.id} and ${COVERS}`);
