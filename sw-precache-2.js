@@ -14,7 +14,8 @@ PRECACHE.push(
   '/pdf/css/page-acts.css', '/pdf/css/panels.css', '/pdf/css/para.css', '/pdf/css/redact.css', '/pdf/css/selbar.css', '/pdf/css/select-edit.css',
   '/pdf/css/themes.css', '/pdf/css/workspace.css', '/pdf/i18n/en/actions.js', '/pdf/i18n/en/actions3.js', '/pdf/i18n/en/app.js', '/pdf/i18n/en/commands.js',
   '/pdf/i18n/en/editor.js', '/pdf/i18n/en/find.js', '/pdf/i18n/en/io.js', '/pdf/i18n/en/macro.js', '/pdf/i18n/en/menus.js', '/pdf/i18n/en/redact.js',
-  '/pdf/i18n/en/select.js', '/pdf/i18n/en/tools.js', '/pdf/i18n/en/tools2.js', '/pdf/i18n/index.js', '/pdf/index.html', '/pdf/js/core/content-fills.js',
+  '/pdf/i18n/en/select.js', '/pdf/i18n/en/tools.js', '/pdf/i18n/en/tools2.js', '/pdf/i18n/index.js', '/pdf/index.html', '/pdf/js/core/content-cmap.js',
+  '/pdf/js/core/content-fills.js', '/pdf/js/core/content-fonts.js', '/pdf/js/core/content-forms.js', '/pdf/js/core/content-glyphs.js',
   '/pdf/js/core/content-ink.js', '/pdf/js/core/content-lex.js', '/pdf/js/core/content-move.js', '/pdf/js/core/content-objs.js', '/pdf/js/core/content-res.js',
   '/pdf/js/core/content-strip.js', '/pdf/js/core/content-svg.js', '/pdf/js/core/fonts-custom.js', '/pdf/js/core/history.js', '/pdf/js/core/layers.js',
   '/pdf/js/core/model.js', '/pdf/js/core/pdf-parts.js', '/pdf/js/core/pdfjs.js', '/pdf/js/core/text-intl.js', '/pdf/js/core/text.js', '/pdf/js/core/util.js',
@@ -200,6 +201,5 @@ PRECACHE.push(
   '/shared/cutout/mask-transfer.js', '/shared/cutout/models.js', '/shared/cutout/pipeline.js', '/shared/data/barcode.js', '/shared/data/billing.js',
   '/shared/data/bundle-check.js', '/shared/data/credits.js', '/shared/data/currency.js', '/shared/data/examples.js', '/shared/data/expenses.js',
   '/shared/data/export.js', '/shared/data/fx.js', '/shared/data/ledger.js', '/shared/data/money.js', '/shared/data/numbering.js', '/shared/data/purchases.js',
-  '/shared/data/quotes.js', '/shared/data/rates-ecb.js', '/shared/data/readtext.js', '/shared/data/recurring.js', '/shared/data/schema-checks.js',
 );
 // END PRECACHE

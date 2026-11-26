@@ -438,14 +438,27 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   space (a whole run, or the part of a run a selection crosses). The page's content stream is rewritten
   (`core/content-strip.js` on the operators of `core/content-lex.js`): every glyph whose centre is in a target on its
   baseline is dropped; the Tj/TJ/'/" that showed it becomes a TJ that keeps the other glyphs and moves the pen by the
-  dropped advance (Tc, Tw, Tz included), so nothing after it moves, and every other operator stays byte for byte. Widths
-  come from the font dictionaries (Widths/FirstChar, Type 0 Identity-H W/DW, the standard 14 by pdf-lib's AFM metrics).
+  dropped advance (Tc, Tw, Tz included), so nothing after it moves, and every other operator stays byte for byte; a
+  marked-content span that loses a glyph loses its ActualText / Alt / E. The glyphs are placed by `core/content-glyphs.js`
+  with widths measured the way pdf.js measures them (`core/content-fonts.js`): Widths/FirstChar; Type 3 Widths through
+  the FontMatrix; Type 0 W/DW by CID, the codes (1–4 bytes by codespace ranges) and CIDs by the CMap (`core/content-cmap.js`:
+  Identity-H, an embedded CMap stream with its UseCMap, or a predefined one from `vendor/pdfjs/cmaps`, fetched first
+  by `Fonts.ready`); a simple font with no Widths by the standard font of its name (Arial → Helvetica …; another name is
+  Times-Roman when it reads as a serif, else Helvetica) and its encoding's glyph names, as pdf.js does (not its program).
+- **Text in Form XObjects** is found where each Do draws it (12 levels, a form never inside itself). A form that loses
+  glyphs is copied for that one Do (`core/content-forms.js`): a new stream with the new content and the form's own
+  dictionary, under a new name (`Fm0_1`) in a copy of the resources of the stream that draws it (the page's, or the parent
+  form's copy), and that Do is renamed; the form stays as it was for other pages, other Dos and annotations. An old form,
+  resource dictionary or content stream that nothing the trailer reaches uses any more is deleted.
   The result is a derived copy of the file (`f.derived = { from, i, targets }`, id `d` + a hash of those, same colour),
-  checked with pdf.js (no text left in the targets, every other item where it was) before the page's `f` points at it in
-  the commit (`S.strip.use`); undo points it back. Nothing is painted over the old text: it is gone from screen, print,
-  search and copy, and from the saved file (the old content stream is deleted unless another page shows it).
-- **Covers are the fallback**, in the colour under the text: text in a Form XObject, invisible text (Tr 3: a scan's words are in its picture), clipping text (Tr 4–7), fonts that
-  cannot be measured (Type 3, CMaps other than Identity-H, a lost pen position), turned text, files over 80 MB, a check
+  checked with pdf.js before the page's `f` points at it in the commit (`S.strip.use`): no item shows text in a target
+  (more than a gap's width of it, or its first glyph's centre in it: a run that starts where the target ends, or kerned
+  a hair under it, is not text left behind), a target that held a letter lost one, and every other item is where it was
+  (or starts / ends the item pdf.js now joins it into over the gap). Undo points it back. Nothing is painted over the old
+  text: it is gone from screen, print, search and copy, and from the saved file (`contentOf` gives the content streams'
+  refs, so the old ones are deleted unless another page shows them; before, a page with one content stream kept it).
+- **Covers are the fallback**, in the colour under the text: invisible text (Tr 3: a scan's words are in its picture), clipping text (Tr 4–7), fonts that
+  cannot be measured (vertical writing, a predefined CMap the build lacks: the offline copy has none, a lost pen position), turned text, files over 80 MB, a check
   that fails, and OCR words (their own path, `ocr/layer.js`). The colour is the rendered page's (`edit-colours.js`), or,
   when the browser does not let the page read its canvas back (Firefox / Tor Browser with fingerprinting resistance read
   white: that was the white bar on the beige sample) or the page is not rendered, the colour the content paints there
@@ -468,9 +481,15 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
 - **Remove** lets the selection go (browser selection, snapshot, bar and selection box), so nothing is left where the
   text was.
 - Tests: `tests/node/pdf-content-strip.test.mjs` (operators dropped or replaced, the rest untouched, positions kept,
-  colours under a box), `tests/pdf/strip.test.html` (`pdf.spec-strip.js`: the beige sample in Lines, Paragraphs and
-  Remove, screen canvas and saved rendering with no bar, old text not extractable, undo, edit-log replay, text over a
-  gradient image, text in a form covered in the paper colour with the canvas unreadable).
+  colours under a box), `tests/node/pdf-content-forms.test.mjs` (form copies per Do, nested, names left out, ActualText,
+  CMaps of 1–4-byte codes, the packed CMaps), `tests/node/pdf-strip-files.test.mjs` (whole files with pdf-lib: the
+  fixtures below, old text nowhere in the file, every other glyph in place, page 2 of a shared form untouched),
+  `tests/pdf/strip.test.html` (`pdf.spec-strip.js`: the beige sample in Lines, Paragraphs and Remove, screen canvas and
+  saved rendering with no bar, old text not extractable, undo, edit-log replay, text over a gradient image),
+  `tests/pdf/strip-forms.test.html` (`pdf.spec-strip-forms.js` on `strip-fixtures.js`: a page wrapped in a form, a form two
+  pages share, a form drawn twice, four forms deep, Type 3, Type 0 with an embedded and a predefined CMap, no Widths, in
+  Lines and Paragraphs: no cover, the old words gone, the rest of the page pixel for pixel; a bold word with the next run
+  kerned under it; clipping text in a form covered in the form's paper colour with the canvas unreadable).
 
 ## The selection bar in every mode (`editor/sel-bar.js`, `sel-annot.js`, `css/selbar.css`)
 - One bar for whatever is selected in page view, in Select and in Edit text (Lines or Paragraphs). Text: Highlight,
