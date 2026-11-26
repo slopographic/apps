@@ -270,10 +270,10 @@
         if (c === DEFAULT) return [root + 'strings.js'];
         return [root + c + '.js'].concat(byCode[c] && byCode[c].appNames ? [root + c + '-apps.js'] : []);
       } });
-      var only = ((me.getAttribute && me.getAttribute('data-ui-parts')) || '').split(/[\s,]+/).filter(Boolean);   // the shell's: the rest on first use
-      (only.length ? only : UI_PARTS.parts).forEach(function (p) { uiWant[p] = true; });
+      var only = ((me.getAttribute && me.getAttribute('data-ui-parts')) || '').split(/[\s,]+/).filter(Boolean); (only.length ? only : UI_PARTS.parts).forEach(function (p) { uiWant[p] = true; });
       source({ ns: 'ui', files: function (c) {
-        return [root + 'ui/' + c + '.js'].concat(UI_PARTS.langs.indexOf(c) < 0 ? [] : UI_PARTS.parts.filter(function (p) { return uiWant[p]; }).map(function (p) { return root + 'ui/' + c + '/' + p + '.js'; }));
+        var has = UI_PARTS.langs.indexOf(c) >= 0, mine = has ? UI_PARTS.parts.filter(function (p) { return uiWant[p]; }) : [];   // every part: one file, ui-all/<code>.min.js
+        return [root + 'ui/' + c + '.js'].concat(has && !only.length ? [root + 'ui-all/' + c + '.min.js'] : mine.map(function (p) { return root + 'ui/' + c + '/' + p + '.js'; }));
       } });
       // English app words only once another language is in use (a page in English reads them from its HTML and the registry)
       source({ ns: 'apps', files: function (c) {

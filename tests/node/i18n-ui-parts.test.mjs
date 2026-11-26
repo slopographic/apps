@@ -6,9 +6,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
-import { ROOT, sharedAreas, appTables, uiPartsIndex, UI_PARTS_RE } from '../../tools/i18n/tables.mjs';
+import { ROOT, sharedAreas, appTables, uiPartsIndex, uiBundle, uiBundlePath, UI_PARTS_RE } from '../../tools/i18n/tables.mjs';
 import { usedKeys } from '../../tools/i18n/check.mjs';
 import { scan } from '../../tools/i18n/coverage.mjs';
 
@@ -45,7 +45,8 @@ test('UI_PARTS is one line that i18n.js and the tools both read', () => {
 test('English and a language with parts load them (data-ui-parts: those, the rest on first use); a language without reads English', async () => {
   const parts = { parts: ['alpha', 'beta'], langs: ['en', 'sv'], byNs: { alpha: ['alpha'], beta: ['beta'] } };
   const all = load('sv', parts);
-  for (const u of ['ui/en/alpha.js', 'ui/en/beta.js', 'ui/sv/alpha.js', 'ui/sv/beta.js']) assert.ok(all.urls.some((x) => x.endsWith('/shared/i18n/' + u)), u + ' at once');
+  for (const u of ['ui-all/en.min.js', 'ui-all/sv.min.js']) assert.ok(all.urls.some((x) => x.endsWith('/shared/i18n/' + u)), u + ': every part at once, in one file');
+  assert.ok(!all.urls.some((x) => /\/ui\/(en|sv)\//.test(x)), 'not part by part');
   const sv = load('sv', parts, 'alpha');
   assert.equal(sv.api.get(), 'sv');
   assert.ok(sv.urls.some((x) => x.endsWith('/shared/i18n/ui/sv/alpha.js')) && !sv.urls.some((x) => /\/ui\/(en|sv)\/beta\.js$/.test(x)), 'no other part before a key of it is asked for');
@@ -57,9 +58,21 @@ test('English and a language with parts load them (data-ui-parts: those, the res
   const de = load('de', parts);
   assert.ok(de.urls.some((x) => x.endsWith('/shared/i18n/ui/de.js')), 'de base table');
   assert.ok(!de.urls.some((x) => /\/ui\/de\//.test(x)), 'no de parts: German reads English');
-  assert.ok(de.urls.some((x) => x.endsWith('/shared/i18n/ui/en/alpha.js')), 'the English part');
+  assert.ok(de.urls.some((x) => x.endsWith('/shared/i18n/ui-all/en.min.js')) && !de.urls.some((x) => x.endsWith('/shared/i18n/ui-all/de.min.js')), 'the English parts, no German ones');
   de.api.add('en', { 'ui.alpha.x': 'Hello' });
   assert.equal(de.api.t('ui.alpha.x'), 'Hello', 'the fallback is English');
+});
+
+test('ui-all/<code>.min.js is every part of the language, current (node tools/i18n/i18n.mjs index ui)', () => {
+  const idx = uiPartsIndex();
+  for (const code of idx.langs) {
+    const f = uiBundlePath(code);
+    assert.equal(readFileSync(path.join(ROOT, f), 'utf8'), uiBundle(code), f + ' is current');
+    const run = (src) => { const got = {}; vm.runInNewContext(src, { window: { SlopI18n: { add: (c, d) => { assert.equal(c, code); Object.assign(got, d); } } } }); return got; };
+    const parts = {};
+    for (const p of idx.parts) if (existsSync(path.join(ROOT, `shared/i18n/ui/${code}/${p}.js`))) Object.assign(parts, run(readFileSync(path.join(ROOT, `shared/i18n/ui/${code}/${p}.js`), 'utf8')));
+    assert.deepEqual(run(readFileSync(path.join(ROOT, f), 'utf8')), parts, f + ' holds the same words as the parts');
+  }
 });
 
 test('the tools read the ui parts and shared/biz as tables of their own', () => {

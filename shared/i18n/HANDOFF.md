@@ -58,7 +58,9 @@ text with tables of their own: the recipe is `APPS-HOWTO.md`, the progress `COVE
   elements once they are in, and fires `slopi18n` on `window` (`SlopI18n.on(fn)`); `slop-lang` fires at once on `set()`.
   The shell marks its own tag `data-late` and waits for `SlopI18n.ready()` before it mounts the header.
 - The shared components' parts (`ui/<code>/<part>.js`, `UI_PARTS` in `i18n.js`): a page fetches all of them with
-  `ui/<code>.js`, so an app's components read their words at once, when they are built. A tag with `data-ui-parts`
+  `ui/<code>.js`, so an app's components read their words at once, when they are built, in one file per language
+  (`ui-all/<code>.min.js`: the parts without their comments, written by `node tools/i18n/i18n.mjs index ui`; one request,
+  not 40-odd). A tag with `data-ui-parts`
   fetches only the parts it names: the shell's (`shell,shell2`, on a page with no app code of its own: the landing,
   task, roundup and guide pages) and the homepage's. There the first `t()`, `has()` or `label()` of a `ui.<ns>.*` key
   that is not in yet fetches the parts holding that namespace (`UI_PARTS.byNs`, written by `node tools/i18n/i18n.mjs

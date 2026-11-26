@@ -60,10 +60,11 @@ const enWords = (p) => (p.I().DEFAULT_CHOICE !== 'en' ? ['shared/i18n/apps/en.js
 const UI = JSON.parse(/var UI_PARTS = \/\*ui-parts\*\/(\{.*\});/.exec(read('shared/i18n/i18n.js'))[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
 const EAGER = ['shell'];   // a page whose i18n.js tag says data-ui-parts="shell" (the shell's says "shell,shell2")
 const firstUse = { getAttribute: (a) => (a === 'data-ui-parts' ? EAGER.join(' ') : null) };
-/** The shared components' parts a page fetches at once after ui/<code>.js: every one, or those its tag names in
- * data-ui-parts (none for a language without parts). */
-function uiParts(code, parts = UI.parts) {
-  return UI.langs.includes(code) ? UI.parts.filter((p) => parts.includes(p)).map((p) => `shared/i18n/ui/${code}/${p}.js`) : [];
+/** The shared components' parts a page fetches at once after ui/<code>.js: every one, in one file (ui-all/<code>.min.js),
+ * or those its tag names in data-ui-parts (none for a language without parts). */
+function uiParts(code, parts = null) {
+  if (!UI.langs.includes(code)) return [];
+  return parts ? UI.parts.filter((p) => parts.includes(p)).map((p) => `shared/i18n/ui/${code}/${p}.js`) : [`shared/i18n/ui-all/${code}.min.js`];
 }
 const urls = (writes) => writes.map((h) => (/(?:src|href)="([^"]+)"/.exec(h) || [])[1].slice(SITE.length));
 
