@@ -63,6 +63,7 @@
     var all = measure(item.str, family);
     return all > 0 ? measure(item.str.slice(0, k), family) / all : k / n;
   }
+  R.frac = frac; // the hidden text under covers splits items with it (core/covered.js)
   /** Page-space box {x, y, w, h} covering characters [a, b) of a pdf.js text item. */
   R.itemBox = function (item, a, b, view, family) {
     var t = item.transform, sx = Math.hypot(t[0], t[1]) || 1, fs = Math.hypot(t[2], t[3]) || item.height || 10;
@@ -75,9 +76,10 @@
     return { x: minx - view[0], y: view[3] - maxy, w: maxx - minx, h: maxy - miny };
   };
 
-  /** Searches one pdf.js page; returns [{text, kind, boxes:[{x,y,w,h}]}]. */
-  R.searchPage = async function (pg, matchers, view) {
-    var tc = await pg.getTextContent(), str = '', spans = [];
+  /** Searches one pdf.js page; returns [{text, kind, boxes:[{x,y,w,h}]}]. p: the document's page, whose covers hide old
+   *  text that is not searched (core/covered.js). */
+  R.searchPage = async function (pg, matchers, view, p) {
+    var tc = SP.covered.visibleOf(p, await pg.getTextContent(), view), str = '', spans = [];
     tc.items.forEach(function (it) {
       if (typeof it.str !== 'string') return;
       spans.push({ s: str.length, it: it });
@@ -104,7 +106,7 @@
       var p = pages[k], f = E.fileOfPage(p);
       if (!f || p.redacted) continue;
       var pg = await f.doc.getPage(p.i + 1);
-      var found = await R.searchPage(pg, matchers, f.info[p.i].view);
+      var found = await R.searchPage(pg, matchers, f.info[p.i].view, p);
       found.forEach(function (m) { out.push(Object.assign({ pid: p.id, index: k }, m)); });
       if (onProgress) onProgress((k + 1) / pages.length);
     }

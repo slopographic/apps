@@ -105,4 +105,18 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   // io/session.js
   'pdf.io.restore': 'Geri yükle',
   'pdf.io.close_all': 'Tümünü kapat',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': 'Eski metin hâlâ dosyada',
+  'pdf.io.cover_body': '{n} düzenlenmiş satırın eski metni hâlâ dosyada gizli kalıyor. Herkes bunu kopyalayabilir.',
+  'pdf.io.cover_body#one': '{n} düzenlenmiş satırın eski metni hâlâ dosyada gizli kalıyor. Herkes bunu kopyalayabilir.',
+  'pdf.io.cover_images_note': 'Eski metni kalıcı olarak kaldırmak için bu sayfaları görüntüye dönüştürün. Bu sayfalardaki metin artık seçilemeyecek; diğer sayfalar olduğu gibi kalacak.',
+  'pdf.io.cover_keep': 'Yine de kaydet',
+  'pdf.io.cover_images': 'Bu sayfaları görüntüye dönüştür',
+  'pdf.io.cover_cancelled': 'İptal edildi. Hiçbir şey kaydedilmedi.',
+  'pdf.io.cover_making': 'Sayfalar görüntüye dönüştürülüyor…',
+  'pdf.io.cover_made': '{n} sayfa artık görüntü: eski metin kalıcı olarak kaldırıldı.',
+  'pdf.io.cover_made#one': '{n} sayfa artık görüntü: eski metin kalıcı olarak kaldırıldı.',
+  'pdf.io.cover_undo': 'Sayfaları görüntüye dönüştür',
+  'pdf.io.cover_file_name': 'Görüntü sayfaları.pdf',
 });

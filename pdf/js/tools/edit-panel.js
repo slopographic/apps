@@ -27,9 +27,9 @@
         var p = SP.editor.page();
         pageSec.innerHTML = '';
         if (p) {
-          var n = p.annots.length;
+          var n = SP.layers.items(p).length; // covers over old text are part of their edits: not counted, and Clear keeps them
           pageSec.appendChild(section(t('pdf.tool.edit.this_page'), [note(t('pdf.tool.edit.page_info', { page: String(E.indexOf(p.id) + 1), total: E.state.pages.length, annots: n ? t('pdf.tool.edit.annots_n', { n: n }) : t('pdf.tool.edit.annots_none') })),
-            n ? h('div', { class: 'btn-row' }, btn(t('pdf.tool.edit.clear_annots'), 'trash', function () { SlopUI.confirm(t('pdf.tool.edit.clear_title'), t('pdf.tool.edit.clear_msg'), t('pdf.tool.edit.clear'), { danger: true }).then(function (ok) { if (ok) E.commit(t('pdf.tool.edit.undo_clear'), function (st) { st.pages.forEach(function (x) { if (x.id === p.id) x.annots = []; }); }); }); }, 'danger-text')) : null]));
+            n ? h('div', { class: 'btn-row' }, btn(t('pdf.tool.edit.clear_annots'), 'trash', function () { SlopUI.confirm(t('pdf.tool.edit.clear_title'), t('pdf.tool.edit.clear_msg'), t('pdf.tool.edit.clear'), { danger: true }).then(function (ok) { if (ok) E.commit(t('pdf.tool.edit.undo_clear'), function (st) { st.pages.forEach(function (x) { if (x.id === p.id) x.annots = x.annots.filter(SP.layers.isCover); }); }); }); }, 'danger-text')) : null]));
         }
       });
     }
@@ -122,7 +122,7 @@
   function zorder(id, dir) {
     var pid = SP.editor.pid;
     E.commit(t(dir > 0 ? 'pdf.tool.edit.bring_front' : 'pdf.tool.edit.send_back'), function (st) {
-      st.pages.forEach(function (p) { if (p.id !== pid) return; var a = p.annots.filter(function (x) { return x.id === id; })[0]; if (!a) return; p.annots = p.annots.filter(function (x) { return x.id !== id; }); if (dir > 0) p.annots.push(a); else p.annots.unshift(a); });
+      st.pages.forEach(function (p) { if (p.id !== pid) return; var a = p.annots.filter(function (x) { return x.id === id; })[0]; if (!a) return; p.annots = p.annots.filter(function (x) { return x.id !== id; }); if (dir > 0) p.annots.push(a); else p.annots.unshift(a); SP.layers.keepCovers(p); });
     });
   }
   function toggle(label, title, on, onChange, cls) {

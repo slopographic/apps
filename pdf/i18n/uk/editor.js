@@ -266,4 +266,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'pdf.ed.an_signature': 'підпис',
   'pdf.ed.an_stamp': 'штамп',
   'pdf.ed.an_annotation': 'анотація',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'Старий текст не можна прибрати з цієї сторінки; він прихований під накладкою.',
 });

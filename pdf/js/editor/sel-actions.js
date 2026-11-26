@@ -177,8 +177,9 @@
     window.SlopPdfFind.openReplace(snap.text.slice(0, 200), { caseSensitive: false, wholeWord: false });
   };
 
-  /** A white cover over one selected line (page space, top-left origin): the whiteout Edit text makes for cleared text. */
-  function coverOf(b, fill) { return { id: U.uid('a'), type: 'whiteout', cx: b.x + b.w / 2, cy: b.y + b.h / 2, w: b.w, h: b.h, rot: 0, fill: fill || '#ffffff', opacity: 1 }; }
+  /** A white cover over one selected line (page space, top-left origin): the whiteout Edit text makes for cleared text, part
+      of that edit (hides: 'text', core/layers.js L.isCover; sel-lift.js adds of: the lifted text's id). */
+  function coverOf(b, fill) { return { id: U.uid('a'), type: 'whiteout', cx: b.x + b.w / 2, cy: b.y + b.h / 2, w: b.w, h: b.h, rot: 0, fill: fill || '#ffffff', opacity: 1, hides: 'text' }; }
   /** OCR words under the selection are emptied in the page's content (OL.replaceWord), one new file per document file
       touched. Returns [{file, pids}] for the commit; a word that cannot be found keeps only its cover. */
   async function emptyOcrWords(geo) {

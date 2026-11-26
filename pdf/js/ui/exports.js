@@ -17,7 +17,7 @@
     if (Ed.isEditingText()) Ed.commitText();
     S.busy(label, 0);
     try { return await fn(function (f, m) { S.busy(m || label, f); }); }
-    catch (e) { console.error(e); SlopUI.alert(t('pdf.act.err_title'), String((e && e.message) || e)); return null; }
+    catch (e) { if (e && e.cancelled) return null; console.error(e); SlopUI.alert(t('pdf.act.err_title'), String((e && e.message) || e)); return null; } // cancelled: the person said so (ui/cover-save.js)
     finally { S.busy(null); }
   }
   S.outName = function (suffix, ext) {
@@ -160,7 +160,7 @@
   A.extractText = function () {
     return S.guarded(t('pdf.act.busy_text'), async function () {
       var bytes = await E.build({ stamps: true });
-      var txt = await E.extractText(bytes);
+      var txt = await E.extractText(bytes, E.state.pages); // without the old text under covers
       var ta = h('textarea', { class: 'sui-input sp-textout', readonly: true, rows: 16, spellcheck: 'false', 'aria-label': t('pdf.act.text_title') });
       ta.value = txt;
       var words = (txt.match(/\S+/g) || []).length;

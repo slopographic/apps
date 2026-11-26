@@ -259,4 +259,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'pdf.ed.an_signature': '서명',
   'pdf.ed.an_stamp': '스탬프',
   'pdf.ed.an_annotation': '주석',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': '원본 텍스트를 이 페이지에서 제거할 수 없습니다. 덮개 아래에 숨겨져 있습니다.',
 });

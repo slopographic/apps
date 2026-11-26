@@ -78,7 +78,8 @@
       var p = pages[k];
       if (p.blank || p.redacted) continue;
       var t = await textOf(p); if (!t) continue;
-      F.matchesIn(t.tc, query, opts, measure, t.view).forEach(function (m) {
+      // old text under covers (an edit could not take it out of the page) is not on the page any more: core/covered.js
+      F.matchesIn(SP.covered.visibleOf(p, t.tc, t.view), query, opts, measure, t.view).forEach(function (m) {
         m.pid = p.id; m.page = k + 1; out.push(m);
       });
     }

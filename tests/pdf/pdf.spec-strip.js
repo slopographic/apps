@@ -2,8 +2,8 @@
    and Remove take the old text out of the page's content: on screen the page under the old line is the beige paper again,
    with no cover and no selection box left, and the saved file has the new text once and the old text nowhere, with no
    lighter bar where the line was. Undo puts the original page back. Text over an image is removed the same way (the image
-   shows through unchanged); where the content cannot be rewritten (text in a Form XObject) a cover is used, in the paper
-   colour, also when the browser does not let the page read its canvas back (the colour then comes from the content). */
+   shows through unchanged). Text in forms and in harder fonts, and the covers still used where the content cannot be
+   rewritten (clipping text), are tests/pdf/pdf.spec-strip-forms.js. */
 // Covers: pdf/js/core/content-lex.js, pdf/js/core/content-strip.js, pdf/js/core/content-fills.js, pdf/js/editor/text-strip.js,
 //   pdf/js/editor/edit-colours.js, pdf/js/editor/edit-text.js, pdf/js/editor/para-model.js, pdf/js/editor/para-mode.js,
 //   pdf/js/editor/sel-actions.js, pdf/js/io/edit-log.js, pdf/js/io/doc-changes.js, pdf/js/ui/app.js, pdf/js/find/replace.js, pdf/js/io/sample.js
@@ -176,7 +176,7 @@
     }, { timeout: 60000 });
   });
 
-  describe('Slop PDF: text over an image, in a form, and on a page that cannot be read back', () => {
+  describe('Slop PDF: text over an image', () => {
     /** A page with a gradient image behind a line of text (or without the text: the control). */
     async function imagePdf(withText) {
       const L = PT.win.PDFLib, d = await L.PDFDocument.create(), hel = await d.embedFont(L.StandardFonts.Helvetica);
@@ -208,33 +208,6 @@
       const worst = a.reduce((m, p, i) => Math.max(m, Math.abs(p[0] - b[i][0]) + Math.abs(p[1] - b[i][1]) + Math.abs(p[2] - b[i][2])), 0);
       expect(worst <= 12).toBe(true, 'the gradient is unchanged under the old text: worst ' + worst);
       expect((await PT.read(bytes)).pages[0].text).toBe('');
-    }, { timeout: 60000 });
-
-    it('text in a Form XObject cannot be rewritten: it is covered in the paper colour (also when the canvas cannot be read)', async () => {
-      if (!PT.SP) await PT.boot();
-      PT.reset();
-      // the sample's page 2 drawn into a new page as a form: its text is inside the form, not in the page's own stream
-      const L = PT.win.PDFLib, src = await L.PDFDocument.load(await PT.E.makeSample('playful')), d = await L.PDFDocument.create();
-      const [form] = await d.embedPdf(src, PT.win.Array.of(1)), pg = d.addPage(PT.win.Array.of(595.28, H));
-      pg.drawRectangle({ x: 0, y: 0, width: 595.28, height: H, color: L.rgb(0.945, 0.929, 0.894) });
-      pg.drawPage(form, { x: 0, y: 0 });
-      const f = await PT.open(await d.save(), 'form.pdf'), p = PT.E.state.pages[0];
-      PT.A.openPage(p.id);
-      await waitFor(() => Ed().pid === p.id && spanFor('What is goo'), { timeout: 15000 });
-      const readable = S().canvasReadable;
-      S().canvasReadable = () => false; // as Firefox with fingerprinting resistance: every pixel reads back white
-      try {
-        if (!Ed().editText) Ed().toggleEditText();
-        Ed().setEditTextMode('lines');
-        await Ed().editSelectionRun(p, { x0: 60, y0: H - 680 - 8, x1: 300, y1: H - 680 + 1 });
-        const input = await waitFor(() => doc().querySelector('.edit-run'), { timeout: 10000 });
-        input.value = 'Covered, not removed';
-        input.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-        const cover = await waitFor(() => PT.E.state.pages[0].annots.find((a) => a.type === 'whiteout'), { timeout: 10000 });
-        expect(PT.E.state.pages[0].f).toBe(f.id, 'the content is not rewritten');
-        const rgb = [1, 3, 5].map((i) => parseInt(cover.fill.slice(i, i + 2), 16));
-        expect(near(rgb, BONE, 4)).toBe(true, 'the cover is the paper colour from the content, not white: ' + cover.fill);
-      } finally { S().canvasReadable = readable; Ed().toggleEditText(); }
     }, { timeout: 60000 });
   });
 })();

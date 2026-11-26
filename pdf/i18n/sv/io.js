@@ -105,4 +105,18 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   // io/session.js
   'pdf.io.restore': 'Återställ',
   'pdf.io.close_all': 'Stäng alla',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': 'Gammal text finns kvar i filen',
+  'pdf.io.cover_body': '{n} redigerade rader har kvar sin gamla text dold i filen. Vem som helst kan kopiera den.',
+  'pdf.io.cover_body#one': '{n} redigerad rad har kvar sin gamla text dold i filen. Vem som helst kan kopiera den.',
+  'pdf.io.cover_images_note': 'Gör om de sidorna till bilder för att ta bort den gamla texten för gott. Texten på de sidorna går då inte längre att markera; övriga sidor förblir som de är.',
+  'pdf.io.cover_keep': 'Spara ändå',
+  'pdf.io.cover_images': 'Gör om sidorna till bilder',
+  'pdf.io.cover_cancelled': 'Avbrutet. Inget sparades.',
+  'pdf.io.cover_making': 'Gör om sidorna till bilder…',
+  'pdf.io.cover_made': '{n} sidor är nu bilder: den gamla texten är borta för gott.',
+  'pdf.io.cover_made#one': '{n} sida är nu en bild: den gamla texten är borta för gott.',
+  'pdf.io.cover_undo': 'Gör om sidor till bilder',
+  'pdf.io.cover_file_name': 'Bildsidor.pdf',
 });

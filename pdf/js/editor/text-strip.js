@@ -3,18 +3,19 @@
    is found by search or copied. The page then points at a derived copy of its file ({ derived: { from, i, targets } },
    an id made from those, so the edit log can make it again on replay, io/edit-log.js); undo points it back. The copy is
    checked with pdf.js before it is used: the text in the targets is gone and every other text item is where it was.
-   When that cannot be done (text in a Form XObject, clipping text, a font that cannot be measured, an unreadable or very
-   large file) the caller covers the text instead, in the colour under it: the rendered page's (edit-colours.js), or, when
-   the page cannot be read back, the colour the content paints there (core/content-fills.js). Classic script. */
+   Text in a Form XObject is taken out of a copy of the form that only this page draws (core/content-forms.js). When it
+   cannot be done (clipping or invisible text, a font that cannot be measured: vertical writing, a predefined CMap the
+   build does not have; an unreadable or very large file) the caller covers the text instead, in the colour under it: the
+   rendered page's (edit-colours.js), or, when the page cannot be read back, the colour the content paints there
+   (core/content-fills.js). Classic script. */
 (function () {
   'use strict';
   var SP = window.SP, E = SP.engine, Ed = SP.editor, S = Ed._, Lx = window.SlopPdfLex, St = window.SlopPdfStrip, Fi = window.SlopPdfFills;
-  var Ink = window.SlopPdfInk, Res = window.SlopPdfRes, contentOf = Res.contentOf;
+  var Ink = window.SlopPdfInk, Res = window.SlopPdfRes, contentOf = Res.contentOf, Fonts = window.SlopPdfFonts, Forms = window.SlopPdfForms;
   var X = S.strip = {};
   var MAX = 80e6; // bytes: a bigger file is covered, not copied for each edit
   var fills = new Map(); // file id:page → Promise of the page's operators (for the colour under a box)
 
-  function bytesOf(s) { var u = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 255; return u; }
   function load(bytes) { return PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false, throwOnInvalidObject: false }); }
   /** FNV-1a of a string, twice with two seeds: 16 hex digits. */
   function hash(s) {
@@ -30,55 +31,55 @@
   /** The bytes of file f with the targets' text removed from page i (null when it cannot be), and the colour the content
    * paints under each target (null where that is not one flat colour). */
   X.derive = async function (f, i, targets) {
-    var doc = await load(f.bytes), page = doc.getPage(i), c = contentOf(doc, page), ops = Lx.lex(c.text), res = Res.of(doc, page.node.Resources());
-    var r = St.strip(c.text, res.fonts, targets), xobj = res.xobj;
+    var doc = await load(f.bytes), page = doc.getPage(i), c = contentOf(doc, page), ops = Lx.lex(c.text);
+    await Fonts.ready(doc, page.node.Resources()); // the predefined CMaps its fonts use
+    var res = Res.of(doc, page.node.Resources()), r = St.strip(c.text, res.fonts, targets, res), xobj = res.xobj;
     var paper = targets.map(function (t) { return Fi.under(ops, boxOf(t), r ? r.first : null, xobj); });
     if (!r) return { bytes: null, paper: paper };
+    Forms.put(doc, page, r);
     X.putContent(doc, i, c.refs, r.text);
     return { bytes: await doc.save({ useObjectStreams: true }), paper: paper };
   };
   X.load = load;
-  /** Page i of doc shows the content text from now on; its old streams leave the file too (unless another page shows
-   * them), so what was taken off is not in it at all. */
-  X.putContent = function (doc, i, oldRefs, text) {
-    var L = PDFLib, page = doc.getPage(i), ref = doc.context.register(doc.context.flateStream(bytesOf(text)));
-    var others = new Set();
-    doc.getPages().forEach(function (pg, k) {
-      if (k === i) return;
-      var oc = pg.node.Contents(), rs = !oc ? [] : oc instanceof L.PDFArray ? oc.asArray() : [oc];
-      rs.forEach(function (x) { others.add(String(x)); });
-    });
-    page.node.set(L.PDFName.of('Contents'), ref);
-    oldRefs.forEach(function (x) { if (x instanceof L.PDFRef && !others.has(String(x))) doc.context.delete(x); });
-  };
+  /** Page i of doc shows the content text from now on; its old streams leave the file (core/content-forms.js). */
+  X.putContent = Forms.contents;
 
-  /** pdf.js text items of page i of a file: { s (no white space), x, y, w, fs }. */
+  /** pdf.js text items of page i of a file: { s (no white space), x, y, w, fs, cx (the centre of its first glyph that is
+   * not a space, by the item's mean advance) }. */
   async function items(f, i) {
     var tc = await (await f.doc.getPage(i + 1)).getTextContent();
     return tc.items.filter(function (it) { return typeof it.str === 'string'; }).map(function (it) {
-      var t = it.transform;
-      return { s: it.str.replace(/\s+/g, ''), x: t[4], y: t[5], w: it.width || 0, fs: Math.hypot(t[2], t[3]) || 10 };
+      var t = it.transform, w = it.width || 0, n = Math.max(1, it.str.length), lead = it.str.length - it.str.replace(/^\s+/, '').length;
+      return { s: it.str.replace(/\s+/g, ''), x: t[4], y: t[5], w: w, fs: Math.hypot(t[2], t[3]) || 10, cx: t[4] + (lead + 0.5) * w / n };
     });
   }
   function overlap(it, t) {
     var tol = Math.max(0.6, 0.2 * (t.fs || it.fs));
     return Math.abs(it.y - t.y) <= tol ? Math.min(it.x + it.w, t.x1) - Math.max(it.x, t.x0) : -1;
   }
+  /** Whether an item of the derived page shows text in target t: it covers more of it than a gap left where the text went
+   * (a run across the target, whose text pdf.js joins over the gap), or its first glyph's centre is in it (a lone mark or
+   * accent has no width); text that only starts where the target ends, or a hair before (kerning), is not in it. */
+  function inside(it, t) {
+    var fs = t.fs || it.fs, dy = it.y - t.y;
+    if (!it.s || dy < -0.3 * fs || dy > 0.6 * fs) return false;
+    return Math.min(it.x + it.w, t.x1) - Math.max(it.x, t.x0) > 0.6 * fs || (it.cx > t.x0 + 0.01 && it.cx < t.x1 - 0.01);
+  }
   /** The derived page reads as the old one without the targets' text: none left in them, the rest in place. */
   X.verify = async function (f, made, i, targets) {
     var before = await items(f, i), after = await items(made, i);
-    // nothing of the old text is left in a target: not a word, and not a lone mark or accent (zero width) either
-    var left = after.some(function (it) {
-      return it.s && targets.some(function (t) {
-        var fs = t.fs || it.fs, dy = it.y - t.y;
-        if (dy < -0.3 * fs || dy > 0.6 * fs) return false;
-        return Math.min(it.x + it.w, t.x1) - Math.max(it.x, t.x0) > 0.6 * fs || (it.x >= t.x0 && it.x <= t.x1);
-      });
-    });
-    if (left) return false;
+    if (after.some(function (it) { return targets.some(function (t) { return inside(it, t); }); })) return false;
+    // a target that held a letter lost one: the items over it have fewer than before (text too narrow for the check above)
+    var letters = function (list, t) { return list.reduce(function (n, it) { return n + (overlap(it, t) > -0.01 ? it.s.length : 0); }, 0); };
+    var held = function (t) { return before.reduce(function (n, it) { var o = overlap(it, t); return n + (o > 0 && it.w > 0 ? it.s.length * Math.min(1, o / it.w) : 0); }, 0); };
+    if (targets.some(function (t) { return held(t) >= 1 && letters(after, t) >= letters(before, t); })) return false;
+    // every other item is where it was; one that pdf.js now joins to the text before or after the gap starts or ends it
     return before.every(function (it) {
       if (!it.s || targets.some(function (t) { return overlap(it, t) > -0.01; })) return true;
-      return after.some(function (o) { return o.s === it.s && Math.abs(o.x - it.x) < 0.5 && Math.abs(o.y - it.y) < 0.5; });
+      return after.some(function (o) {
+        if (Math.abs(o.y - it.y) >= 0.5 || o.s.indexOf(it.s) < 0) return false;
+        return (Math.abs(o.x - it.x) < 0.5 && o.s.indexOf(it.s) === 0) || (Math.abs(o.x + o.w - it.x - it.w) < 0.5 && o.s.slice(-it.s.length) === it.s);
+      });
     });
   };
 
@@ -154,7 +155,10 @@
     if (!f || p.blank || !window.PDFLib) return Promise.resolve(null);
     if (!fills.has(key)) {
       var pr = load(f.bytes).then(function (doc) {
-        var pg = doc.getPage(p.i), c = { ops: Lx.lex(contentOf(doc, pg).text), res: Res.of(doc, pg.node.Resources()) };
+        var pg = doc.getPage(p.i);
+        return Fonts.ready(doc, pg.node.Resources()).then(function () { return { doc: doc, pg: pg }; });
+      }).then(function (d) {
+        var doc = d.doc, pg = d.pg, c = { ops: Lx.lex(contentOf(doc, pg).text), res: Res.of(doc, pg.node.Resources()) };
         pr.value = c;
         return c;
       }).catch(function () { return null; });

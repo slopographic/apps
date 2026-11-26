@@ -1,173 +1,156 @@
-/* Slop PDF — removing text from a page's content stream. Pure (no DOM), tested alone in Node
-   (tests/node/pdf-content-strip.test.mjs). Works on the operators of content-lex.js.
-     glyphs(ops, fonts) → every glyph the page's own stream shows: { k (operator index), at (string index in the
-       operator), code, x, y (its origin, PDF user space), w (its advance, user space), up (upright), tr (render mode) }.
-       fonts(name) → { two (two-byte codes), width(code) → 1/1000 em } or null when the font cannot be measured (then the
-       glyphs it shows, and the ones after them up to the next line move, have no known place and are never picked).
-     strip(src, fonts, targets) → { text, dropped, first } or null. targets: [{ x0, x1, y, fs }] in user space: a glyph is
-       dropped when its centre is in x0..x1 and its origin on the line of baseline y. Each text operator that shows a dropped glyph
-       is rewritten as a TJ array that keeps the other glyphs and moves the pen past the dropped ones by their advance
-       (a numeric adjustment), so nothing after it moves; one left with no glyphs and no kept text after it in its BT
-       goes. ' and " keep their line move (and their spacing). Every other operator stays byte for byte. null when nothing matched, when a dropped glyph is invisible (render mode 3: the
-       words a scan shows are in its picture, so removing them would change nothing on the page) or clipping text (modes
-       4 to 7: its removal would change what is clipped). Text in Form XObjects is not in the page's stream: not found.
-   Text state follows the PDF model: Tc, Tw, Tz, TL, Tf, Ts and Tr are graphics state (q/Q), Tm and Tlm are per BT. */
+/* Slop PDF — removing text from a page's content stream and from the forms it draws. Pure (no DOM), tested alone in Node
+   (tests/node/pdf-content-strip.test.mjs, pdf-content-forms.test.mjs). Works on the operators of content-lex.js and the
+   glyphs of content-glyphs.js (whose glyphs, walk, inTarget and mul are here too, for content-ink.js and content-fills.js).
+     strip(src, fonts, targets, res) → { text, dropped, first, forms, unused } or null. targets: [{ x0, x1, y, fs }] in user
+       space: a glyph is dropped when its centre is in x0..x1 and its origin on the line of baseline y. Each text operator
+       that shows a dropped glyph is rewritten as a TJ array that keeps the other glyphs and moves the pen past the dropped
+       ones by their advance (a numeric adjustment), so nothing after it moves; one left with no glyphs and no kept text
+       after it in its BT goes. ' and " keep their line move (and their spacing). A marked-content span that loses a glyph
+       loses the text it stands for (its ActualText, Alt and E: they would still be copied and found). Every other operator
+       stays byte for byte.
+     res (optional): the stream's resources, { form(name) → { src, ops, matrix, res } for a Form XObject (null for anything
+       else; res: the form's own resources, or the very same object when it has none and uses its caller's), has(name) }. Text
+       in forms is found where each Do draws it, forms in forms too (12 levels). A form that loses glyphs gets a copy for
+       that one Do: forms: [{ name, as (the copy's name: new, not in has), x (the form as form gave it), text (the copy's
+       content), forms, unused }] for the stream, whose text draws the copy (its Do renamed); unused: the names the stream
+       no longer draws, which its resources' copy can leave out. The form itself stays as it was for every other Do.
+     null when nothing matched, when a dropped glyph is invisible (render mode 3: the words a scan shows are in its picture,
+       so removing them would change nothing on the page) or clipping text (modes 4 to 7: its removal would change what is
+       clipped), or when the page draws too much to follow. first: the operator of the page's own stream where the first
+       dropped glyph is drawn (the Do, for a form). */
 (function (root, factory) {
-  var api = factory(root.SlopPdfLex || (typeof require === 'function' ? require('./content-lex.js') : null));
+  var req = typeof require === 'function' ? require : null;
+  var api = factory(root.SlopPdfLex || (req ? req('./content-lex.js') : null), root.SlopPdfGlyphs || (req ? req('./content-glyphs.js') : null));
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopPdfStrip = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (Lx) {
+})(typeof window !== 'undefined' ? window : globalThis, function (Lx, G) {
   'use strict';
-  /** m1 × m2 for PDF matrices [a b c d e f]. */
-  function mul(m1, m2) {
-    return [m1[0] * m2[0] + m1[1] * m2[2], m1[0] * m2[1] + m1[1] * m2[3], m1[2] * m2[0] + m1[3] * m2[2], m1[2] * m2[1] + m1[3] * m2[3],
-      m1[4] * m2[0] + m1[5] * m2[2] + m2[4], m1[4] * m2[1] + m1[5] * m2[3] + m2[5]];
-  }
-  function apply(m, x, y) { return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]]; }
-  var ID = [1, 0, 0, 1, 0, 0];
-  function nums(args, n) {
-    if (args.length < n) return null;
-    var a = args.slice(args.length - n);
-    return a.every(function (v) { return typeof v === 'number' && isFinite(v); }) ? a : null;
-  }
+  var DEPTH = 12, BUDGET = 5e6; // forms are followed this many levels deep, and this many operators are walked in all
+  function none() { return null; }
 
-  /** Walks the operators: calls show(k, el, ts) for each string a text operator shows (el: the string, ts: the text state
-   * with Tm, CTM and a known flag) and keeps the state. opts (content-ink.js): gs0, the graphics state to start from (a
-   * form's caller's); each(op, gs), called for every operator first (the colour state); form(name) → { ops, fonts, matrix,
-   * opts } for a Form XObject to walk into (null: not followed). Returns nothing. */
-  function walk(ops, fonts, show, opts) {
-    opts = opts || {};
-    var gs = Object.assign({ ctm: ID, tc: 0, tw: 0, th: 1, tl: 0, font: null, fs: 0, rise: 0, tr: 0 }, opts.gs0 || {}), stack = [];
-    var tm = ID, tlm = ID, known = true;
-    function lineMove(tx, ty) { tlm = mul([1, 0, 0, 1, tx, ty], tlm); tm = tlm; known = true; }
-    function adv(tx) { tm = mul([1, 0, 0, 1, tx, 0], tm); }
-    function shows(k, str, si) {
-      var f = gs.font ? fonts(gs.font) : null;
-      var res = show(k, str, { gs: gs, tm: tm, known: known && !!f, f: f, si: si || 0 });
-      if (!f || res == null) { known = false; return; }
-      adv(res);
+  /** A stream of the tree: the page's own, or the form that the Do at operator k of stream up draws (each Do its own). */
+  function node(src, ops, res, up, k, name, x) {
+    res = res || {};
+    return { src: src, ops: ops, res: res, fonts: res.fonts || none, up: up, k: k, name: name, x: x, kids: new Map(), drop: new Map(), repl: new Map(),
+      depth: up ? up.depth + 1 : 0, top: !up ? null : up.up ? up.top : k };
+  }
+  /** Walks the page's stream and the forms it draws, each Do's form a node (made once, the same on the next walk):
+   * visit(node) → the callback for the strings of its stream. false when there is too much to walk. */
+  function walkTree(root, visit) {
+    var left = BUDGET - root.ops.length;
+    function opts(n) {
+      return { form: function (name, k) {
+        var x = n.depth < DEPTH && n.res.form ? n.res.form(name) : null, kid = n.kids.get(k);
+        if (!x || !x.ops || x.src == null || (left -= x.ops.length) < 0) return null;
+        if (!kid) n.kids.set(k, (kid = node(x.src, x.ops, x.res || n.res, n, k, name, x)));
+        return { ops: kid.ops, fonts: kid.fonts, matrix: x.matrix, show: visit(kid), opts: opts(kid) };
+      } };
     }
-    ops.forEach(function (o, k) {
-      var a = o.args, n;
-      if (opts.each) opts.each(o, gs);
-      switch (o.op) {
-        case 'Do':
-          var x = opts.form && a[0] && a[0].name != null ? opts.form(a[0].name) : null;
-          if (x) walk(x.ops, x.fonts, show, Object.assign({}, x.opts, { gs0: Object.assign({}, gs, { ctm: mul(x.matrix || ID, gs.ctm) }) }));
-          break;
-        case 'q': stack.push(Object.assign({}, gs)); break;
-        case 'Q': if (stack.length) gs = stack.pop(); break;
-        case 'cm': if ((n = nums(a, 6))) gs.ctm = mul(n, gs.ctm); break;
-        case 'BT': tm = tlm = ID; known = true; break;
-        case 'Tc': if ((n = nums(a, 1))) gs.tc = n[0]; break;
-        case 'Tw': if ((n = nums(a, 1))) gs.tw = n[0]; break;
-        case 'Tz': if ((n = nums(a, 1))) gs.th = n[0] / 100; break;
-        case 'TL': if ((n = nums(a, 1))) gs.tl = n[0]; break;
-        case 'Ts': if ((n = nums(a, 1))) gs.rise = n[0]; break;
-        case 'Tr': if ((n = nums(a, 1))) gs.tr = n[0]; break;
-        case 'Tf': if (a.length >= 2 && a[0] && a[0].name != null && typeof a[1] === 'number') { gs.font = a[0].name; gs.fs = a[1]; } break;
-        case 'Td': if ((n = nums(a, 2))) lineMove(n[0], n[1]); break;
-        case 'TD': if ((n = nums(a, 2))) { gs.tl = -n[1]; lineMove(n[0], n[1]); } break;
-        case 'Tm': if ((n = nums(a, 6))) { tlm = tm = n; known = true; } break;
-        case 'T*': lineMove(0, -gs.tl); break;
-        case 'Tj': if (a.length && a[a.length - 1].str != null) shows(k, a[a.length - 1].str); break;
-        case "'": lineMove(0, -gs.tl); if (a.length && a[a.length - 1].str != null) shows(k, a[a.length - 1].str); break;
-        case '"':
-          if (a.length >= 3 && typeof a[0] === 'number' && typeof a[1] === 'number') { gs.tw = a[0]; gs.tc = a[1]; }
-          lineMove(0, -gs.tl);
-          if (a.length && a[a.length - 1].str != null) shows(k, a[a.length - 1].str);
-          break;
-        case 'TJ':
-          var arr = Array.isArray(a[a.length - 1]) ? a[a.length - 1] : [], si = 0;
-          arr.forEach(function (el) {
-            if (typeof el === 'number') { if (known) adv(-el / 1000 * gs.fs * gs.th); }
-            else if (el && el.str != null) shows(k, el.str, si++);
-          });
-          break;
-      }
-    });
+    G.walk(root.ops, root.fonts, visit(root), opts(root));
+    return left >= 0;
   }
 
-  /** The codes of a string in a font: one byte each, or two for a two-byte (Identity) font. */
-  function codesOf(str, f) {
-    var out = [];
-    if (f && f.two) for (var i = 0; i + 1 < str.length; i += 2) out.push({ c: str.charCodeAt(i) * 256 + str.charCodeAt(i + 1), b: str.substr(i, 2) });
-    else for (var j = 0; j < str.length; j++) out.push({ c: str.charCodeAt(j), b: str[j] });
-    return out;
-  }
-  /** The advance (text space, before Th) of one code: its width, Tc, and Tw for a one-byte space. */
-  function advOf(code, f, gs) {
-    return (f.width(code.c) / 1000) * gs.fs + gs.tc + (!f.two && code.c === 32 ? gs.tw : 0);
-  }
-
-  /** Every glyph the stream shows with a known place. */
-  function glyphs(ops, fonts, opts) {
-    var out = [];
-    walk(ops, fonts, function (k, str, t) {
-      if (!t.f) return null;
-      var m = mul(t.tm, t.gs.ctm), dx = 0, gs = t.gs;
-      var up = m[0] > 0 && m[3] > 0 && Math.abs(m[1]) < 1e-3 * Math.abs(m[0]) && Math.abs(m[2]) < 1e-3 * Math.abs(m[3]);
-      codesOf(str, t.f).forEach(function (code, at) {
-        var w0 = (t.f.width(code.c) / 1000) * gs.fs * gs.th, o = apply(m, dx, gs.rise), e = apply(m, dx + w0, gs.rise);
-        if (t.known) out.push({ k: k, si: t.si, at: at, code: code.c, x: o[0], y: o[1], w: e[0] - o[0], cx: (o[0] + e[0]) / 2, up: up, tr: gs.tr, fs: Math.abs(gs.fs * m[3]), fill: gs.fill, stroke: gs.stroke });
-        dx += advOf(code, t.f, gs) * gs.th;
-      });
-      return dx;
-    }, opts);
-    return out;
-  }
-  /** Whether a glyph is in a target: its centre within x0..x1, its origin on the line of baseline y (from 0.3 em below it
-   * to 0.6 em above: a shaped mark or accent placed above the letters is part of the line, the next line is not). */
-  function inTarget(g, ts) {
-    return g.up && ts.some(function (t) {
-      var fs = t.fs || g.fs || 10, dy = g.y - t.y;
-      return dy >= -Math.max(0.6, 0.3 * fs) && dy <= Math.max(0.6, 0.6 * fs) && g.cx >= t.x0 - 0.01 && g.cx <= t.x1 + 0.01;
-    });
-  }
-
-  /** Rewrites the stream without the glyphs in the targets (see the header). */
-  function strip(src, fonts, targets) {
-    var ops = Lx.lex(src), drop = new Map(), dropped = 0, first = -1, bad = false;
-    glyphs(ops, fonts).forEach(function (g) {
-      if (!inTarget(g, targets)) return;
+  /** Rewrites the stream (and its forms) without the glyphs in the targets (see the header). */
+  function strip(src, fonts, targets, res) {
+    var root = node(src, Lx.lex(src), res), all = [], dropped = 0, first = -1, bad = false;
+    root.fonts = fonts;
+    if (!walkTree(root, function (n) { return G.shower(all, n); })) return null;
+    all.forEach(function (g) {
+      if (!G.inTarget(g, targets)) return;
       if (g.tr >= 3) bad = true; // invisible (3: what shows is a picture, as in a scan) or clipping (4 to 7)
-      if (!drop.has(g.k)) drop.set(g.k, []);
-      drop.get(g.k).push(g);
+      var n = g.n, at = n === root ? g.k : n.top;
+      if (!n.drop.has(g.k)) n.drop.set(g.k, []);
+      n.drop.get(g.k).push(g);
       dropped++;
-      if (first < 0 || g.k < first) first = g.k;
+      if (first < 0 || at < first) first = at;
     });
     if (bad || !dropped) return null;
-    // the replacement of each operator that loses glyphs, from the state it ran in
-    var repl = new Map();
-    walk(ops, fonts, function (k, str, t) {
+    var ok = walkTree(root, function (n) { return replacer(n, function () { bad = true; }); });
+    var r = ok && !bad ? rebuild(root) : null;
+    return r ? { text: r.text, dropped: dropped, first: first, forms: r.forms, unused: r.unused } : null;
+  }
+  /** The walker callback that works out, from the state each ran in, the new elements of the strings of n's stream that
+   * lose glyphs (n.repl: operator → { string index → parts }). */
+  function replacer(n, fail) {
+    return function (k, str, t) {
       if (!t.f) return null;
-      var gs = t.gs, adv = 0, codes = codesOf(str, t.f);
-      codes.forEach(function (c) { adv += advOf(c, t.f, gs) * gs.th; });
-      var mine = drop.has(k) ? drop.get(k).filter(function (g) { return g.si === t.si; }) : [];
+      var gs = t.gs, adv = 0, codes = G.codesOf(str, t.f), ws = codes.map(function (c) { var w = t.f.width(c.c); return w == null || !isFinite(w) ? null : w; });
+      var mine = n.drop.has(k) ? n.drop.get(k).filter(function (g) { return g.si === t.si; }) : [];
       if (mine.length) {
-        if (!gs.fs) { bad = true; return adv; }
+        if (!gs.fs) { fail(); return null; }
         var gone = new Set(mine.map(function (g) { return g.at; })), parts = [], keep = '', pend = 0;
         codes.forEach(function (c, i) {
-          if (gone.has(i)) { if (keep) { parts.push({ str: keep }); keep = ''; } pend += advOf(c, t.f, gs) / gs.fs * 1000; }
+          if (gone.has(i)) { if (keep) { parts.push({ str: keep }); keep = ''; } pend += G.advOf(c, ws[i], gs) / gs.fs * 1000; }
           else { if (pend) { parts.push(-pend); pend = 0; } keep += c.b; }
         });
         if (keep) parts.push({ str: keep });
         if (pend) parts.push(-pend);
-        if (!repl.has(k)) repl.set(k, {});
-        repl.get(k)[t.si] = parts;
+        if (!n.repl.has(k)) n.repl.set(k, {});
+        n.repl.get(k)[t.si] = parts;
       }
+      if (ws.indexOf(null) >= 0) return null;
+      codes.forEach(function (c, i) { adv += G.advOf(c, ws[i], gs) * gs.th; });
       return adv;
+    };
+  }
+  /** n's stream rewritten: { text, forms, unused } (see the header), or null when nothing in it or under it changes. */
+  function rebuild(n) {
+    var parts = new Map(), edits = new Map(), renamed = new Set(), forms = [], taken = new Set(), lent = false;
+    n.repl.forEach(function (r, k) { var o = n.ops[k]; parts.set(k, o.op === 'TJ' ? mergeTJ(o.args[o.args.length - 1], r) : r[0]); });
+    var omit = trailing(n.ops, parts);
+    parts.forEach(function (p, k) { var o = n.ops[k]; edits.set(k, omit.has(k) ? prefix(o).trim() : prefix(o) + tj(p)); });
+    Array.from(n.kids.keys()).sort(function (a, b) { return a - b; }).forEach(function (k) {
+      var kid = n.kids.get(k), r = rebuild(kid);
+      if (kid.res === n.res) lent = true;
+      if (!r) return;
+      var as = fresh(kid.name, n.res, taken);
+      edits.set(k, '/' + as + ' Do'); // i18n-ignore: PDF names / font names / producer, not UI
+      renamed.add(k);
+      forms.push({ name: kid.name, as: as, x: kid.x, text: r.text, forms: r.forms, unused: r.unused });
     });
-    if (bad) return null;
-    var out = '', at = 0, parts = new Map();
-    repl.forEach(function (r, k) { var o = ops[k]; parts.set(k, o.op === 'TJ' ? mergeTJ(o.args[o.args.length - 1], r) : r[0]); });
-    var omit = trailing(ops, parts);
-    Array.from(repl.keys()).sort(function (a, b) { return a - b; }).forEach(function (k) {
-      var o = ops[k];
-      out += src.slice(at, o.s) + (omit.has(k) ? prefix(o).trim() : prefix(o) + tj(parts.get(k)));
-      at = o.e;
+    if (!edits.size) return null;
+    spans(n, new Set(Array.from(parts.keys()).concat(Array.from(renamed)))).forEach(function (k) { edits.set(k, bdc(n.ops[k])); });
+    var out = '', at = 0, still = new Set();
+    Array.from(edits.keys()).sort(function (a, b) { return a - b; }).forEach(function (k) { var o = n.ops[k]; out += n.src.slice(at, o.s) + edits.get(k); at = o.e; });
+    n.ops.forEach(function (o, k) { if (o.op === 'Do' && !renamed.has(k) && o.args[0] && o.args[0].name != null) still.add(o.args[0].name); }); // i18n-ignore: PDF names / font names / producer, not UI
+    // a form that has no resources of its own draws by this stream's names: then none of them is left out
+    var unused = lent || n.depth >= DEPTH - 1 ? [] : forms.map(function (f) { return f.name; }).filter(function (nm, i, a) { return !still.has(nm) && a.indexOf(nm) === i; });
+    return { text: out + n.src.slice(at), forms: forms, unused: unused };
+  }
+  var SAYS = ['ActualText', 'Alt', 'E']; // i18n-ignore: PDF names / font names / producer, not UI
+  /** The BDC operators of n's stream whose span (with text it stands for) holds one of the operators changed. */
+  function spans(n, changed) {
+    var open = [], out = new Set();
+    n.ops.forEach(function (o, k) {
+      var d = o.op === 'BDC' && o.args[1] && o.args[1].dict;
+      if (o.op === 'BDC' || o.op === 'BMC') open.push(d && SAYS.some(function (x) { return d[x] != null; }) ? k : -1);
+      else if (o.op === 'EMC') open.pop();
+      else if (changed.has(k)) open.forEach(function (b) { if (b >= 0) out.add(b); });
     });
-    return { text: out + src.slice(at), dropped: dropped, first: first };
+    return out;
+  }
+  /** A BDC operator without the text its span stands for. */
+  function bdc(o) {
+    var d = {}, a = o.args;
+    Object.keys(a[1].dict).forEach(function (x) { if (SAYS.indexOf(x) < 0) d[x] = a[1].dict[x]; });
+    return valText(a[0]) + ' ' + valText({ dict: d }) + ' BDC';
+  }
+  /** An operand (content-lex.js's form) as content text. */
+  function valText(v) {
+    if (typeof v === 'number') return Lx.num(v);
+    if (Array.isArray(v)) return '[' + v.map(valText).join(' ') + ']';
+    if (v.name != null) return '/' + v.name.replace(/[^\x21-\x7e]|[#()<>[\]{}\/%]/g, function (c) { return '#' + ('0' + c.charCodeAt(0).toString(16)).slice(-2); });
+    if (v.str != null) return Lx.hexOf(v.str);
+    if (v.dict) return '<<' + Object.keys(v.dict).map(function (k) { return valText({ name: k }) + ' ' + valText(v.dict[k]); }).join(' ') + '>>';
+    return v.kw || 'null';
+  }
+  /** A new XObject name from base: not in the resources (res.has) and not given before in this stream. */
+  function fresh(base, res, taken) {
+    base = /^[A-Za-z0-9_.+-]{1,40}$/.test(base) ? base : 'Fm'; // i18n-ignore: PDF names / font names / producer, not UI
+    for (var i = 1; ; i++) {
+      var c = base + '_' + i;
+      if (!taken.has(c) && !(res.has && res.has(c))) { taken.add(c); return c; }
+    }
   }
   var SHOW = { Tj: 1, TJ: 1, "'": 1, '"': 1 };
   /** The rewritten operators left with no glyphs that no kept text follows in their text object: their pen move matters
@@ -213,5 +196,5 @@
     return '[' + els.map(function (p) { return typeof p === 'number' ? Lx.num(p) : Lx.hexOf(p.str); }).join(' ') + '] TJ';
   }
 
-  return { glyphs: glyphs, strip: strip, mul: mul, walk: walk, inTarget: inTarget };
+  return { glyphs: G.glyphs, strip: strip, mul: G.mul, walk: G.walk, inTarget: G.inTarget };
 });

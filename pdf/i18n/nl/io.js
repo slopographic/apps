@@ -82,4 +82,18 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'pdf.io.sample_busy_plain': 'Het voorbeeld wordt gemaakt…',
   'pdf.io.restore': 'Herstellen',
   'pdf.io.close_all': 'Alles sluiten',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': 'Oude tekst staat nog in het bestand',
+  'pdf.io.cover_body': '{n} bewerkte regels hebben hun oude tekst nog verborgen in het bestand. Iedereen kan die kopiëren.',
+  'pdf.io.cover_body#one': '{n} bewerkte regel heeft zijn oude tekst nog verborgen in het bestand. Iedereen kan die kopiëren.',
+  'pdf.io.cover_images_note': 'Maak die pagina’s tot afbeeldingen om de oude tekst definitief te verwijderen. Tekst op die pagina’s is daarna niet meer selecteerbaar; de andere pagina’s blijven zoals ze zijn.',
+  'pdf.io.cover_keep': 'Toch opslaan',
+  'pdf.io.cover_images': 'Pagina’s omzetten naar afbeeldingen',
+  'pdf.io.cover_cancelled': 'Geannuleerd. Er is niets opgeslagen.',
+  'pdf.io.cover_making': 'Pagina’s worden omgezet naar afbeeldingen…',
+  'pdf.io.cover_made': '{n} pagina’s zijn nu afbeeldingen: de oude tekst is definitief weg.',
+  'pdf.io.cover_made#one': '{n} pagina is nu een afbeelding: de oude tekst is definitief weg.',
+  'pdf.io.cover_undo': 'Pagina’s omzetten naar afbeeldingen',
+  'pdf.io.cover_file_name': 'Afbeeldingspagina’s.pdf',
 });

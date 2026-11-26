@@ -92,6 +92,9 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .pv-svg .stamps { pointer-events: none; }
 .pv-svg .an-hit { pointer-events: all; }
 .pv-svg .an { pointer-events: visiblePainted; }
+/* a cover over old text an edit could not take off the page (core/layers.js L.isCover): not a thing to click, the press
+   reaches the text or the page under it */
+.pv-svg .an.an-cover, .pv-svg .an.an-cover .an-hit, .pv-svg .an.an-cover rect { pointer-events: none; }
 .pv-svg .draft { opacity: .85; }
 .pv-page[data-tool="select"] .annots [data-aid] { cursor: move; }
 .pv-page[data-tool="select"] { cursor: grab; }

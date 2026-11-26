@@ -80,4 +80,18 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'pdf.io.sample_busy_plain': 'Creando el ejemplo…',
   'pdf.io.restore': 'Restaurar',
   'pdf.io.close_all': 'Cerrar todo',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': 'El texto anterior sigue en el archivo',
+  'pdf.io.cover_body': '{n} líneas editadas siguen teniendo su texto anterior oculto en el archivo. Cualquiera puede copiarlo.',
+  'pdf.io.cover_body#one': '{n} línea editada sigue teniendo su texto anterior oculto en el archivo. Cualquiera puede copiarlo.',
+  'pdf.io.cover_images_note': 'Convierte esas páginas en imágenes para quitar el texto anterior de forma definitiva. El texto de esas páginas ya no se podrá seleccionar; las demás páginas no cambian.',
+  'pdf.io.cover_keep': 'Guardar de todos modos',
+  'pdf.io.cover_images': 'Convertir esas páginas en imágenes',
+  'pdf.io.cover_cancelled': 'Cancelado. No se guardó nada.',
+  'pdf.io.cover_making': 'Convirtiendo las páginas en imágenes…',
+  'pdf.io.cover_made': '{n} páginas ya son imágenes: el texto anterior se ha eliminado de forma definitiva.',
+  'pdf.io.cover_made#one': '{n} página ya es una imagen: el texto anterior se ha eliminado de forma definitiva.',
+  'pdf.io.cover_undo': 'Convertir páginas en imágenes',
+  'pdf.io.cover_file_name': 'Páginas como imágenes.pdf',
 });

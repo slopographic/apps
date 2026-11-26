@@ -261,4 +261,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.ed.an_signature': 'imza',
   'pdf.ed.an_stamp': 'damga',
   'pdf.ed.an_annotation': 'not',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'Eski metin bu sayfadan çıkarılamaz; bir kapak altında gizli.',
 });

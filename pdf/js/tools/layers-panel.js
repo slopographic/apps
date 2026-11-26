@@ -81,19 +81,20 @@
   function render(body) {
     body.appendChild(scopeTabs());
     if (scope === 'all') {
-      var withLayers = E.state.pages.filter(function (p) { return (p.annots || []).length; });
+      var withLayers = E.state.pages.filter(function (p) { return L.items(p).length; }); // covers over old text are not layers
       if (!withLayers.length) { body.appendChild(h('p', { class: 'pp-note' }, t('pdf.tool.layers.doc_empty'))); ocg(body); return; }
       body.appendChild(h('p', { class: 'pp-note' }, t('pdf.tool.layers.pages_with', { n: withLayers.length })));
       E.state.pages.forEach(function (p) {
-        if (!(p.annots || []).length) return;
-        var group = h('div', { class: 'lyr-group' }, h('h4', { class: 'lyr-group-h' }, t('pdf.tool.layers.page_n', { page: String(E.indexOf(p.id) + 1), n: p.annots.length })));
+        var n = L.items(p).length; if (!n) return;
+        var group = h('div', { class: 'lyr-group' }, h('h4', { class: 'lyr-group-h' }, t('pdf.tool.layers.page_n', { page: String(E.indexOf(p.id) + 1), n: n })));
         body.appendChild(group);
         pageRows(group, p);
       });
     } else {
       var pid = pageId(), p = pid && E.pageById(pid);
       if (!p) { body.appendChild(h('p', { class: 'pp-note' }, t('pdf.tool.layers.no_doc'))); return; }
-      body.appendChild(h('p', { class: 'pp-note' }, (p.annots || []).length ? t('pdf.tool.layers.page_n', { page: String(E.indexOf(p.id) + 1), n: p.annots.length }) : t('pdf.tool.layers.page', { page: String(E.indexOf(p.id) + 1) })));
+      var count = L.items(p).length;
+      body.appendChild(h('p', { class: 'pp-note' }, count ? t('pdf.tool.layers.page_n', { page: String(E.indexOf(p.id) + 1), n: count }) : t('pdf.tool.layers.page', { page: String(E.indexOf(p.id) + 1) })));
       pageRows(body, p);
     }
     body.appendChild(h('p', { class: 'pp-hint lyr-hint' }, t('pdf.tool.layers.hint')));
@@ -103,6 +104,6 @@
   function ocg(body) { if (SP.ocgPanel && E.state.pages.length) SP.ocgPanel(body); }
   D.add({
     id: 'layers', title: function () { return t('pdf.tool.layers.title'); }, open: true, render: render,
-    meta: function () { var pid = pageId(), p = pid && E.pageById(pid); return p && p.annots && p.annots.length ? String(p.annots.length) : ''; },
+    meta: function () { var pid = pageId(), p = pid && E.pageById(pid), n = p ? L.items(p).length : 0; return n ? String(n) : ''; },
   });
 })();

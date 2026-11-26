@@ -98,4 +98,22 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   // io/session.js
   'pdf.io.restore': 'Przywróć',
   'pdf.io.close_all': 'Zamknij wszystko',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': 'Stary tekst nadal jest w pliku',
+  'pdf.io.cover_body': '{n} edytowanych wierszy nadal ma ukryty stary tekst w pliku. Każdy może go skopiować.',
+  'pdf.io.cover_body#one': '{n} edytowany wiersz nadal ma ukryty stary tekst w pliku. Każdy może go skopiować.',
+  'pdf.io.cover_body#few': '{n} edytowane wiersze nadal mają ukryty stary tekst w pliku. Każdy może go skopiować.',
+  'pdf.io.cover_body#many': '{n} edytowanych wierszy nadal ma ukryty stary tekst w pliku. Każdy może go skopiować.',
+  'pdf.io.cover_images_note': 'Zamień te strony w obrazy, aby na dobre usunąć stary tekst. Tekst na tych stronach nie będzie już można zaznaczyć; pozostałe strony pozostaną bez zmian.',
+  'pdf.io.cover_keep': 'Mimo to zapisz',
+  'pdf.io.cover_images': 'Zamień te strony w obrazy',
+  'pdf.io.cover_cancelled': 'Anulowano. Nic nie zapisano.',
+  'pdf.io.cover_making': 'Zamieniam strony w obrazy…',
+  'pdf.io.cover_made': '{n} stron jest teraz obrazami: stary tekst został usunięty na dobre.',
+  'pdf.io.cover_made#one': '{n} strona jest teraz obrazem: stary tekst został usunięty na dobre.',
+  'pdf.io.cover_made#few': '{n} strony są teraz obrazami: stary tekst został usunięty na dobre.',
+  'pdf.io.cover_made#many': '{n} stron jest teraz obrazami: stary tekst został usunięty na dobre.',
+  'pdf.io.cover_undo': 'Zamień strony w obrazy',
+  'pdf.io.cover_file_name': 'Strony jako obrazy.pdf',
 });

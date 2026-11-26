@@ -244,4 +244,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'pdf.ed.an_signature': 'podpis',
   'pdf.ed.an_stamp': 'pieczątka',
   'pdf.ed.an_annotation': 'adnotacja',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'Starego tekstu nie da się usunąć z tej strony; jest ukryty pod osłoną.',
 });
