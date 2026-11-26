@@ -94,6 +94,7 @@ The app loads these files from the site itself. `code/index.html` has an inline 
 ## Notes
 
 - The files are the packages' unminified ES modules, copied as shipped. Several are longer than 300 lines. That limit applies to the code Slop writes, not to vendored upstream code.
-- A legacy mode that imports a sibling (`import {simpleMode} from "./simple-mode.js"`) has that one specifier rewritten to the import-map form (`"@codemirror/legacy-modes/mode/simple-mode"`), so the file resolves from `vendor/codemirror/`. The first line of such a file says so. Nothing else in a mode file is edited.
+- A legacy mode that imports a sibling (`import {simpleMode} from "./simple-mode.js"`) has that one specifier rewritten to the import-map form (`"@codemirror/legacy-modes/mode/simple-mode"`), so the file resolves from `vendor/codemirror/`. The first line of such a file says so. Nothing else in a mode file is edited, apart from the two entries below.
+- Two keyword entries are taken out by hand: one name in `legacy-clojure.js`'s core list and one special variable in `legacy-perl.js`'s list (they are only coloured as plain words now). After a re-vendor, take them out again: `tests/node/vendor-codemirror-trim.test.mjs` names them by their SHA-256 and fails until they are gone.
 - The script clears the generated files before writing, but keeps this `README.md`.
 - To update, change the versions in the script, run it, then update this table and the import map in `code/index.html`.
