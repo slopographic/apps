@@ -112,10 +112,18 @@
       b.lines.forEach(function (l) {
         var seg = { x0: l.x0 + g.x0, x1: l.x1 + g.x0, y: g.y0 + g.H - l.base, fs: l.fs };
         // a little wider than the advances: a glyph may reach past its advance (the hook of an f, the end of an r)
-        M.coverPlan({ segs: [seg] }, '', function () { return 0; }).covers.forEach(function (c) { var o = 0.12 * l.fs; covers.push(F.coverAnnot(p, { x: c.x - o, y: c.y, w: c.w + 2 * o, h: c.h }, a.paper)); });
+        M.coverPlan({ segs: [seg] }, '', function () { return 0; }).covers.forEach(function (c) { var o = 0.12 * l.fs; covers.push(F.coverAnnot(p, { x: c.x - o, y: c.y, w: c.w + 2 * o, h: c.h }, a.paper, a.id)); });
       });
     });
     return { annot: a, covers: took.to ? [] : covers, preview: covers, to: took.to };
+  };
+  /** The selected frame's old lines are hidden under covers (they could not be taken off the page): its info says so
+   * (para-xform.js). A block being set up has its covers; a frame annotation, the covers that belong to it. */
+  P.hidesOld = function (sel) {
+    if (!sel) return false;
+    if (sel.kind === 'block') return !!(sel.covers && sel.covers.length);
+    var p = E.pageById(sel.pid);
+    return !!(p && p.annots.some(function (c) { return SP.layers.isCover(c) && c.of === sel.id; }));
   };
 
   /** Commits a frame as one undo step: a new frame with its old lines taken off the page (the derived file, or covers),

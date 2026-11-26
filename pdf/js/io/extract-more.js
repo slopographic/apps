@@ -1,8 +1,8 @@
 /* Slop PDF — Extract all, beyond the stored images and fonts (assets-save.js): the embedded files as they are, the images
    painted inline in the content (an inline JPEG as its bytes, others drawn as PNG), each page's text (.txt, .md) and each
    page as a picture (PNG at a chosen resolution) or as SVG (its drawing as paths, its pictures embedded, its text as text).
-   Pages and text come from the document as it is now (edits, added text and shapes included: E.build), the stored parts
-   from the files. X.collect(choice) → { entries: [{ group, path, data }], skipped: [{ name, reason }] } in zip order. */
+   Pages and text come from the document as it is now (edits, added text and shapes included: E.build; the old text under
+   covers left out of the text, core/covered.js), the stored parts from the files. X.collect(choice) → { entries: [{ group, path, data }], skipped: [{ name, reason }] } in zip order. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, X = SP.assets, Mod = window.SlopPdfAssets, Sv = window.SlopPdfSvg, Lx = window.SlopPdfLex, Res = window.SlopPdfRes;
@@ -32,7 +32,7 @@
       var e = (await X.entries([im], [])).entries[0];
       if (e) pics[im.name] = U.bytesToDataURL(e.data, im.kind === 'jpeg' ? 'image/jpeg' : 'image/png');
     }
-    var tc = await (await pdoc.getPage(i + 1)).getTextContent(), text = '';
+    var tc = await SP.covered.ofBuilt(E.state.pages[i], await (await pdoc.getPage(i + 1)).getTextContent()), text = '';
     tc.items.forEach(function (it) {
       if (typeof it.str !== 'string' || !it.str.trim()) return;
       var t = it.transform, fs = Math.hypot(t[2], t[3]) || 10;
@@ -58,7 +58,7 @@
         for (var i = 0; i < n; i++) {
           var pg = await b.doc.getPage(i + 1), nm = 'page-' + pad(i + 1, n);
           if (choice.text) {
-            var t = Mod.pageText((await pg.getTextContent()).items, i + 1);
+            var t = Mod.pageText((await SP.covered.ofBuilt(E.state.pages[i], await pg.getTextContent())).items, i + 1);
             if (choice.text !== 'md') items.push({ group: 'text', path: 'text/' + nm + '.txt', data: new TextEncoder().encode(t.txt) });
             if (choice.text !== 'txt') items.push({ group: 'text', path: 'text/' + nm + '.md', data: new TextEncoder().encode(t.md) });
           }

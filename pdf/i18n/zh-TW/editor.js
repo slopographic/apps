@@ -236,4 +236,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.ed.an_signature': '簽名',
   'pdf.ed.an_stamp': '印章',
   'pdf.ed.an_annotation': '標註',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': '無法從此頁面移除舊文字；它被隱藏在遮蓋層下。',
 });

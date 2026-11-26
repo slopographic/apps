@@ -94,6 +94,8 @@
   add('export_pdf', 'Save the PDF', [{ name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive' }, Str('name', 'file name without .pdf; the name in the top bar when empty', { maxLength: 120 })],
   async function (a) {
     X.need();
+    // old text under Edit text's covers: the person chooses first (ui/cover-save.js)
+    if (A.coverCheck && !(await A.coverCheck(E.state.pages))) return 'Not saved: the person cancelled (old text is still under covers on some pages).'; // i18n-ignore: API (English for the assistant)
     var n = E.state.pages.length, bytes = await E.build({});
     await E.validate(bytes, n);
     var field = document.getElementById('fileName'), base = a.name || (field && field.value ? field.value.replace(/\.pdf$/i, '') : 'document');
@@ -114,7 +116,8 @@
     return { app: 'Slop PDF', pages: st.pages.length, meta: st.meta, files: Array.from(E.files.values()).map(function (f) { return f.name; }),
       currentPage: A.mode === 'page' && SP.editor.pid ? E.indexOf(SP.editor.pid) + 1 : null, canUndo: E.canUndo(), formFields: fields.slice(0, 80),
       pageList: st.pages.slice(0, 60).map(function (p, i) { var vs = E.viewSize(p); return { page: i + 1, width: Math.round(vs.w), height: Math.round(vs.h), rotation: E.rotation(p), blank: !!p.blank,
-        additions: (p.annots || []).map(function (an) { return an.type + (an.text ? ': ' + an.text.slice(0, 40) : ''); }).slice(0, 20) }; }) };
+        // a cover over old text is part of its edit, not an addition of its own (core/layers.js L.isCover)
+        additions: (p.annots || []).filter(function (an) { return !SP.layers.isCover(an); }).map(function (an) { return an.type + (an.text ? ': ' + an.text.slice(0, 40) : ''); }).slice(0, 20) }; }) };
   }
   /** The open tab and its history depth; the rollback closes tabs the assistant opened and undoes back to that depth. */
   function checkpoint() {

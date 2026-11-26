@@ -215,4 +215,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'pdf.ed.an_signature': 'assinatura',
   'pdf.ed.an_stamp': 'carimbo',
   'pdf.ed.an_annotation': 'anotação',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'O texto antigo não pode ser removido desta página; ele está oculto sob uma capa.',
 });

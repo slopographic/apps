@@ -51,11 +51,14 @@
     } finally { await doc.destroy(); }
     return files;
   };
-  E.extractText = async function (bytes) {
+  /** The text of each page of a PDF. pages: the document's pages the PDF was built from (E.build), one per page: the old
+   *  text their covers hide (an edit could not take it out of the page) is left out (core/covered.js). */
+  E.extractText = async function (bytes, pages) {
     var doc = await E.openOutput(bytes), parts = [];
     try {
       for (var i = 0; i < doc.numPages; i++) {
         var pg = await doc.getPage(i + 1), tc = await pg.getTextContent(), s = '';
+        if (pages && pages[i]) tc = await SP.covered.ofBuilt(pages[i], tc);
         tc.items.forEach(function (it) { if (typeof it.str === 'string') { s += it.str; if (it.hasEOL) s += '\n'; } });
         parts.push('— Page ' + (i + 1) + ' —\n' + s.replace(/[ \t]+\n/g, '\n').trim());
       }

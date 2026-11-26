@@ -105,4 +105,18 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   // io/session.js
   'pdf.io.restore': 'Restaurer',
   'pdf.io.close_all': 'Tout fermer',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': 'L’ancien texte est toujours dans le fichier',
+  'pdf.io.cover_body': '{n} lignes modifiées ont encore leur ancien texte caché dans le fichier. N’importe qui peut le copier.',
+  'pdf.io.cover_body#one': '{n} ligne modifiée a encore son ancien texte caché dans le fichier. N’importe qui peut le copier.',
+  'pdf.io.cover_images_note': 'Transformez ces pages en images pour retirer définitivement l’ancien texte. Le texte de ces pages ne pourra plus être sélectionné ; les autres pages restent inchangées.',
+  'pdf.io.cover_keep': 'Enregistrer quand même',
+  'pdf.io.cover_images': 'Transformer ces pages en images',
+  'pdf.io.cover_cancelled': 'Annulé. Rien n’a été enregistré.',
+  'pdf.io.cover_making': 'Transformation des pages en images…',
+  'pdf.io.cover_made': '{n} pages sont désormais des images : l’ancien texte a été définitivement supprimé.',
+  'pdf.io.cover_made#one': '{n} page est désormais une image : l’ancien texte a été définitivement supprimé.',
+  'pdf.io.cover_undo': 'Transformer les pages en images',
+  'pdf.io.cover_file_name': 'Pages en images.pdf',
 });

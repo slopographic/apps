@@ -142,6 +142,7 @@
   <script src="js/core/model.js" data-src="pdf/js/core/model.js"></script>
   <script src="js/core/history.js" data-src="pdf/js/core/history.js"></script>
   <script src="js/core/layers.js" data-src="pdf/js/core/layers.js"></script>
+  <script src="js/core/covered.js" data-src="pdf/js/core/covered.js"></script>
   <script src="js/ui/sheet.js" data-src="pdf/js/ui/sheet.js"></script>
   <script src="js/organize/grid.js" data-src="pdf/js/organize/grid.js"></script>
   <script src="js/editor/view.js" data-src="pdf/js/editor/view.js"></script>
@@ -225,9 +226,9 @@
     <script src="js/find/bar.js" data-src="pdf/js/find/bar.js"></script> <script src="js/find/replace.js" data-src="pdf/js/find/replace.js"></script>
     <script src="js/find/replace-ui.js" data-src="pdf/js/find/replace-ui.js"></script> <script src="js/macro/ops-edit.js" data-src="pdf/js/macro/ops-edit.js"></script>
     <script src="js/editor/font-check.js" data-src="pdf/js/editor/font-check.js"></script> <script src="js/editor/edit-colours.js" data-src="pdf/js/editor/edit-colours.js"></script>
-    <script src="js/core/content-lex.js" data-src="pdf/js/core/content-lex.js"></script> <script src="js/core/content-strip.js" data-src="pdf/js/core/content-strip.js"></script>
-    <script src="js/core/content-ink.js" data-src="pdf/js/core/content-ink.js"></script> <script src="js/core/content-fills.js" data-src="pdf/js/core/content-fills.js"></script>
-    <script src="js/core/content-res.js" data-src="pdf/js/core/content-res.js"></script> <script src="js/editor/text-strip.js" data-src="pdf/js/editor/text-strip.js"></script>
+    <script src="js/core/content-lex.js" data-src="pdf/js/core/content-lex.js"></script> <script src="js/core/content-glyphs.js" data-src="pdf/js/core/content-glyphs.js"></script> <script src="js/core/content-strip.js" data-src="pdf/js/core/content-strip.js"></script>
+    <script src="js/core/content-ink.js" data-src="pdf/js/core/content-ink.js"></script> <script src="js/core/content-fills.js" data-src="pdf/js/core/content-fills.js"></script> <script src="js/core/content-cmap.js" data-src="pdf/js/core/content-cmap.js"></script>
+    <script src="js/core/content-res.js" data-src="pdf/js/core/content-res.js"></script> <script src="js/core/content-fonts.js" data-src="pdf/js/core/content-fonts.js"></script> <script src="js/core/content-forms.js" data-src="pdf/js/core/content-forms.js"></script> <script src="js/editor/text-strip.js" data-src="pdf/js/editor/text-strip.js"></script>
     <script src="js/core/content-objs.js" data-src="pdf/js/core/content-objs.js"></script> <script src="js/core/content-move.js" data-src="pdf/js/core/content-move.js"></script> <script src="js/core/content-svg.js" data-src="pdf/js/core/content-svg.js"></script> <script src="js/editor/obj-derive.js" data-src="pdf/js/editor/obj-derive.js"></script> <script src="js/io/ocg.js" data-src="pdf/js/io/ocg.js"></script>
     <script src="js/editor/edit-text.js" data-src="pdf/js/editor/edit-text.js"></script> <script src="js/editor/para-blocks.js" data-src="pdf/js/editor/para-blocks.js"></script>
     <script src="js/editor/para-layout.js" data-src="pdf/js/editor/para-layout.js"></script> <script src="js/editor/para-fonts.js" data-src="pdf/js/editor/para-fonts.js"></script>
@@ -258,7 +259,7 @@
     <script src="js/ui/pane-preview.js" data-src="pdf/js/ui/pane-preview.js"></script> <script src="js/ui/panes.js" data-src="pdf/js/ui/panes.js"></script>
     <script src="js/ui/panes-ui.js" data-src="pdf/js/ui/panes-ui.js"></script> <script src="js/ui/open-convert.js" data-src="pdf/js/ui/open-convert.js"></script>
     <script src="js/ui/view-state.js" data-src="pdf/js/ui/view-state.js"></script> <script src="js/ui/route.js" data-src="pdf/js/ui/route.js"></script>
-    <script src="js/ui/main.js" data-src="pdf/js/ui/main.js"></script>
+    <script src="js/ui/main.js" data-src="pdf/js/ui/main.js"></script> <script src="js/ui/cover-save.js" data-src="pdf/js/ui/cover-save.js"></script>
   </template>
   <!-- When the browser is idle: the convert dialog, the mascot, the consent card, the offline worker. -->
   <template id="pdf-idle" data-load="idle">

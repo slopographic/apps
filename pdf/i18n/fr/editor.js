@@ -261,4 +261,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'pdf.ed.an_signature': 'signature',
   'pdf.ed.an_stamp': 'tampon',
   'pdf.ed.an_annotation': 'annotation',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'L’ancien texte ne peut pas être retiré de cette page ; il est masqué sous un cache.',
 });

@@ -22,6 +22,10 @@
 .para-tag { position: absolute; left: -1.5px; bottom: 100%; margin-bottom: 5px; padding: 2px 7px; border-radius: 5px; white-space: nowrap; pointer-events: none;
   background: #0a0a0a; color: #f2f2f2; font: 600 11px/1.4 system-ui, sans-serif; }
 .para-frame.is-editing .para-tag { display: none; }
+/* the old lines could not be taken out of the page: they are hidden under covers (editor/para-xform.js); shown while typing too */
+.para-note { position: absolute; left: -1.5px; top: 100%; margin-top: 7px; padding: 2px 7px; border-radius: 5px; white-space: nowrap; pointer-events: none;
+  background: #0a0a0a; color: #ffcf5a; font: 500 11px/1.4 system-ui, sans-serif; }
+.para-note[hidden] { display: none; }
 
 /* typing in the frame: the paragraph's own font on the paper, with no box of its own that would move the text */
 .para-edit { position: absolute; z-index: 4; box-sizing: content-box; margin: 0; padding: 0; border: 0; white-space: pre-wrap; overflow-wrap: anywhere;

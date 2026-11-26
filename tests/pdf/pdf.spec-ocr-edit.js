@@ -1,4 +1,5 @@
-/* Slop PDF: editing a recognised word (the OCR text layer). The helpers are in pdf.spec-ocr-shared.js. */
+/* Slop PDF: editing a recognised word (the OCR text layer). The helpers are in pdf.spec-ocr-shared.js.
+   Covers: pdf/js/ocr/layer.js */
 (function () {
   'use strict';
   const { describe, it, expect } = SlopTest;
@@ -30,6 +31,28 @@
       });
     });
 
+    it('a page whose content is one stream (as most files have it): the old stream leaves the file, so the word is not in it at all', async () => {
+      PT.reset();
+      await withEngine(async () => {
+        const file = await PT.open(await scanPdf([PAGE_ONE]), 'scan-one-stream.pdf');
+        const first = PT.E.state.pages.filter((p) => p.f === file.id)[0];
+        stubEngine([PAGE_ONE]);
+        expect(await PT.A.recognise([first.id])).toBe(1);
+        // the page's streams joined into one, pointed at directly (not in an array)
+        const L = PT.win.PDFLib, d = await L.PDFDocument.load(PT.E.fileOfPage(PT.E.pageById(first.id)).bytes);
+        const pg = d.getPage(0), body = await contentOf(await d.save()), was = pg.node.Contents();
+        pg.node.set(L.PDFName.of('Contents'), d.context.register(d.context.flateStream(body)));
+        (was instanceof L.PDFArray ? was.asArray() : []).forEach((r) => d.context.delete(r));
+        const bytes = await d.save();
+        const w = (await PT.SP.ocrLayer.wordsAll(bytes))[0].find((x) => x.str === 'Invoice');
+        const out = await PT.SP.ocrLayer.replaceWord(bytes, 0, { str: 'Invoice', x0: w.x0, y: w.y, width: 1, fs: 12 }, 'Receipt', [1, 1, 1]);
+        const doc = await L.PDFDocument.load(out);
+        const all = doc.context.enumerateIndirectObjects().map(([, o]) => o).filter((o) => o instanceof L.PDFRawStream)
+          .map((o) => { try { return Array.from(L.decodePDFRawStream(o).decode(), (b) => String.fromCharCode(b)).join(''); } catch (e) { return ''; } }).join('\n');
+        expect(/496E766F696365/i.test(all)).toBe(false); // no hex of "Invoice" in any stream of the file
+        expect(/52656365697074/i.test(all)).toBe(true);  // "Receipt" is there
+      });
+    });
     it('paints the old word out with the paper colour round it, so no dark glyph pixels are left in its box', async () => {
       PT.reset();
       await withEngine(async () => {

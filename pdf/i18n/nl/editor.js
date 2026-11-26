@@ -217,4 +217,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'pdf.ed.an_signature': 'handtekening',
   'pdf.ed.an_stamp': 'stempel',
   'pdf.ed.an_annotation': 'aantekening',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'De oude tekst kan niet van deze pagina worden verwijderd; hij is verborgen onder een wit vlak.',
 });

@@ -219,4 +219,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'pdf.ed.an_signature': 'подпись',
   'pdf.ed.an_stamp': 'штамп',
   'pdf.ed.an_annotation': 'примечание',
+
+  // editor/edit-text.js, editor/para-xform.js: old text that could not be taken off the page
+  'pdf.ed.cover_note': 'Старый текст нельзя убрать с этой страницы; он скрыт под накладкой.',
 });

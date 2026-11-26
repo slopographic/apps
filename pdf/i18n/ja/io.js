@@ -103,4 +103,16 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   // io/session.js
   'pdf.io.restore': '復元',
   'pdf.io.close_all': 'すべて閉じる',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': '元のテキストがまだファイルに残っています',
+  'pdf.io.cover_body': '編集した {n} 行の元のテキストが、まだファイル内に隠れて残っています。誰でもコピーできます。',
+  'pdf.io.cover_images_note': '元のテキストを完全に消すには、それらのページを画像にしてください。それらのページのテキストは選択できなくなります。ほかのページはそのままです。',
+  'pdf.io.cover_keep': 'そのまま保存',
+  'pdf.io.cover_images': 'それらのページを画像にする',
+  'pdf.io.cover_cancelled': 'キャンセルしました。何も保存されていません。',
+  'pdf.io.cover_making': 'ページを画像に変換しています…',
+  'pdf.io.cover_made': '{n} ページが画像になりました。元のテキストは完全に消えました。',
+  'pdf.io.cover_undo': 'ページを画像にする',
+  'pdf.io.cover_file_name': '画像ページ.pdf',
 });

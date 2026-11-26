@@ -61,6 +61,16 @@
       expect(/[؀-ۿ]{4}/.test(squash)).toBe(true);    // the Arabic word, shaped and embedded
       expect(/[ऀ-ॿ]{3}/.test(squash)).toBe(true);    // the Hindi word
     }, { timeout: 60000 });
+    it('a text left with only digits, spaces and punctuation (its letters deleted) still saves', async () => {
+      const p = PT.E.state.pages[0];
+      for (const [i, t] of ['45', '  ', '(1.5 %)'].entries()) {
+        const a = PT.win.SlopPdfFind.textAnnot(p, 30, 120 - i * 30, 16, t, { font: 'Helvetica' });
+        PT.E.commit('Add text', (st) => { st.pages[0].annots.push(JSON.parse(JSON.stringify(a))); });
+      }
+      const out = await PT.read(await PT.E.build());   // threw "Cannot read properties of null (reading 'indexOf')"
+      const got = (await (await out.doc.getPage(1)).getTextContent()).items.map((i) => i.str).join(' ');
+      for (const w of ['45', '(1.5', '%)']) expect(got.includes(w)).toBe(true);
+    }, { timeout: 60000 });
     it('Japanese (a CFF font), Arabic and Hindi: the font files load in a reader, marks sit where the shaper put them, and the text has no control codes', async () => {
       const MIX = 'こんにちは世界 مرحبا بالعالم नमस्ते';
       expect(await PT.E.ensureScripts(MIX, 'Helvetica', false)).toBe(true);

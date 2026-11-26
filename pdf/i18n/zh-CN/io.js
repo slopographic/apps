@@ -78,4 +78,16 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'pdf.io.sample_busy_plain': '正在制作示例…',
   'pdf.io.restore': '恢复',
   'pdf.io.close_all': '全部关闭',
+
+  // ui/cover-save.js: a save with old text still under covers
+  'pdf.io.cover_title': '文件中仍有旧文本',
+  'pdf.io.cover_body': '{n} 处已编辑的行，其旧文本仍隐藏在文件中，任何人都可以复制。',
+  'pdf.io.cover_images_note': '将这些页面转为图片，即可永久去除旧文本。这些页面上的文本将无法再被选中；其他页面保持不变。',
+  'pdf.io.cover_keep': '仍然保存',
+  'pdf.io.cover_images': '将这些页面转为图片',
+  'pdf.io.cover_cancelled': '已取消，未保存任何内容。',
+  'pdf.io.cover_making': '正在将页面转为图片…',
+  'pdf.io.cover_made': '{n} 页已转为图片：旧文本已永久删除。',
+  'pdf.io.cover_undo': '将页面转为图片',
+  'pdf.io.cover_file_name': '图片页面.pdf',
 });
