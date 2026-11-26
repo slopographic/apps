@@ -160,7 +160,7 @@
   A.extractText = function () {
     return S.guarded(t('pdf.act.busy_text'), async function () {
       var bytes = await E.build({ stamps: true });
-      var txt = await E.extractText(bytes);
+      var txt = await E.extractText(bytes, E.state.pages); // without the old text under covers
       var ta = h('textarea', { class: 'sui-input sp-textout', readonly: true, rows: 16, spellcheck: 'false', 'aria-label': t('pdf.act.text_title') });
       ta.value = txt;
       var words = (txt.match(/\S+/g) || []).length;
