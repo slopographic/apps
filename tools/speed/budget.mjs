@@ -63,8 +63,8 @@ export function quantile(values, q) {
   return v.length ? v[Math.min(v.length - 1, Math.ceil(q * v.length) - 1)] : null;
 }
 
-/** The budgets with highs set from runs: { page: { preset: [numbers] } }, every single run of several CI runs (main pass and
- * recheck). A timing number past its limit (and short of the goal) in at least NOISE.share of at least NOISE.runs runs gets
+/** The budgets with highs set from runs: { page: { preset: [numbers] } }, every single run of several CI runs' main pass.
+ * A timing number past its limit (and short of the goal) in at least NOISE.share of at least NOISE.runs runs gets
  * high[metric], its NOISE.pct quantile (never below an earlier high: a run that saw one value only is not enough to drop
  * it); others are left as they are. */
 export function noiseFloor(budgets, runs) {
@@ -129,6 +129,11 @@ export const TIMING = ['fcp', 'lcp', 'si', 'tbt', 'cls'];
  * such a page tends to stay on one value (5 of 5 at 6.2 s on one run, 5 of 5 at 4.8 s on the next, same code), so its
  * runs would not be 5 chances but one. */
 export const RECHECK = { runs: 5, over: 4, max: 12 };
+/** The confirm step: what is still over after every slice's recheck is measured once more, the same way, by a later job on
+ * another machine (.github/workflows/speed.yml, confirm), at most max page presets. A page's slow value can last minutes on
+ * one machine, through new Chromes (2026-11-26: /drive/ mobile CLS 0.84 in all 8 runs of one slice, 0 in the 15 runs of
+ * five other CI runs), so the recheck in the same job is not always a second chance. */
+export const CONFIRM = { max: 24 };
 
 /** The page presets to measure again: those with a timing number past its limit, in page order, at most max. */
 export function recheckItems(problems, max = RECHECK.max) {
@@ -144,19 +149,27 @@ export function recheckItems(problems, max = RECHECK.max) {
 
 /** The problems after the recheck. again: { page: { preset: [numbers] } }, the runs measured alone. A timing problem past
  * its limit (and short of the goal) in fewer than over of them is load-sensitive, reported and not failed; one past it in
- * over or more fails. Either way it carries again (the alone median) and past ('4/5': the alone runs past the limit).
+ * over or more fails. Either way it carries again (the alone median), past ('4/5': the alone runs past the limit) and where
+ * ('alone', or 'later' for the confirm step's runs).
  * Problems not measured again (bytes, requests, past max, a recheck with no numbers) stay as they are. */
-export function settle(problems, again = {}, over = RECHECK.over) {
+export function settle(problems, again = {}, over = RECHECK.over, where = 'alone') {
   const out = [], sensitive = [];
   for (const p of problems) {
     const runs = (again[p.page]?.[p.preset] || []).map((r) => r?.[p.metric]).filter((v) => v != null);
     if (p.kind !== 'worse' || !TIMING.includes(p.metric) || !runs.length) { out.push(p); continue; }
     const n = runs.filter((v) => v > p.limit && !meetsGoal(p.preset, p.metric, v)).length;
     const med = median(runs);
-    const q = { ...p, again: p.metric === 'cls' ? Math.round(med * 1000) / 1000 : Math.round(med), past: `${n}/${runs.length}` };
+    const q = { ...p, again: p.metric === 'cls' ? Math.round(med * 1000) / 1000 : Math.round(med), past: `${n}/${runs.length}`, where };
     (n >= Math.min(over, runs.length) ? out : sensitive).push(q);
   }
   return { problems: out, sensitive };
+}
+
+/** The problems after both second chances: data.recheck (each slice, alone) and data.confirm (a later job, CONFIRM). */
+export function judge(problems, data = {}) {
+  const first = settle(problems, data.recheck?.runs);
+  const second = settle(first.problems, data.confirm?.runs, RECHECK.over, 'later');
+  return { problems: second.problems, sensitive: [...first.sensitive, ...second.sensitive] };
 }
 
 /** The lower of a budget and a measured number for one metric (higher for score), never raising the budget. */

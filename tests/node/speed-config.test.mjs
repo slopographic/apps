@@ -52,6 +52,19 @@ test('a manual run can narrow the pages and slow some on purpose, read from the 
   assert.doesNotMatch(wf, /run:[^\n]*\$\{\{ inputs\.(pages|slow) \}\}|--recheck=0/, 'inputs reach the shell as variables; nothing turns the recheck off');
 });
 
+test('the slices only report; the confirm job measures what is left again and decides; the summary reads both', () => {
+  assert.match(wf, /--runs=3 --jobs=2 \$MODE --report /);
+  const confirm = wf.split('\n  confirm:\n')[1].split('\n  summary:\n')[0];
+  assert.match(confirm, /needs: measure\n\s*if: always\(\)/);
+  assert.match(confirm, /mcr\.microsoft\.com\/playwright:v[\d.]+-noble/);
+  assert.match(confirm, /node tools\/speed\/run\.mjs --confirm --from=speed-results \$\{SLOW:\+"--slow=\$SLOW"\} --out=speed-confirm\/confirm\.json/);
+  assert.match(confirm, /inputs\.record \}\}" = "true" \] \|\| \[ ! -f tools\/speed\/budgets\.json \]; then echo "recording: nothing to confirm"; exit 0/);
+  assert.doesNotMatch(confirm, /--report|\|\| true/, 'the confirm job fails the run');
+  const summary = wf.split('\n  summary:\n')[1];
+  assert.match(summary, /needs: \[measure, confirm\]/);
+  assert.match(summary, /pattern: speed-\*\n/);
+});
+
 test('Lighthouse and chrome-launcher are pinned exactly in tools/speed/deps.mjs, installed only by the speed workflow', async () => {
   const { DEPS, installArgs } = await import(pathToFileURL(path.join(ROOT, 'tools/speed/deps.mjs')).href);
   for (const name of ['lighthouse', 'chrome-launcher']) {

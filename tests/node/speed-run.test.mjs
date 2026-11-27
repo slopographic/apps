@@ -26,6 +26,8 @@ test('options: defaults are 3 runs, 1 job, both presets, check (not update)', ()
   assert.equal(parseArgs(['--record', '--from=x/']).record, true);
   assert.equal(o.recheck, RECHECK.runs, 'over on timing: measured again alone by default');
   assert.equal(parseArgs(['--noise', '--from=a/,b/']).noise, true);
+  assert.deepEqual([parseArgs(['--confirm', '--from=a/']).confirm, parseArgs(['--report']).report, o.confirm, o.report], [true, true, false, false]);
+  for (const bad of [['--confirm'], ['--confirm', '--from=a/', '--record']]) assert.throws(() => parseArgs(bad), /--confirm/);
   for (const bad of [['--noise'], ['--noise', '--from=a/', '--update']]) assert.throws(() => parseArgs(bad), /--noise/);
   assert.deepEqual([parseArgs(['--recheck=0']).recheck, parseArgs(['--slow=/,pdf/']).slow, o.slow], [0, ['', 'pdf/'], []]);
   for (const bad of [['--recheck=-1'], ['--record', '--update'], ['--runs=0'], ['--presets=tablet'], ['--reset=pdf/'], ['--nope'], ['--shard=3/2']]) assert.throws(() => parseArgs(bad), undefined, bad.join(' '));
@@ -46,12 +48,14 @@ test('results files merge, from files and from directories (as CI\'s artifacts u
   writeFileSync(path.join(dir, 'sub/slice-2.json'), JSON.stringify({ results: { 'a/': { mobile: { lcp: 2 } }, 'b/': { desktop: { lcp: 3 } } } }));
   writeFileSync(path.join(dir, 'other.json'), JSON.stringify({ nothing: true }));
   writeFileSync(path.join(dir, 'slice-3.json'), JSON.stringify({ results: {}, recheck: { results: { 'a/': { mobile: { lcp: 5 } } }, runs: { 'a/': { mobile: [{ lcp: 5 }] } } } }));
+  writeFileSync(path.join(dir, 'confirm.json'), JSON.stringify({ results: {}, confirm: { results: {}, runs: { 'b/': { desktop: [{ lcp: 4 }] } } } }));
   const r = readResults([dir]);
   assert.deepEqual(r.results, { 'a/': { desktop: { lcp: 1 }, mobile: { lcp: 2 } }, 'b/': { desktop: { lcp: 3 } } });
   assert.deepEqual(r.runs['a/'].desktop, [{ lcp: 1 }]);
   assert.deepEqual(r.recheck, { results: { 'a/': { mobile: { lcp: 5 } } }, runs: { 'a/': { mobile: [{ lcp: 5 }] } } });
-  // several CI runs of the same pages: their single runs add up (main pass and recheck), where readResults keeps the last
-  assert.deepEqual(allRuns([dir, path.join(dir, 'slice-1.json')])['a/'], { desktop: [{ lcp: 1 }, { lcp: 1 }], mobile: [{ lcp: 5 }] });
+  assert.deepEqual(r.confirm.runs, { 'b/': { desktop: [{ lcp: 4 }] } });
+  // several CI runs of the same pages: their main passes' single runs add up (where readResults keeps the last); rechecks left out
+  assert.deepEqual(allRuns([dir, path.join(dir, 'slice-1.json')])['a/'], { desktop: [{ lcp: 1 }, { lcp: 1 }] });
 });
 
 test('the server compresses text as Pages does, serves dir/ as its index, redirects dir and answers 404.html', async () => {
@@ -103,12 +107,13 @@ test('end to end on made-up results: load-sensitive passes, over again alone fai
   const budgets = parseBudgets(JSON.parse(readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../../tools/speed/budgets.json'), 'utf8')));
   const page = Object.keys(budgets).find((p) => budgets[p].mobile?.si > 1000 && budgets[p].mobile.lcp > 3500);
   const b = budgets[page].mobile;
-  const check = (main, again) => {
+  const check = (main, again, later, flags = []) => {
     const dir = mkdtempSync(path.join(os.tmpdir(), 'speed-e2e-'));
     const runs = [main, main, main];
     writeFileSync(path.join(dir, 'slice-1.json'), JSON.stringify({ results: { [page]: { mobile: main } }, runs: { [page]: { mobile: runs } }, ...(again && { recheck: { results: { [page]: { mobile: again[0] } }, runs: { [page]: { mobile: again } } } }) }));
+    if (later) writeFileSync(path.join(dir, 'confirm.json'), JSON.stringify({ results: {}, confirm: { results: {}, runs: { [page]: { mobile: later } } } }));
     const out = path.join(dir, 'summary.md');
-    const r = spawnSync(process.execPath, ['tools/speed/run.mjs', `--from=${dir}`, `--summary=${out}`], { cwd: path.join(path.dirname(new URL(import.meta.url).pathname), '../..'), encoding: 'utf8' });
+    const r = spawnSync(process.execPath, ['tools/speed/run.mjs', `--from=${dir}`, `--summary=${out}`, ...flags], { cwd: path.join(path.dirname(new URL(import.meta.url).pathname), '../..'), encoding: 'utf8' });
     return { code: r.status, text: readFileSync(out, 'utf8'), log: r.stdout + r.stderr };
   };
   const over = { ...b, si: b.si * 3 };
@@ -119,6 +124,9 @@ test('end to end on made-up results: load-sensitive passes, over again alone fai
   assert.equal(slow.code, 1, slow.log);
   assert.match(slow.text, /\*\*1 problem\*\*[\s\S]*si .*measured alone .* \(4\/5 runs past it\)/);
   assert.equal(check(over).code, 1, 'over on timing and not measured again: fails');
+  assert.equal(check(over, [over, over, b, over, over], [b, b, b, b, b]).code, 0, 'slow all through its slice, back later on another machine: passes');
+  assert.equal(check(over, [over, over, b, over, over], [over, over, over, over, b]).code, 1, 'slow later too: fails');
+  assert.equal(check(over, null, null, ['--report']).code, 0, '--report (the slices) never fails: the confirm job decides');
   assert.equal(check({ ...b, bytes: b.bytes * 2 }, [b, b, b, b, b]).code, 1, 'bytes are exact: a recheck never excuses them');
 });
 

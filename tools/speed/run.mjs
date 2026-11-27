@@ -16,6 +16,9 @@
 //   --recheck=5         a page preset over its budget on timing is measured again alone this many times after the others,
 //                       each in a new Chrome, and fails only if 4 of them are over too; else it is listed as load-sensitive (0: no recheck;
 //                       tools/speed/budget.mjs, RECHECK, says why)
+//   --confirm --from=dir/  CI's confirm job: measure what is still over on timing after the slices' rechecks once more, the
+//                       same way, later and on another machine; --out writes those runs (tools/speed/budget.mjs, CONFIRM)
+//   --report            exit 0 whatever is found (CI's slices: the confirm job decides)
 //   --noise --from=run1/,run2/,...  no checking: set the highs of numbers that take two values (tools/speed/budget.mjs,
 //                       NOISE) from every single run in several CI runs' unzipped speed-results artifacts
 //   --slow=a/,b/        test only: serve these pages with a script that keeps the main thread busy for 1 s before anything
@@ -28,7 +31,7 @@ import { ROOT, discoverPages } from './pages.mjs';
 import { PRESETS } from './measure.mjs';
 import { openWorker } from './worker.mjs';
 import { serve } from './serve.mjs';
-import { medianRun, compare, ratchet, parseBudgets, formatBudgets, spread, recheckItems, settle, noiseFloor, TOLERANCE, RECHECK } from './budget.mjs';
+import { medianRun, compare, ratchet, parseBudgets, formatBudgets, spread, recheckItems, judge, noiseFloor, TOLERANCE, RECHECK, CONFIRM } from './budget.mjs';
 import { summary, problemLine, spreadTable } from './summary.mjs';
 import { parseShard, shardPages, pool } from '../../tests/shard.mjs';
 
@@ -36,11 +39,11 @@ export const BUDGETS = path.join(ROOT, 'tools/speed/budgets.json');
 
 /** The command line as options. */
 export function parseArgs(argv) {
-  const o = { runs: 3, jobs: 1, recheck: RECHECK.runs, presets: PRESETS, update: false, record: false, noise: false, reset: [], slow: [], pages: null, shard: null, out: null, from: null, summary: process.env.GITHUB_STEP_SUMMARY || null };
+  const o = { runs: 3, jobs: 1, recheck: RECHECK.runs, presets: PRESETS, update: false, record: false, noise: false, confirm: false, report: false, reset: [], slow: [], pages: null, shard: null, out: null, from: null, summary: process.env.GITHUB_STEP_SUMMARY || null };
   const list = (v) => v.split(',').map((s) => s.trim()).map((s) => (s === '/' ? '' : s.replace(/^\//, '')));
   for (const a of argv) {
     const [k, v = ''] = a.replace(/^--/, '').split(/=(.*)/s);
-    if (k === 'update' || k === 'record' || k === 'noise') o[k] = true;
+    if (['update', 'record', 'noise', 'confirm', 'report'].includes(k)) o[k] = true;
     else if (k === 'runs' || k === 'jobs') { o[k] = Number(v); if (!(o[k] >= 1)) throw new Error(`--${k} needs a number >= 1`); }
     else if (k === 'recheck') { o.recheck = Number(v); if (!(o.recheck >= 0)) throw new Error('--recheck needs a number >= 0'); }
     else if (k === 'presets') { o.presets = v.split(','); if (o.presets.some((p) => !PRESETS.includes(p))) throw new Error(`--presets: ${PRESETS.join(', ')}`); }
@@ -52,6 +55,7 @@ export function parseArgs(argv) {
   }
   if (o.reset.length && !o.update) throw new Error('--reset goes with --update');
   if (o.noise && (!o.from || o.update || o.record)) throw new Error('--noise reads CI results: --noise --from=a/,b/ alone');
+  if (o.confirm && (!o.from || o.update || o.record)) throw new Error('--confirm re-measures CI results: --confirm --from=dir/');
   if (o.record && o.update) throw new Error('--record checks nothing and writes no budgets; merge its results with --update --from');
   return o;
 }
@@ -64,29 +68,31 @@ export function pickPages(all, { pages = null, shard = null } = {}) {
   return out;
 }
 
-/** Results files merged: { results: { page: { preset } }, runs: { page: { preset: [...] } }, recheck: { results, runs } }
- * (recheck: the page presets measured again alone). Paths may be directories. */
+/** Results files merged: { results: { page: { preset } }, runs: { page: { preset: [...] } }, recheck: { results, runs },
+ * confirm: { results, runs } } (recheck: measured again alone in a slice; confirm: by the later job). Paths may be
+ * directories. */
 export function readResults(paths) {
   const files = paths.flatMap((p) => (statSync(p).isDirectory() ? readdirSync(p, { recursive: true }).filter((f) => f.endsWith('.json')).map((f) => path.join(p, f)) : [p]));
-  const merged = { results: {}, runs: {}, recheck: { results: {}, runs: {} } };
+  const merged = { results: {}, runs: {}, recheck: { results: {}, runs: {} }, confirm: { results: {}, runs: {} } };
   const add = (into, from) => { for (const key of ['results', 'runs']) for (const [page, presets] of Object.entries(from[key] || {})) Object.assign((into[key][page] ||= {}), presets); };
   for (const f of files) {
     const j = JSON.parse(readFileSync(f, 'utf8'));
     if (!j.results) continue;
     add(merged, j);
-    if (j.recheck) add(merged.recheck, j.recheck);
+    for (const key of ['recheck', 'confirm']) if (j[key]) add(merged[key], j[key]);
   }
   return merged;
 }
 
 /** Measures items ([{ page, preset }]) runs times each, jobs at once; label names the pass in the log. With o.fresh every run
  * gets a new Chrome: a page whose number jumps between two values tends to stay on one of them in the same Chrome. */
-/** Every single run in results files, kept apart per file (CI runs of the same page add up): { page: { preset: [numbers] } },
- * the main pass and the recheck. */
+/** Every single run of the main pass in results files, kept apart per path (CI runs of the same page add up): { page:
+ * { preset: [numbers] } }. Not the rechecks: those are a burst of runs from one machine at one time, and would count one
+ * spell of a slow value (which the confirm job is for) as many. */
 export function allRuns(paths) {
   const out = {};
-  for (const r of paths.map((p) => readResults([p]))) for (const src of [r.runs, r.recheck.runs]) {
-    for (const [page, presets] of Object.entries(src)) for (const [preset, list] of Object.entries(presets)) ((out[page] ||= {})[preset] ||= []).push(...list);
+  for (const r of paths.map((p) => readResults([p]))) {
+    for (const [page, presets] of Object.entries(r.runs)) for (const [preset, list] of Object.entries(presets)) ((out[page] ||= {})[preset] ||= []).push(...list);
   }
   return out;
 }
@@ -137,8 +143,16 @@ async function main(argv) {
     console.log(`budgets: ${n} numbers that take two values have a high, written to ${path.relative(process.cwd(), BUDGETS)}`);
     return 0;
   }
-  let data;
-  if (o.from) data = readResults(o.from);
+  let data, written = null;
+  if (o.confirm) {
+    const read = readResults(o.from);
+    const again = recheckItems(judge(compare(read.results, budgets), read).problems, CONFIRM.max);
+    console.log(`${again.length} page preset${again.length === 1 ? '' : 's'} still over on timing after the slices' rechecks: measured again, ${o.recheck} runs each`);
+    const confirm = again.length ? await measure(again, { ...o, runs: o.recheck, jobs: 1, fresh: true }, 'later ') : { results: {}, runs: {} };
+    // --out writes only this job's runs (the slices' results stay in their own files); the check below reads them all.
+    written = { results: {}, confirm };
+    data = { ...read, confirm };
+  } else if (o.from) data = readResults(o.from);
   else {
     data = await measure(pickPages(all, o).flatMap((page) => o.presets.map((preset) => ({ page, preset }))), o);
     // The page presets over on timing, measured again with nothing else running (the main pass is done).
@@ -151,7 +165,7 @@ async function main(argv) {
   if (o.out) {
     mkdirSync(path.dirname(path.resolve(o.out)), { recursive: true });
     const { version } = JSON.parse(readFileSync(path.join(ROOT, 'node_modules/lighthouse/package.json'), 'utf8'));
-    writeFileSync(o.out, JSON.stringify({ meta: { lighthouse: version, runs: o.runs, date: new Date().toISOString() }, ...data }, null, 1));
+    writeFileSync(o.out, JSON.stringify({ meta: { lighthouse: version, runs: o.runs, date: new Date().toISOString() }, ...(written || data) }, null, 1));
   }
   if (o.update) {
     // A run over every page (here, or every slice of CI's) also drops the budgets of pages that are gone.
@@ -162,7 +176,7 @@ async function main(argv) {
     console.log(`budgets: ${Object.keys(next).length} pages written to ${path.relative(process.cwd(), BUDGETS)}`);
     return 0;
   }
-  const { problems, sensitive } = o.record ? { problems: [], sensitive: [] } : settle(compare(data.results, budgets), data.recheck?.runs);
+  const { problems, sensitive } = o.record ? { problems: [], sensitive: [] } : judge(compare(data.results, budgets), data);
   const title = o.shard ? `Page speed, slice ${o.shard.index} of ${o.shard.count}` : 'Page speed';
   const noise = Object.keys(data.runs || {}).length ? spreadTable(spread(data.runs), TOLERANCE) : '';
   if (o.summary) appendFileSync(o.summary, summary(data.results, problems, { title, recording: o.record, sensitive }) + '\n' + (o.from ? noise : ''));
@@ -171,7 +185,7 @@ async function main(argv) {
   for (const p of problems) console.error(problemLine(p));
   console.log(`speed: ${Object.keys(data.results).length} pages, ${problems.length} problem${problems.length === 1 ? '' : 's'}, ${sensitive.length} load-sensitive`);
   // A page with no budget yet (a new page) is reported, not failed: its numbers become its budget at the next --update.
-  return problems.some((p) => p.kind !== 'missing') ? 1 : 0;
+  return !o.report && problems.some((p) => p.kind !== 'missing') ? 1 : 0;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

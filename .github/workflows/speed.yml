@@ -4,7 +4,10 @@ name: Page speed
 # page, checked against the ratchet in tools/speed/budgets.json: a page fails when it gets slower or heavier than its budget
 # by more than the noise tolerance (tools/speed/budget.mjs). Each slice measures 2 pages at once; a page over on timing
 # (not bytes or requests) is then measured again alone, 5 runs, and fails only if 4 of them are over too, else it is
-# listed as load-sensitive (on 4 cores, two Chromes slow each other's paints; tools/speed/budget.mjs, RECHECK).
+# listed as load-sensitive (on 4 cores, two Chromes slow each other's paints; tools/speed/budget.mjs, RECHECK). The slices
+# only report; the confirm job, later and on another machine, measures what is still over on timing once more the same way
+# and fails the run if it is over there too, or on any bytes or requests problem (a slow value can last minutes on one
+# machine; budget.mjs, CONFIRM).
 # A number that takes two values from run to run is checked against its high (its slow value; budget.mjs, NOISE). The goal is LCP within 500 ms on
 # desktop (2.5 s on mobile) and CLS under 0.1 everywhere. Its own workflow, so the rules and tests stay fast: the pages are
 # split into 20 slices that run as parallel jobs in Playwright's image (Chromium preinstalled; the same version as
@@ -72,7 +75,7 @@ jobs:
         run: |
           MODE=""
           if [ "${{ inputs.record }}" = "true" ] || [ ! -f tools/speed/budgets.json ]; then MODE=--record; fi
-          node tools/speed/run.mjs --shard=${{ matrix.shard }}/20 --runs=3 --jobs=2 $MODE ${PAGES:+"--pages=$PAGES"} ${SLOW:+"--slow=$SLOW"} --out=speed-results/slice-${{ matrix.shard }}.json
+          node tools/speed/run.mjs --shard=${{ matrix.shard }}/20 --runs=3 --jobs=2 $MODE --report ${PAGES:+"--pages=$PAGES"} ${SLOW:+"--slow=$SLOW"} --out=speed-results/slice-${{ matrix.shard }}.json
       - uses: actions/upload-artifact@v5
         if: always()
         with:
@@ -80,8 +83,42 @@ jobs:
           path: speed-results/
           retention-days: 14
 
-  summary:
+  confirm:
+    name: Page speed, confirmed
     needs: measure
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+      - name: The page speed tools (pinned in tools/speed/deps.mjs, not in package.json)
+        run: npm install --no-save --no-audit --no-fund $(node tools/speed/deps.mjs)
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: speed-slice-*
+          path: speed-results
+          merge-multiple: true
+      - name: What is still over on timing, measured again; every problem left fails the run
+        env:
+          SLOW: ${{ inputs.slow }}
+        run: |
+          if [ "${{ inputs.record }}" = "true" ] || [ ! -f tools/speed/budgets.json ]; then echo "recording: nothing to confirm"; exit 0; fi
+          node tools/speed/run.mjs --confirm --from=speed-results ${SLOW:+"--slow=$SLOW"} --out=speed-confirm/confirm.json --summary=/dev/null
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: speed-confirm
+          path: speed-confirm/
+          retention-days: 14
+
+  summary:
+    needs: [measure, confirm]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -92,7 +129,7 @@ jobs:
           node-version: 22
       - uses: actions/download-artifact@v5
         with:
-          pattern: speed-slice-*
+          pattern: speed-*
           path: speed-results
           merge-multiple: true
       - name: Every page against its budget, slowest first

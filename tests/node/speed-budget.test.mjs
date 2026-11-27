@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { GOALS, TOLERANCE, ENFORCED, TIMING, RECHECK, median, medianRun, limitOf, meetsGoal, compare, ratchet, formatBudgets, parseBudgets, spread, recheckItems, settle, noiseFloor, quantile, NOISE } from '../../tools/speed/budget.mjs';
+import { GOALS, TOLERANCE, ENFORCED, TIMING, RECHECK, median, medianRun, limitOf, meetsGoal, compare, ratchet, formatBudgets, parseBudgets, spread, recheckItems, settle, judge, noiseFloor, quantile, NOISE, CONFIRM } from '../../tools/speed/budget.mjs';
 import { metricsOf, lighthouseFlags, playwrightChrome, METRICS, AUDITS } from '../../tools/speed/measure.mjs';
 
 const m = (o = {}) => ({ score: 80, fcp: 800, lcp: 1500, cls: 0.02, tbt: 100, si: 1200, bytes: 300000, requests: 40, ...o });
@@ -88,6 +88,20 @@ test('settle: a timing number past its limit in fewer than 4 of 5 runs alone is 
   assert.equal(settle(first.slice(0, 1), alone('lcp', [null, null])).problems.length, 1);
   assert.equal(settle(first.slice(0, 1), alone('lcp', [3000, 3100])).problems[0].past, '2/2', 'fewer runs than 4: all of them');
   assert.deepEqual(settle(first), { problems: first, sensitive: [] }, 'with no recheck nothing changes');
+});
+
+test('judge: what the slices\' rechecks leave over gets a second chance from the confirm job (later, another machine)', () => {
+  const budgets = { 'a/': { mobile: m() }, 'b/': { mobile: m() }, 'c/': { mobile: m() } };
+  const first = compare({ 'a/': { mobile: m({ si: 2400 }) }, 'b/': { mobile: m({ cls: 0.8 }) }, 'c/': { mobile: m({ lcp: 3000, requests: 90 }) } }, budgets);
+  const five = (o) => Array.from({ length: 5 }, () => m(o));
+  // a/ is back alone in its slice; b/ stayed slow in its slice (a slow value that lasted) but not later; c/ is slow every time
+  const data = { recheck: { runs: { 'a/': { mobile: five() }, 'b/': { mobile: five({ cls: 0.8 }) }, 'c/': { mobile: five({ lcp: 3000 }) } } },
+    confirm: { runs: { 'b/': { mobile: five() }, 'c/': { mobile: five({ lcp: 3100 }) } } } };
+  const { problems, sensitive } = judge(first, data);
+  assert.deepEqual(sensitive.map((p) => [p.page, p.metric, p.where]), [['a/', 'si', 'alone'], ['b/', 'cls', 'later']]);
+  assert.deepEqual(problems.map((p) => [p.page, p.metric, p.where, p.again]), [['c/', 'lcp', 'later', 3100], ['c/', 'requests', undefined, undefined]]);
+  assert.deepEqual(judge(first), { problems: first, sensitive: [] }, 'with neither, nothing changes');
+  assert.deepEqual(recheckItems(judge(first, { recheck: data.recheck }).problems, CONFIRM.max), [{ page: 'b/', preset: 'mobile' }, { page: 'c/', preset: 'mobile' }], 'what the confirm job measures');
 });
 
 test('a number that takes two values gets a high from many runs, and fails past the high instead of the budget', () => {
